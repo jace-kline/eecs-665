@@ -13,6 +13,7 @@ using TokenKind = holyc::Parser::token;
 namespace holyc{
 
 // encapsulates the task of building a string
+// used when in the STR state
 struct StrLitContext {
    int startCol;
    std::string str;

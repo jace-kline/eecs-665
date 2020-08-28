@@ -27,13 +27,38 @@ using TokenKind = holyc::Parser::token;
 
 %x STR
 %x CHAR
+%x ESC_STR
+%x ESC_CHAR
 
 DIGIT [0-9]
+LETTER [a-zA-Z]
+WS [ \t]
+END $
+VALID_ESC_CHAR "n"|"t"|[\']|"\"|[\"]|"\"
+
+EMPTY_ESC_SEQ ("\"){WS}*{END}
+VALID_ESC_SEQ ("\"){WS}*{VALID_ESC_CHAR}
+BAD_ESC_CHAR --match anything not matched by VALID_ESC_CHAR
+
+UNTERM_STR (")
+
+EMPTY_CHAR_LIT {WS}*{END}
+EMPTY_CHAR_LIT_ESC ("\"){WS}*{END}
+BAD_CHAR_LIT_ESC ("\"){WS}*{BAD_ESC_CHAR}
+
+
+ID ({LETTER}|"_")({LETTER}|"_"|{DIGIT})*
+COMMENT [#](.)*$
+INT {DIGIT}+
+
+
 
 %%
 %{          /** Code executed at the beginning of yylex **/
             yylval = lval;
 %}
+
+
 
 <INITIAL>"+"		{
 		// Keep track of the "kind" of token we matched. In this case,
