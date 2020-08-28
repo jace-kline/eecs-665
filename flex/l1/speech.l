@@ -11,12 +11,14 @@ using namespace std;
 #include "token.hpp"
 #include "grammar.hh"
 %}
+
+DOG [Dd]og
 %%
 		/*
 		Man man Woman woman
 		*/
 
-[Dd]og { 
+{DOG} { 
 	Token * res = new Token(yytext, lineNum, colNum);
 	colNum += strlen(yytext);
 	
