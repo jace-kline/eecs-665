@@ -5,6 +5,8 @@
 /* Get our custom yyFlexScanner subclass */
 #include "scanner.hpp"
 #include "tokens.hpp"
+// include our tracker file
+#include "tracker.hpp"
 #undef  YY_DECL
 #define YY_DECL int holyc::Scanner::yylex( holyc::Parser::semantic_type * const lval )
 
@@ -17,6 +19,12 @@
 /* typedef to make the reference to token kinds shorter */
 using TokenKind = holyc::Parser::token;
 
+// declare a StrTracker object from our tracker file as a global variable
+// invokes default constructor
+StrTracker str_tracker;
+
+
+
 %}
 
 %option debug
@@ -25,29 +33,29 @@ using TokenKind = holyc::Parser::token;
 %option noyywrap
 %option c++
 
+/* when we encounter a single ("), go to STR state */
 %x STR
+
+/* when we encounter a single ('), go to CHAR state */
 %x CHAR
 %x ESC_STR
 %x ESC_CHAR
 
+/* INITIAL state definitions */
 DIGIT [0-9]
 LETTER [a-zA-Z]
-WS [ \t]
-END $
-VALID_ESC_CHAR "n"|"t"|[\']|"\"|[\"]|"\"
-
-EMPTY_ESC_SEQ ("\"){WS}*{END}
-VALID_ESC_SEQ ("\"){WS}*{VALID_ESC_CHAR}
-BAD_ESC_CHAR --match anything not matched by VALID_ESC_CHAR
-
-UNTERM_STR (")
-
-EMPTY_CHAR_LIT {WS}*{END}
-EMPTY_CHAR_LIT_ESC ("\"){WS}*{END}
-BAD_CHAR_LIT_ESC ("\"){WS}*{BAD_ESC_CHAR}
-
-
+WHITESPACE [ \t]
+INT {DIGIT}+
 ID ({LETTER}|"_")({LETTER}|"_"|{DIGIT})*
+
+/* CHAR state patterns */
+VALID_ESC_CHAR [nt\'\\\"]
+
+/* STR state patterns */
+INVALID_STR_CHAR [\n\'\\\]
+
+
+
 COMMENT [#](.)*$
 INT {DIGIT}+
 
@@ -57,8 +65,6 @@ INT {DIGIT}+
 %{          /** Code executed at the beginning of yylex **/
             yylval = lval;
 %}
-
-
 
 <INITIAL>"+"		{
 		// Keep track of the "kind" of token we matched. In this case,
@@ -104,10 +110,98 @@ INT {DIGIT}+
 		return tokenKind;
 		}
 
-<INITIAL>{DIGIT}+	{
+<INITIAL>"@"
+
+<INITIAL>"^"
+
+<INITIAL>"["
+
+<INITIAL>"]"
+
+<INITIAL>"{"
+
+<INITIAL>"}"
+
+<INITIAL>"("
+
+<INITIAL>")"
+
+<INITIAL>";"
+
+<INITIAL>","
+
+<INITIAL>"--"
+
+<INITIAL>"++"
+
+<INITIAL>"*"
+
+<INITIAL>"/"
+
+<INITIAL>"!"
+
+<INITIAL>"=="
+
+<INITIAL>"!="
+
+<INITIAL>"<"
+
+<INITIAL>">"
+
+<INITIAL>"&"
+
+<INITIAL>"<="
+
+<INITIAL>">="
+
+<INITIAL>"="
+
+<INITIAL>"&&"
+
+<INITIAL>"||"
+
+<INITIAL>int
+
+<INITIAL>intptr
+
+<INITIAL>bool
+
+<INITIAL>Boolptr
+
+<INITIAL>char
+
+<INITIAL>charptr
+
+<INITIAL>void
+
+<INITIAL>if
+
+<INITIAL>else
+
+<INITIAL>while
+
+<INITIAL>return
+
+<INITIAL>true
+
+<INITIAL>false
+
+<INITIAL>FROMCONSOLE
+
+<INITIAL>TOCONSOLE
+
+<INITIAL>{INT}	{
 		//TODO: The following computation of the integer
 		// value does not check for overflow. It should do so.
-		int intVal = atoi(yytext);
+		int intVal;
+		try {
+			intVal = std::stoi(yytext);
+		}
+		catch(std::out_of_range& e) {
+			// error -> msg="Integer literal too large; using max value"
+			
+			intVal = MAX_INT;
+		}
 
 
 		//Note that the IntLitToken does not take a TokenKind argument
@@ -116,7 +210,8 @@ INT {DIGIT}+
 		yylval->tokenValue = new IntLitToken(lineNum, colNum, intVal);
 
 		//TODO: update the colNum count according to the number of
-		// characters consumed. 
+		// characters consumed.
+		colNum += yyleng;
 
 		//As before, alert the client program that an INTLITERAL 
 		// token was matched
@@ -127,8 +222,11 @@ INT {DIGIT}+
 		//Update the line number, reset the columnNumber
 		lineNum++;
 		colNum = 0;
-		}
+	}
 
+<INITIAL>{WHITESPACE} {
+		colNum++;
+	}
 
 <INITIAL>.   {
 		//TODO: Add the rest of the rules above this point so that legal characters
@@ -138,4 +236,49 @@ INT {DIGIT}+
 		error(lineNum,colNum,msg);
 		colNum += yyleng;
     }
+
+<INITIAL>\" {
+	// move to the string state
+	BEGIN(STR);
+
+	// reset the string and set the column number to start of string in case of error; increment colNum
+	str_tracker.reset(colNum++);
+}
+
+<STR>\" {
+	// move back to the initial state
+	BEGIN(INITIAL);
+
+	// create a new StringLitToken with str_tracker.str as the string
+
+	// increment colNum
+	colNum++;
+}
+
+<STR>{NEWLINE}	{
+	// move back to initial state
+	BEGIN(INITIAL);
+
+	// error -> msg="Unterminated string literal ignored"
+
+	// increment line, reset colNum
+	lineNum++;
+	colNum = 1;
+}
+
+<STR>.	{
+
+}
+
+<INITIAL>\' {
+	BEGIN(CHAR);
+}
+
+<CHAR>{BAD_CHAR}
+
+<CHAR>$	{
+
+}
+
+<CHAR>
 %%

@@ -12,32 +12,6 @@ using TokenKind = holyc::Parser::token;
 
 namespace holyc{
 
-// encapsulates the task of building a string
-// used when in the STR state
-struct StrLitContext {
-   int startCol;
-   std::string str;
-
-   StrLitContext() {
-      startCol = -1;
-      str = "";
-   }
-
-   // resets the startCol and str values
-   void reset(int col) {
-      startCol = col;
-      str = "";
-   }
-
-   void append(std::string s) {
-      str.append(s);
-   }
-
-   void append(const char * s) {
-      str.append(s);
-   }
-};
-
 class Scanner : public yyFlexLexer{
 public:
    

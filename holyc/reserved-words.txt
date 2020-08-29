@@ -1,0 +1,16 @@
+int 
+intptr 
+bool 
+Boolptr
+char 
+charptr
+void 
+if 
+else 
+while 
+return 
+true 
+false
+FROMCONSOLE 
+TOCONSOLE 
+NULLPTR
