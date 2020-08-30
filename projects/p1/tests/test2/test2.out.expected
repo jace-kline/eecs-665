@@ -1,0 +1,7 @@
+STRINGLIT:"This is a test of newline literal within a string \n ... did I get an error?" [1,1]
+ID:did [3,1]
+ID:I [3,5]
+ID:get [3,7]
+ID:an [3,11]
+ID:error [3,14]
+EOF [3,1]

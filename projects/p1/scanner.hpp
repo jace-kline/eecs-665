@@ -54,6 +54,23 @@ public:
 	return TokenKind::CHARLIT;
    }
 
+   int makeStrToken(int col, const std::string text) {
+      this->yylval->tokenValue = new StrToken(this->lineNum, col, text);
+      return TokenKind::STRLITERAL;
+   }
+
+   int makeIDToken() {
+      this->yylval->tokenValue = new IDToken(this->lineNum, this->colNum, std::string(yytext));
+      colNum += static_cast<size_t>(yyleng);
+      return TokenKind::ID;
+   }
+
+   int makeIntLitToken(int val) {
+      yylval->tokenValue = new IntLitToken(lineNum, colNum, val);
+      colNum += static_cast<size_t>(yyleng);
+      return TokenKind::INTLITERAL;
+   }
+
    void errIllegal(size_t l, size_t c, std::string match){
 	holyc::Report::fatal(l, c, "Illegal character "
 		+ match);
@@ -113,7 +130,6 @@ private:
    holyc::Parser::semantic_type *yylval = nullptr;
    size_t lineNum;
    size_t colNum;
-   StrLitContext strLitContext;
 };
 
 } /* end namespace */

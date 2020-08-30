@@ -1,0 +1,2 @@
+FATAL [1,1]: Bad escape sequence in char literal
+FATAL [1,52]: Illegal character \

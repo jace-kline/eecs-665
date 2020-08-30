@@ -5,7 +5,7 @@
 /* Get our custom yyFlexScanner subclass */
 #include "scanner.hpp"
 #include "tokens.hpp"
-// include our tracker file
+// include our tracker file that contains the StrTracker
 #include "tracker.hpp"
 #undef  YY_DECL
 #define YY_DECL int holyc::Scanner::yylex( holyc::Parser::semantic_type * const lval )
@@ -33,32 +33,22 @@ StrTracker str_tracker;
 %option noyywrap
 %option c++
 
-/* when we encounter a single ("), go to STR state */
+/* when we encounter a single (") from INITIAL, go to STR state -> initiates use of 'str_tracker' object */
 %x STR
 
-/* when we encounter a single ('), go to CHAR state */
-%x CHAR
-%x ESC_STR
-%x ESC_CHAR
-
-/* INITIAL state definitions */
+/* RegEx aliases */
 DIGIT [0-9]
 LETTER [a-zA-Z]
 WHITESPACE [ \t]
-INT {DIGIT}+
+BACKSLASH ["\"]
+END $|(\n)
+SINGLEQUOTE [\']
+DOUBLEQUOTE [\"]
 ID ({LETTER}|"_")({LETTER}|"_"|{DIGIT})*
-
-/* CHAR state patterns */
-VALID_ESC_CHAR [nt\'\\\"]
-
-/* STR state patterns */
-INVALID_STR_CHAR [\n\'\\\]
-
-
-
 COMMENT [#](.)*$
-INT {DIGIT}+
+INTLIT {DIGIT}+
 
+VALID_ESC_CHAR [nt\'\\\"]
 
 
 %%
@@ -66,159 +56,158 @@ INT {DIGIT}+
             yylval = lval;
 %}
 
-<INITIAL>"+"		{
-		// Keep track of the "kind" of token we matched. In this case,
-		// it's a CROSS (aka the plus symbol). The full list of token
-		// kinds is declared around line 197 of grammar.hh. The testing
-		// functionScanner::outputTokens also indicates what each token
-		// represents (declared in scanner.cpp line 9)
-		int tokenKind = TokenKind::CROSS;
+<INITIAL>"+" { return makeBareToken(TokenKind::CROSS); }
 
-		//Instatiate a token. There are 4 classes of tokens defined based on
-		// - a literal character (CharLitToken) 
-		// - a literal string (StringLitToken)
-		// - a literal integer (IntLitToken)
-		// - an identifier (IDToken)
-		// - a base Token (any other type)
-		// The token object is a handy place to keep information about the
-		// token (i.e. token metadata) such as the line and column on which
-		// the token character started (which can be used later in debug 
-		// messages, etc). 
-		Token * token = new Token(lineNum, colNum, tokenKind);
+<INITIAL>"-" { return makeBareToken(TokenKind::DASH); }
 
-		//Assign the token to a instance variable of the scanner.
-		// (When Flex processes a .l file in C++ mode, it creates 
-		// a class called Scanner, which is a subclass of yyFlexScanner)
-		// By assigning a value to this field, we put the token
-		// metadata in a place where scanner's client program can find it.
-		this->yylval->tokenValue = token;
+<INITIAL>"@" { return makeBareToken(TokenKind::AT); }
 
-		//Since we consumed 1 character, increase the column number by 1
-		colNum++;
+<INITIAL>"^" { return makeBareToken(TokenKind::CARAT); }
 
-		//Let the scanner's client program know that a CROSS token
-		// has been matched
-		return tokenKind;
-		}
+<INITIAL>"[" { return makeBareToken(TokenKind::LBRACE); }
 
-<INITIAL>"-" {
-		//Essentially the same thing as CROSS, but without the verbose
-		// comments so it doesn't look so scary.
-		int tokenKind = TokenKind::DASH;
-		this->yylval->tokenValue = new Token(lineNum, colNum, tokenKind);
-		colNum++;
-		return tokenKind;
-		}
+<INITIAL>"]" { return makeBareToken(TokenKind::RBRACE); }
 
-<INITIAL>"@"
+<INITIAL>"{" { return makeBareToken(TokenKind::LCURLY); }
 
-<INITIAL>"^"
+<INITIAL>"}" { return makeBareToken(TokenKind::RCURLY); }
 
-<INITIAL>"["
+<INITIAL>"(" { return makeBareToken(TokenKind::LPAREN); }
 
-<INITIAL>"]"
+<INITIAL>")" { return makeBareToken(TokenKind::RPAREN); }
 
-<INITIAL>"{"
+<INITIAL>";" { return makeBareToken(TokenKind::SEMICOLON); }
 
-<INITIAL>"}"
+<INITIAL>"," { return makeBareToken(TokenKind::COMMA); }
 
-<INITIAL>"("
+<INITIAL>"--" { return makeBareToken(TokenKind::DASHDASH); }
 
-<INITIAL>")"
+<INITIAL>"++" { return makeBareToken(TokenKind::CROSSCROSS); }
 
-<INITIAL>";"
+<INITIAL>"*" { return makeBareToken(TokenKind::STAR); }
 
-<INITIAL>","
+<INITIAL>"/" { return makeBareToken(TokenKind::SLASH); }
 
-<INITIAL>"--"
+<INITIAL>"!" { return makeBareToken(TokenKind::CARAT); }
 
-<INITIAL>"++"
+<INITIAL>"==" { return makeBareToken(TokenKind::EQUALS); }
 
-<INITIAL>"*"
+<INITIAL>"!=" { return makeBareToken(TokenKind::NOTEQUALS); }
 
-<INITIAL>"/"
+<INITIAL>"<" { return makeBareToken(TokenKind::LESS); }
 
-<INITIAL>"!"
+<INITIAL>">" { return makeBareToken(TokenKind::GREATER); }
 
-<INITIAL>"=="
+<INITIAL>"&" { return makeBareToken(TokenKind::AMP); }
 
-<INITIAL>"!="
+<INITIAL>"<=" { return makeBareToken(TokenKind::LESSEQ); }
 
-<INITIAL>"<"
+<INITIAL>">=" { return makeBareToken(TokenKind::GREATEREQ); }
 
-<INITIAL>">"
+<INITIAL>"=" { return makeBareToken(TokenKind::ASSIGN); }
 
-<INITIAL>"&"
+<INITIAL>"&&" { return makeBareToken(TokenKind::AND); }
 
-<INITIAL>"<="
+<INITIAL>"||" { return makeBareToken(TokenKind::OR); }
 
-<INITIAL>">="
+<INITIAL>"int" { return makeBareToken(TokenKind::INT); }
 
-<INITIAL>"="
+<INITIAL>"intptr" { return makeBareToken(TokenKind::INTPTR); }
 
-<INITIAL>"&&"
+<INITIAL>"bool" { return makeBareToken(TokenKind::BOOL); }
 
-<INITIAL>"||"
+<INITIAL>"boolptr" { return makeBareToken(TokenKind::BOOLPTR); }
 
-<INITIAL>int
+<INITIAL>"char" { return makeBareToken(TokenKind::CHAR); }
 
-<INITIAL>intptr
+<INITIAL>"charptr" { return makeBareToken(TokenKind::CHARPTR); }
 
-<INITIAL>bool
+<INITIAL>"void" { return makeBareToken(TokenKind::VOID); }
 
-<INITIAL>Boolptr
+<INITIAL>"if" { return makeBareToken(TokenKind::IF); }
 
-<INITIAL>char
+<INITIAL>"else" { return makeBareToken(TokenKind::ELSE); }
 
-<INITIAL>charptr
+<INITIAL>"while" { return makeBareToken(TokenKind::WHILE); }
 
-<INITIAL>void
+<INITIAL>"return" { return makeBareToken(TokenKind::RETURN); }
 
-<INITIAL>if
+<INITIAL>"true" { return makeBareToken(TokenKind::TRUE); }
 
-<INITIAL>else
+<INITIAL>"false" { return makeBareToken(TokenKind::FALSE); }
 
-<INITIAL>while
+<INITIAL>"FROMCONSOLE" { return makeBareToken(TokenKind::FROMCONSOLE); }
 
-<INITIAL>return
+<INITIAL>"TOCONSOLE" { return makeBareToken(TokenKind::TOCONSOLE); }
 
-<INITIAL>true
+<INITIAL>{ID} { return makeIDToken(); }
 
-<INITIAL>false
-
-<INITIAL>FROMCONSOLE
-
-<INITIAL>TOCONSOLE
-
-<INITIAL>{INT}	{
-		//TODO: The following computation of the integer
-		// value does not check for overflow. It should do so.
+<INITIAL>{INTLIT}	{
+		// Check for int overflow
 		int intVal;
 		try {
 			intVal = std::stoi(yytext);
 		}
 		catch(std::out_of_range& e) {
 			// error -> msg="Integer literal too large; using max value"
-			
+			errIntOverflow(lineNum, colNum);
 			intVal = MAX_INT;
 		}
 
+		return makeIntLitToken(intVal);
+}
 
-		//Note that the IntLitToken does not take a TokenKind argument
-		// since it's implicitly known that the token represents an
-		// INTLITERAL		
-		yylval->tokenValue = new IntLitToken(lineNum, colNum, intVal);
+<INITIAL>{SINGLEQUOTE}{BACKSLASH}{VALID_ESC_CHAR} {}
 
-		//TODO: update the colNum count according to the number of
-		// characters consumed.
-		colNum += yyleng;
+<INITIAL>{SINGLEQUOTE}{BACKSLASH}{WHITESPACE} {}
 
-		//As before, alert the client program that an INTLITERAL 
-		// token was matched
-		return TokenKind::INTLITERAL;
-		}
+<INITIAL>{SINGLEQUOTE}{BACKSLASH}(.) {}
 
-<INITIAL>\n		{
+<INITIAL>{SINGLEQUOTE}(.) {}
+
+<INITIAL>{DOUBLEQUOTE} {
+	// move to the string state (STR)
+	BEGIN(STR);
+
+	// set the string tracker
+	str_tracker.set(colNum+1);
+}
+
+<STR>{DOUBLEQUOTE} {
+	// move back to the initial state (INITIAL)
+	BEGIN(INITIAL);
+
+	// if no bad escape characters, create a new StrToken with str_tracker.str as the string
+	if(!str_tracker.bad_esc) { return makeStrToken(str_tracker.col, str_tracker.str); }
+
+	// Update column with the characters consumed in the STR state
+	colNum += str_tracker.str.length() + 2; // String's length + each double quote character
+}
+
+<STR>{END}	{
+	// move back to initial state
+	BEGIN(INITIAL);
+
+	// 2 errors possible depending on the bad_esc bit in the str_tracker
+	if(str_tracker.bad_esc) { errStrEscAndUnterm(lineNum, str_tracker.col_start); }
+	else { errStrUnterm(lineNum, str_tracker.col_start); }
+
+	// increment line, reset colNum
+	lineNum++;
+	colNum = 0;
+}
+
+<STR>{BACKSLASH}{VALID_ESC_CHAR} { str_tracker.append(yytext); }
+
+<STR>{BACKSLASH}(.) {
+	str_tracker.bad_esc = true; // will result in an error
+	str_tracker.append(yytext); //we still append to keep track of the string length
+	// will this affect the correct column length?
+}
+
+<STR>(.) {}
+
+<INITIAL>{END}		{
 		//Update the line number, reset the columnNumber
 		lineNum++;
 		colNum = 0;
@@ -228,57 +217,14 @@ INT {DIGIT}+
 		colNum++;
 	}
 
-<INITIAL>.   {
+<INITIAL>(.) {
 		//TODO: Add the rest of the rules above this point so that legal characters
 		// are properly accounted for. 
 		std::string msg = "Illegal character ";
 		msg += yytext;
 		error(lineNum,colNum,msg);
 		colNum += yyleng;
-    }
+	}
 
-<INITIAL>\" {
-	// move to the string state
-	BEGIN(STR);
 
-	// reset the string and set the column number to start of string in case of error; increment colNum
-	str_tracker.reset(colNum++);
-}
-
-<STR>\" {
-	// move back to the initial state
-	BEGIN(INITIAL);
-
-	// create a new StringLitToken with str_tracker.str as the string
-
-	// increment colNum
-	colNum++;
-}
-
-<STR>{NEWLINE}	{
-	// move back to initial state
-	BEGIN(INITIAL);
-
-	// error -> msg="Unterminated string literal ignored"
-
-	// increment line, reset colNum
-	lineNum++;
-	colNum = 1;
-}
-
-<STR>.	{
-
-}
-
-<INITIAL>\' {
-	BEGIN(CHAR);
-}
-
-<CHAR>{BAD_CHAR}
-
-<CHAR>$	{
-
-}
-
-<CHAR>
 %%

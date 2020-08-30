@@ -1,0 +1,4 @@
+STRINGLIT:"I just put a space after an escape character" [1,5]
+ID:n [1,53]
+STRINGLIT:"I manually added a \n outside of a string literal" [1,55]
+EOF [1,106]
