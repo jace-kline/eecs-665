@@ -1,0 +1,4 @@
+1c1
+< FATAL [2,46]: Unterminated string literal ignored
+---
+> FATAL [2,1]: Unterminated string literal ignored

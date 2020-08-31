@@ -1,0 +1,5 @@
+"Testing empty char literal error" '
+"Testing empty char escape error" '\
+"Testing inline comment" # This is a comment
+# This is another comment
+(true) {123}

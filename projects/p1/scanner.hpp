@@ -50,7 +50,7 @@ public:
 	}
 	this->yylval->tokenValue = new CharLitToken(
 		this->lineNum, this->colNum, val);
-	colNum += static_cast<size_t>(yyleng);
+	// colNum += static_cast<size_t>(yyleng);
 	return TokenKind::CHARLIT;
    }
 

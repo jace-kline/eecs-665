@@ -3,14 +3,15 @@
 
 #include <string>
 
-struct StrTracker {
+// used to track the state of a built char or string literal
+struct Tracker {
     bool bad_esc;
     int col_start;
     int col_count;
     std::string str;
     
     // default constructor
-    StrTracker() {
+    Tracker() {
         bad_esc = false;
         col_start = -1;
         str = "";
