@@ -40,12 +40,12 @@ StrTracker str_tracker;
 DIGIT [0-9]
 LETTER [a-zA-Z]
 WHITESPACE [ \t]
-BACKSLASH ["\"]
-END \n
-SINGLEQUOTE ["'"]
-DOUBLEQUOTE [\"]
+BACKSLASH \\
+END (\n)|($)
+SINGLEQUOTE [']
+DOUBLEQUOTE \"
 ID ({LETTER}|"_")({LETTER}|"_"|{DIGIT})*
-COMMENT [#](.)*$
+COMMENT [#]((.)*)({END})
 INTLIT {DIGIT}+
 
 VALID_STRLIT_ESC_CHAR [nt]|{SINGLEQUOTE}|{BACKSLASH}|{DOUBLEQUOTE}
@@ -158,24 +158,26 @@ VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 		return makeIntLitToken(intVal);
 }
 
-<INITIAL>{SINGLEQUOTE}{BACKSLASH}{VALID_CHARLIT_ESC_CHAR} { makeCharLitToken(std::string(yytext)); }
+<INITIAL>({SINGLEQUOTE})({BACKSLASH})({VALID_CHARLIT_ESC_CHAR}) { return makeCharLitToken(std::string(yytext)); }
 
-<INITIAL>{SINGLEQUOTE}{BACKSLASH}{END} { 
+<INITIAL>({SINGLEQUOTE})({BACKSLASH})({END}) { 
 	errChrEscEmpty(lineNum, colNum);
-	colNum += static_cast<size_t>(yyleng);
+	colNum = 1;
+	lineNum++;
 }
 
-<INITIAL>{SINGLEQUOTE}{END} { 
+<INITIAL>({SINGLEQUOTE})({END}) { 
 	errChrEmpty(lineNum, colNum);
-	colNum += static_cast<size_t>(yyleng);
+	colNum = 1;
+	lineNum++;
 }
 
-<INITIAL>{SINGLEQUOTE}{BACKSLASH}(.) {
+<INITIAL>({SINGLEQUOTE})({BACKSLASH})(.) {
 	errChrEsc(lineNum, colNum);
 	colNum += static_cast<size_t>(yyleng);
 }
 
-<INITIAL>{SINGLEQUOTE}(.) { makeCharLitToken(std::string(yytext)); }
+<INITIAL>({SINGLEQUOTE})(.) { return makeCharLitToken(std::string(yytext)); }
 
 <INITIAL>{DOUBLEQUOTE} {
 	// move to the string state (STR)
@@ -189,11 +191,12 @@ VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 	// move back to the initial state (INITIAL)
 	BEGIN(INITIAL);
 
-	// if no bad escape characters, create a new StrToken with str_tracker.str as the string
-	if(!str_tracker.bad_esc) { return makeStrToken(str_tracker.col_start, str_tracker.str); }
-
 	// Update column with the characters consumed in the STR state
 	colNum += str_tracker.str.length() + 2; // String's length + each double quote character
+
+	// if no bad escape characters, create a new StrToken with str_tracker.str as the string
+	if(!str_tracker.bad_esc) { return makeStrToken(str_tracker.col_start, str_tracker.str); }
+	else { errStrEsc(lineNum, str_tracker.col_start); }
 }
 
 <STR>{END}	{
@@ -206,12 +209,20 @@ VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 
 	// increment line, reset colNum
 	lineNum++;
-	colNum = 0;
+	colNum = 1;
 }
 
-<STR>{BACKSLASH}{VALID_STRLIT_ESC_CHAR} { str_tracker.append(yytext); }
+<INITIAL>({DOUBLEQUOTE})({WHITESPACE}*)({END}) {
+	errStrUnterm(lineNum, str_tracker.col_start);
 
-<STR>{BACKSLASH}(.) {
+	// increment line, reset colNum
+	lineNum++;
+	colNum = 1;
+}
+
+<STR>({BACKSLASH})({VALID_STRLIT_ESC_CHAR}) { str_tracker.append(yytext); }
+
+<STR>({BACKSLASH})(.) {
 	str_tracker.bad_esc = true; // will result in an error
 	str_tracker.append(yytext); //we still append to keep track of the string length
 	// will this affect the correct column length?
@@ -219,7 +230,7 @@ VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 
 <STR>(.) { str_tracker.append(yytext); }
 
-<INITIAL>{END}|{COMMENT} { lineNum++; colNum = 0; }
+<INITIAL>{END}|{COMMENT} { lineNum++; colNum = 1; }
 
 <INITIAL>{WHITESPACE}* { colNum += static_cast<size_t>(yyleng); }
 

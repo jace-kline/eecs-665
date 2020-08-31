@@ -1,0 +1,7 @@
+STRINGLIT:"Testing whether the unterminated error works" [1,1]
+INTLIT:123 [1,48]
+ID:Hello [2,1]
+ID:I [2,7]
+ID:am [2,9]
+ID:Jace [2,12]
+EOF [2,17]

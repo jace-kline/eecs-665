@@ -1,7 +1,2 @@
-FATAL [1,52]: Illegal character \
-FATAL [1,55]: Illegal character .
-FATAL [1,56]: Illegal character .
-FATAL [1,57]: Illegal character .
-FATAL [1,77]: Illegal character ?
-FATAL [1,78]: Empty character literal
-flex scanner jammed
+FATAL [2,1]: Unterminated string literal ignored
+FATAL [3,19]: Illegal character ?
