@@ -1,0 +1,5 @@
+FATAL [1,21]: Illegal character \
+FATAL [1,90]: Empty character literal
+FATAL [1,139]: Illegal character ?
+FATAL [1,163]: Illegal character \
+flex scanner jammed

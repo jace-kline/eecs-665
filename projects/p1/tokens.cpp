@@ -104,7 +104,9 @@ StrToken::StrToken(size_t lIn, size_t cIn, std::string sIn)
 
 std::string StrToken::toString(){
 	return tokenKindString(kind()) + ":"
+	+ "\""
 	+ this->myStr
+	+ "\""
 	+ " [" + std::to_string(line()) 
 	+ "," + std::to_string(col()) + "]";
 }

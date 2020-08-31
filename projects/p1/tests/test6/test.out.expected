@@ -1,0 +1,4 @@
+INTLIT:123 [1,13]
+STRINGLIT:"Let's put a space character in a char literal" [1,17]
+CHARLIT: 
+EOF [1,67]

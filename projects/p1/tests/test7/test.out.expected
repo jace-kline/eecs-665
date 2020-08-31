@@ -1,0 +1,3 @@
+STRINGLIT:"This is a test \' to escape a single quote in both a char literal and string literal" [1,5]
+CHARLIT:'
+EOF [3,20]

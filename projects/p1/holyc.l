@@ -41,14 +41,15 @@ DIGIT [0-9]
 LETTER [a-zA-Z]
 WHITESPACE [ \t]
 BACKSLASH ["\"]
-END $|(\n)
-SINGLEQUOTE [\']
+END \n
+SINGLEQUOTE ["'"]
 DOUBLEQUOTE [\"]
 ID ({LETTER}|"_")({LETTER}|"_"|{DIGIT})*
 COMMENT [#](.)*$
 INTLIT {DIGIT}+
 
-VALID_ESC_CHAR [nt\'\\\"]
+VALID_STRLIT_ESC_CHAR [nt]|{SINGLEQUOTE}|{BACKSLASH}|{DOUBLEQUOTE}
+VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 
 
 %%
@@ -151,26 +152,37 @@ VALID_ESC_CHAR [nt\'\\\"]
 		catch(std::out_of_range& e) {
 			// error -> msg="Integer literal too large; using max value"
 			errIntOverflow(lineNum, colNum);
-			intVal = MAX_INT;
+			intVal = INT_MAX;
 		}
 
 		return makeIntLitToken(intVal);
 }
 
-<INITIAL>{SINGLEQUOTE}{BACKSLASH}{VALID_ESC_CHAR} {}
+<INITIAL>{SINGLEQUOTE}{BACKSLASH}{VALID_CHARLIT_ESC_CHAR} { makeCharLitToken(std::string(yytext)); }
 
-<INITIAL>{SINGLEQUOTE}{BACKSLASH}{WHITESPACE} {}
+<INITIAL>{SINGLEQUOTE}{BACKSLASH}{END} { 
+	errChrEscEmpty(lineNum, colNum);
+	colNum += static_cast<size_t>(yyleng);
+}
 
-<INITIAL>{SINGLEQUOTE}{BACKSLASH}(.) {}
+<INITIAL>{SINGLEQUOTE}{END} { 
+	errChrEmpty(lineNum, colNum);
+	colNum += static_cast<size_t>(yyleng);
+}
 
-<INITIAL>{SINGLEQUOTE}(.) {}
+<INITIAL>{SINGLEQUOTE}{BACKSLASH}(.) {
+	errChrEsc(lineNum, colNum);
+	colNum += static_cast<size_t>(yyleng);
+}
+
+<INITIAL>{SINGLEQUOTE}(.) { makeCharLitToken(std::string(yytext)); }
 
 <INITIAL>{DOUBLEQUOTE} {
 	// move to the string state (STR)
 	BEGIN(STR);
 
-	// set the string tracker
-	str_tracker.set(colNum+1);
+	// initiate the string tracker
+	str_tracker.set(colNum);
 }
 
 <STR>{DOUBLEQUOTE} {
@@ -178,7 +190,7 @@ VALID_ESC_CHAR [nt\'\\\"]
 	BEGIN(INITIAL);
 
 	// if no bad escape characters, create a new StrToken with str_tracker.str as the string
-	if(!str_tracker.bad_esc) { return makeStrToken(str_tracker.col, str_tracker.str); }
+	if(!str_tracker.bad_esc) { return makeStrToken(str_tracker.col_start, str_tracker.str); }
 
 	// Update column with the characters consumed in the STR state
 	colNum += str_tracker.str.length() + 2; // String's length + each double quote character
@@ -197,7 +209,7 @@ VALID_ESC_CHAR [nt\'\\\"]
 	colNum = 0;
 }
 
-<STR>{BACKSLASH}{VALID_ESC_CHAR} { str_tracker.append(yytext); }
+<STR>{BACKSLASH}{VALID_STRLIT_ESC_CHAR} { str_tracker.append(yytext); }
 
 <STR>{BACKSLASH}(.) {
 	str_tracker.bad_esc = true; // will result in an error
@@ -205,25 +217,15 @@ VALID_ESC_CHAR [nt\'\\\"]
 	// will this affect the correct column length?
 }
 
-<STR>(.) {}
+<STR>(.) { str_tracker.append(yytext); }
 
-<INITIAL>{END}		{
-		//Update the line number, reset the columnNumber
-		lineNum++;
-		colNum = 0;
-	}
+<INITIAL>{END}|{COMMENT} { lineNum++; colNum = 0; }
 
-<INITIAL>{WHITESPACE} {
-		colNum++;
-	}
+<INITIAL>{WHITESPACE}* { colNum += static_cast<size_t>(yyleng); }
 
 <INITIAL>(.) {
-		//TODO: Add the rest of the rules above this point so that legal characters
-		// are properly accounted for. 
-		std::string msg = "Illegal character ";
-		msg += yytext;
-		error(lineNum,colNum,msg);
-		colNum += yyleng;
+		errIllegal(lineNum,colNum,std::string(yytext));
+		colNum += static_cast<size_t>(yyleng);
 	}
 
 
