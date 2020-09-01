@@ -1,0 +1,49 @@
+test1
+.out difference:
+3c3
+< EOF [2,1]
+---
+> EOF [2,0]
+
+
+test10
+
+
+test11
+
+
+test12
+
+
+test13
+
+
+test2
+.out difference:
+7c7
+< EOF [3,20]
+---
+> EOF [3,1]
+
+
+test3
+
+
+test4
+
+
+test5
+
+
+test6
+
+
+test7
+
+
+test8
+
+
+test9
+
+

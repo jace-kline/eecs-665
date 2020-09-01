@@ -5,7 +5,7 @@
 /* Get our custom yyFlexScanner subclass */
 #include "scanner.hpp"
 #include "tokens.hpp"
-// include our tracker file that contains the StrTracker
+// include our tracker file that contains the Tracker struct
 #include "tracker.hpp"
 #undef  YY_DECL
 #define YY_DECL int holyc::Scanner::yylex( holyc::Parser::semantic_type * const lval )
@@ -41,7 +41,9 @@ Tracker char_tracker;
 /* RegEx aliases */
 DIGIT [0-9]
 LETTER [a-zA-Z]
-WHITESPACE [ \t]
+SPACELIT [ ]
+TABLIT [	]
+WHITESPACE [ \t]|{SPACELIT}|{TABLIT}
 BACKSLASH \\
 END (\n)|($)
 SINGLEQUOTE [']
@@ -51,7 +53,7 @@ COMMENT [#]((.)*)({END})
 INTLIT {DIGIT}+
 
 VALID_STRLIT_ESC_CHAR [nt]|{SINGLEQUOTE}|{BACKSLASH}|{DOUBLEQUOTE}
-VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
+VALID_CHARLIT_ESC_CHAR [nt \t]|{BACKSLASH}|{SPACELIT}|{TABLIT}
 
 
 %%
@@ -175,7 +177,8 @@ VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 	BEGIN(INITIAL);
 	char_tracker.append(yytext);
 	colNum += char_tracker.str.length();
-	return makeCharLitToken(char_tracker.str); 
+	char c = yytext[0];
+	return makeCharLitToken((c == ' ' | c == '	') ? std::string("'") + yytext : char_tracker.str); 
 }
 
 <CHARLIT_ESC>{END} {
@@ -243,11 +246,11 @@ VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 	BEGIN(INITIAL);
 
 	// error column: at end of line where the error occurred
-	int err_col = str_tracker.col_start + str_tracker.str.length();
+	// int err_col = str_tracker.col_start + str_tracker.str.length();
 
 	// 2 errors possible depending on the bad_esc bit in the str_tracker
 	if(str_tracker.bad_esc) { errStrEscAndUnterm(lineNum, str_tracker.col_start); }
-	else { errStrUnterm(lineNum, err_col); }
+	else { errStrUnterm(lineNum, str_tracker.col_start); }
 
 	// increment line, reset colNum
 	lineNum++;
@@ -256,11 +259,11 @@ VALID_CHARLIT_ESC_CHAR [nt]|{BACKSLASH}
 
 <STR><<EOF>> {
 	// error column: at end of line where the error occurred
-	int err_col = str_tracker.col_start + str_tracker.str.length();
+	// int err_col = str_tracker.col_start + str_tracker.str.length();
 
 	// 2 errors possible depending on the bad_esc bit in the str_tracker
 	if(str_tracker.bad_esc) { errStrEscAndUnterm(lineNum, str_tracker.col_start); }
-	else { errStrUnterm(lineNum, err_col); }
+	else { errStrUnterm(lineNum, str_tracker.col_start); }
 
 	yyterminate();
 }

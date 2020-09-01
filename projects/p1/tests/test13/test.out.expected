@@ -1,0 +1,9 @@
+STRINGLIT:"Testing escaping a tab literal in char" [1,1]
+CHARLIT: 
+STRINGLIT:"Testing escaping a space literal in char" [3,1]
+CHARLIT: 
+STRINGLIT:"Testing a tab literal in char" [5,1]
+CHARLIT: 
+STRINGLIT:"Testing a space literal in char" [7,1]
+CHARLIT: 
+EOF [8,3]

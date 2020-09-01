@@ -1,0 +1,8 @@
+"Testing escaping a tab literal in char"
+'\  
+"Testing escaping a space literal in char"
+'\ 
+"Testing a tab literal in char"
+'   
+"Testing a space literal in char"
+' 
