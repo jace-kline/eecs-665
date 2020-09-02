@@ -179,6 +179,7 @@ test: all
 # All diffs are combined into the 'tests/diffs.txt' file for easy viewing
 test-jace: all
 	echo "Writing output to the diff-out.txt and diff-err.txt files for each test" ; \
+	echo "Writing test diff summary to tests/diffs.txt" ; \
 	rm tests/diffs.txt ; \
 	touch tests/diffs.txt ; \
 	for t in $$(ls tests | grep -v diffs.txt); do \

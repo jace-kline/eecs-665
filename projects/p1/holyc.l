@@ -93,7 +93,7 @@ VALID_CHARLIT_ESC_CHAR [nt \t]|{BACKSLASH}|{SPACELIT}|{TABLIT}
 
 <INITIAL>"/" { return makeBareToken(TokenKind::SLASH); }
 
-<INITIAL>"!" { return makeBareToken(TokenKind::CARAT); }
+<INITIAL>"!" { return makeBareToken(TokenKind::NOT); }
 
 <INITIAL>"==" { return makeBareToken(TokenKind::EQUALS); }
 
@@ -102,8 +102,6 @@ VALID_CHARLIT_ESC_CHAR [nt \t]|{BACKSLASH}|{SPACELIT}|{TABLIT}
 <INITIAL>"<" { return makeBareToken(TokenKind::LESS); }
 
 <INITIAL>">" { return makeBareToken(TokenKind::GREATER); }
-
-<INITIAL>"&" { return makeBareToken(TokenKind::AMP); }
 
 <INITIAL>"<=" { return makeBareToken(TokenKind::LESSEQ); }
 
@@ -144,6 +142,8 @@ VALID_CHARLIT_ESC_CHAR [nt \t]|{BACKSLASH}|{SPACELIT}|{TABLIT}
 <INITIAL>"FROMCONSOLE" { return makeBareToken(TokenKind::FROMCONSOLE); }
 
 <INITIAL>"TOCONSOLE" { return makeBareToken(TokenKind::TOCONSOLE); }
+
+<INITIAL>"NULLPTR" { return makeBareToken(TokenKind::NULLPTR); }
 
 <INITIAL>{ID} { return makeIDToken(); }
 

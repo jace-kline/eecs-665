@@ -10,7 +10,7 @@ static std::string tokenKindString(int tokKind){
 	switch(tokKind){
 		case TokenKind::END: return "EOF";
 		case TokenKind::AND: return "AND";
-		case TokenKind::AMP: return "AMP";
+		// case TokenKind::AMP: return "AMP";
 		case TokenKind::AT: return "AT";
 		case TokenKind::ASSIGN: return "ASSIGN";
 		case TokenKind::BOOL: return "BOOL";
@@ -24,6 +24,7 @@ static std::string tokenKindString(int tokKind){
 		case TokenKind::CROSSCROSS: return "CROSSCROSS";
 		case TokenKind::DASH: return "DASH";
 		case TokenKind::DASHDASH: return "DASHDASH";
+		case TokenKind::DOT: return "DOT";
 		case TokenKind::ELSE: return "ELSE";
 		case TokenKind::EQUALS: return "EQUALS";
 		case TokenKind::FALSE: return "FALSE";
@@ -42,6 +43,7 @@ static std::string tokenKindString(int tokKind){
 		case TokenKind::LPAREN: return "LPAREN";
 		case TokenKind::NOT: return "NOT";
 		case TokenKind::NOTEQUALS: return "NOTEQUALS";
+		case TokenKind::NULLPTR: return "NULLPTR";
 		case TokenKind::OR: return "OR";
 		case TokenKind::RBRACE: return "RBRACE";
 		case TokenKind::RCURLY: return "RCURLY";

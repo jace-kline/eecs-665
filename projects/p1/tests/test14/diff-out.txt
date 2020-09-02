@@ -1,0 +1,18 @@
+16c16
+< NULLPTR [16,1]
+---
+> OTHER [16,1]
+34,35c34,35
+< EQUALS [34,1]
+< NOTEQUALS [35,1]
+---
+> NOTEQUALS [34,1]
+> EQUALS [35,1]
+37c37
+< GREATER [37,1]
+---
+> LESS [37,1]
+39c39
+< GREATEREQ [40,1]
+---
+> LESSEQ [40,1]
