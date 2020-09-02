@@ -169,16 +169,23 @@ lexer.o: lexer.yy.cc
 # TODO: You will need to add to this rule to 
 # handle additional test cases
 # ---------------------------------------------
-# original test target
-test: all
-	./holycc test1.holyc -t test1.out 2> test1.err
-	diff test1.out test1.out.expected
-	diff test1.err test1.err.expected
+
+# All test files should be of the form test#.holyc
+TESTS := $(basename $(wildcard test*.holyc))
+
+test: $(TESTS)
+	@echo Tests completed!
+
+test% : all test%.holyc test%.out.expected test%.err.expected
+	@echo Running $@:
+	./holycc $@.holyc -t $@.out 2> $@.err
+	-diff $@.out $@.out.expected
+	-diff $@.err $@.err.expected
 
 # Used a 'tests' folder with subdirectories for each test and output
 # All diffs are combined into the 'tests/diffs.txt' file for easy viewing
 test-jace: all
-	echo "Writing output to the diff-out.txt and diff-err.txt files for each test" ; \
+	echo "Writing output to the diff-out.txt and diff-err.txt files for each test in tests directory" ; \
 	echo "Writing test diff summary to tests/diffs.txt" ; \
 	rm tests/diffs.txt ; \
 	touch tests/diffs.txt ; \
@@ -203,6 +210,9 @@ test-jace: all
 # TODO: You will need to add to this rule to clean
 # up after additional test cases. 
 # ---------------------------------------------
-cleantest:
-	rm -f test1.out test1.err
+cleantests:
+	-rm -f test*.out test*.err
+
+removetests:
+	-rm -f test*
 	
