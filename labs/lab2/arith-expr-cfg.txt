@@ -1,0 +1,10 @@
+E ::= E plus T
+    | T
+T ::= T minus F
+    | F
+F ::= F div G
+    | G
+G ::= G mult P
+    | P
+P ::= intlit
+    | lpar E rpar
