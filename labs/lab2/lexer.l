@@ -20,9 +20,18 @@ WS [ \t]
 
 %%
 
-{INT} { charNum += yyleng; return TokenTag::INTLIT; }
-[(] { charNum++; return TokenTag::LVAR; }
-[)] { charNum++; return TokenTag::RVAR; }
+%{
+/* Code executed on each yylex invocation */
+yylval = lval;
+%}
+
+{INT} { 
+    charNum += yyleng;
+    yylval->intval = std::stoi(std::string(yytext));
+    return TokenTag::INTLIT; 
+}
+[(] { charNum++; return TokenTag::LPAR; }
+[)] { charNum++; return TokenTag::RPAR; }
 [+] { charNum++; return TokenTag::PLUS; }
 [-] { charNum++; return TokenTag::MINUS; }
 [/] { charNum++; return TokenTag::DIV; }
@@ -30,5 +39,5 @@ WS [ \t]
 {WS}+ { charNum++; }
 \n { charNum = 1; lineNum++; }
 <<EOF>> { yyterminate(); }
-. { error(lineNum, charNum, "Invalid input character " + std::string(yytext) + "\n")}
+. { error(lineNum, charNum, "Invalid input character " + std::string(yytext) + "\n");}
 %%

@@ -37,6 +37,11 @@
 
 /* %define parser.assert */
 
+%union {
+    bool boolval;
+    int intval;
+}
+
 %token END 0
 %token LPAR
 %token RPAR
@@ -44,11 +49,36 @@
 %token MINUS
 %token DIV
 %token MULT
-%token INTLIT
+%token <intval> INTLIT
+
+%type <boolval> Expr
+%type <intval> E
+%type <intval> T
+%type <intval> F
+%type <intval> G
+%type <intval> P
 
 %%
 /* CF-Productions and actions */
-P: INTLIT
+Expr : E END    { 
+        std::cout << "Expression value: " << $1 << "\n";
+        $$ = true;
+    }
+E : E PLUS T    { $$ = $1 + $3; }
+  | T           { $$ = $1; }
+T : T MINUS F   { $$ = $1 - $3; }
+  | F           { $$ = $1; }
+F : F DIV G     { $$ = $1 / $3; }
+  | G           { $$ = $1; }
+G : G MULT P    { $$ = $1 * $3; }
+  | P           { $$ = $1; }
+P : INTLIT      { $$ = $1; }
+  | LPAR E RPAR { $$ = $2; }
 
 %%
 /* Program stub -> code placed at end of parser.cc file */
+
+/* We must implement the error method for the Parser class */
+void LAB2::Parser::error(const std::string& err_msg) {
+    std::cerr << "Parse error: " << err_msg << std::endl;
+}

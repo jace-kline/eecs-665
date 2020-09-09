@@ -1,67 +1,259 @@
-Terminals unused in grammar
-
-    LPAR
-    RPAR
-    PLUS
-    MINUS
-    DIV
-    MULT
-
-
 Grammar
 
-    0 $accept: P END
+    0 $accept: Expr END
 
-    1 P: INTLIT
+    1 Expr: E END
+
+    2 E: E PLUS T
+    3  | T
+
+    4 T: T MINUS F
+    5  | F
+
+    6 F: F DIV G
+    7  | G
+
+    8 G: G MULT P
+    9  | P
+
+   10 P: INTLIT
+   11  | LPAR E RPAR
 
 
 Terminals, with rules where they appear
 
-    END (0) 0
+    END (0) 0 1
     error (256)
-    LPAR (258)
-    RPAR (259)
-    PLUS (260)
-    MINUS (261)
-    DIV (262)
-    MULT (263)
-    INTLIT (264) 1
+    LPAR (258) 11
+    RPAR (259) 11
+    PLUS (260) 2
+    MINUS (261) 4
+    DIV (262) 6
+    MULT (263) 8
+    INTLIT <intval> (264) 10
 
 
 Nonterminals, with rules where they appear
 
     $accept (10)
         on left: 0
-    P (11)
+    Expr <boolval> (11)
         on left: 1
         on right: 0
+    E <intval> (12)
+        on left: 2 3
+        on right: 1 2 11
+    T <intval> (13)
+        on left: 4 5
+        on right: 2 3 4
+    F <intval> (14)
+        on left: 6 7
+        on right: 4 5 6
+    G <intval> (15)
+        on left: 8 9
+        on right: 6 7 8
+    P <intval> (16)
+        on left: 10 11
+        on right: 8 9
 
 
 State 0
 
-    0 $accept: . P END
+    0 $accept: . Expr END
 
-    INTLIT  shift, and go to state 1
+    LPAR    shift, and go to state 1
+    INTLIT  shift, and go to state 2
 
-    P  go to state 2
+    Expr  go to state 3
+    E     go to state 4
+    T     go to state 5
+    F     go to state 6
+    G     go to state 7
+    P     go to state 8
 
 
 State 1
 
-    1 P: INTLIT .
+   11 P: LPAR . E RPAR
 
-    $default  reduce using rule 1 (P)
+    LPAR    shift, and go to state 1
+    INTLIT  shift, and go to state 2
+
+    E  go to state 9
+    T  go to state 5
+    F  go to state 6
+    G  go to state 7
+    P  go to state 8
 
 
 State 2
 
-    0 $accept: P . END
+   10 P: INTLIT .
 
-    END  shift, and go to state 3
+    $default  reduce using rule 10 (P)
 
 
 State 3
 
-    0 $accept: P END .
+    0 $accept: Expr . END
+
+    END  shift, and go to state 10
+
+
+State 4
+
+    1 Expr: E . END
+    2 E: E . PLUS T
+
+    END   shift, and go to state 11
+    PLUS  shift, and go to state 12
+
+
+State 5
+
+    3 E: T .
+    4 T: T . MINUS F
+
+    MINUS  shift, and go to state 13
+
+    $default  reduce using rule 3 (E)
+
+
+State 6
+
+    5 T: F .
+    6 F: F . DIV G
+
+    DIV  shift, and go to state 14
+
+    $default  reduce using rule 5 (T)
+
+
+State 7
+
+    7 F: G .
+    8 G: G . MULT P
+
+    MULT  shift, and go to state 15
+
+    $default  reduce using rule 7 (F)
+
+
+State 8
+
+    9 G: P .
+
+    $default  reduce using rule 9 (G)
+
+
+State 9
+
+    2 E: E . PLUS T
+   11 P: LPAR E . RPAR
+
+    RPAR  shift, and go to state 16
+    PLUS  shift, and go to state 12
+
+
+State 10
+
+    0 $accept: Expr END .
 
     $default  accept
+
+
+State 11
+
+    1 Expr: E END .
+
+    $default  reduce using rule 1 (Expr)
+
+
+State 12
+
+    2 E: E PLUS . T
+
+    LPAR    shift, and go to state 1
+    INTLIT  shift, and go to state 2
+
+    T  go to state 17
+    F  go to state 6
+    G  go to state 7
+    P  go to state 8
+
+
+State 13
+
+    4 T: T MINUS . F
+
+    LPAR    shift, and go to state 1
+    INTLIT  shift, and go to state 2
+
+    F  go to state 18
+    G  go to state 7
+    P  go to state 8
+
+
+State 14
+
+    6 F: F DIV . G
+
+    LPAR    shift, and go to state 1
+    INTLIT  shift, and go to state 2
+
+    G  go to state 19
+    P  go to state 8
+
+
+State 15
+
+    8 G: G MULT . P
+
+    LPAR    shift, and go to state 1
+    INTLIT  shift, and go to state 2
+
+    P  go to state 20
+
+
+State 16
+
+   11 P: LPAR E RPAR .
+
+    $default  reduce using rule 11 (P)
+
+
+State 17
+
+    2 E: E PLUS T .
+    4 T: T . MINUS F
+
+    MINUS  shift, and go to state 13
+
+    $default  reduce using rule 2 (E)
+
+
+State 18
+
+    4 T: T MINUS F .
+    6 F: F . DIV G
+
+    DIV  shift, and go to state 14
+
+    $default  reduce using rule 4 (T)
+
+
+State 19
+
+    6 F: F DIV G .
+    8 G: G . MULT P
+
+    MULT  shift, and go to state 15
+
+    $default  reduce using rule 6 (F)
+
+
+State 20
+
+    8 G: G MULT P .
+
+    $default  reduce using rule 8 (G)

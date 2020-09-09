@@ -11,6 +11,7 @@
 namespace LAB2{
     class Scanner : yyFlexLexer {
         private:
+            LAB2::Parser::semantic_type *yylval = nullptr;
             size_t lineNum;
             size_t charNum;
         public:
