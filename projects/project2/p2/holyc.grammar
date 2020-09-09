@@ -47,22 +47,18 @@ stmt            ::= varDecl SEMICOLON
                 | RETURN SEMICOLON
                 | fncall SEMICOLON
 
-assignExp       ::= lval ASSIGN exp
 
 fncall          ::=  id LPAREN RPAREN   // fn call with no args
                 | id LPAREN actualsList RPAREN  // with args
 
 actualsList     ::= exp
-                | actualList COMMA exp
+                | actualsList COMMA exp
 
-exp             ::= assignExp
-                | evalExp
-
-evalExp         ::= logicalExp
-                | arithExp
-
-exp             ::= assignExp
+exp             ::= NOT exp
+                | assignExp
                 | orExp
+
+assignExp       ::= lval ASSIGN exp
 
 orExp           ::= orExp OR andExp
                 | andExp
@@ -79,8 +75,7 @@ arithExp        ::= arithExp arithOp prodExp
 prodExp         ::= prodExp prodOp termExp
                 | termExp
 
-termExp         ::= NOT exp
-                | DASH term
+termExp         ::= DASH term
                 | term
 
 cmpOp           ::= EQUALS
@@ -97,7 +92,7 @@ prodOp          ::= STAR
                 | SLASH
 
 term            ::= lval
-                | INTLIT
+                | INTLITERAL
                 | STRLITERAL
                 | CHARLIT
                 | TRUE

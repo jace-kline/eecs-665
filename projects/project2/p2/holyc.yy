@@ -112,6 +112,8 @@ project)
 %token	<transToken>     TRUE
 %token	<transToken>     VOID
 %token	<transToken>     WHILE
+%token	<transToken>	 TEST1
+%token	<transToken>	 TEST2
 
 /* NOTE: Make sure to add precedence and associativity 
  * declarations
@@ -124,46 +126,327 @@ project)
    given nonterminals are complete
 */
 program 	: globals
-		  {
-		  }
+{
+}
 
 globals 	: globals decl 
-	  	  {
-	  	  }
+{
+}
 			| /* epsilon */
-		  {
-		  }
+{
+}
 
 decl 		: varDecl SEMICOLON
-		  { }
+{
+}
+			| fnDecl
+{
+}
 
 varDecl 	: type id
-		  {
-		  }
+{
+}
 
 type 		: INT
-	  	  { 
-		  }
+{ 
+}
 			| INTPTR
-	  	  { 
-		  }
+{ 
+}
 		  	| BOOL
-		  {
-		  }
+{
+}
 		  	| BOOLPTR
-		  {
-		  }
+{
+}
 		  	| CHAR
-		  {
-		  }
+{
+}
 		  	| CHARPTR
-		  {
-		  }
+{
+}
 		  	| VOID
+{
+}
+
+fnDecl          : type id formals fnBody
+{
+}
+
+
+formals         : LPAREN RPAREN
+{
+}
+
+                | LPAREN formalsList RPAREN
+{
+}
+
+
+formalsList     : formalDecl
+{
+}
+
+                | formalDecl COMMA formalsList
+{
+}
+
+
+formalDecl      : type id
+{
+}
+
+fnBody          : LCURLY stmtList RCURLY
+{
+}
+
+stmtList        : stmtList stmt
+{
+}
+
+                | /* epsilon */
+{
+}
+
+
+stmt            : varDecl SEMICOLON
+{
+}
+
+                | assignExp SEMICOLON
+{
+}
+
+                | lval DASHDASH SEMICOLON
+{
+}
+
+                | lval CROSSCROSS SEMICOLON
+{
+}
+
+                | FROMCONSOLE lval SEMICOLON
+{
+}
+
+                | TOCONSOLE exp SEMICOLON
+{
+}
+
+                | IF LPAREN exp RPAREN LCURLY stmtList RCURLY
+{
+}
+
+                | IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
+{
+}
+
+                | WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
+{
+}
+
+                | RETURN exp SEMICOLON
+{
+}
+
+                | RETURN SEMICOLON
+{
+}
+
+                | fncall SEMICOLON
+{
+}
+
+fncall          :  id LPAREN RPAREN   // fn call with no args
+{
+}
+
+                | id LPAREN actualsList RPAREN  // with args
+{
+}
+
+
+actualsList     : exp
+{
+}
+
+                | actualsList COMMA exp
+{
+}
+
+
+exp             : NOT exp
+{
+}
+
+				| assignExp
+{
+}
+
+				| orExp
+{
+}
+
+
+assignExp       : lval ASSIGN exp
+{
+}
+
+
+orExp           : orExp OR andExp
+{
+}
+
+                | andExp
+{
+}
+
+
+andExp          : andExp AND cmpExp
+{
+}
+
+                | cmpExp
+{
+}
+
+
+cmpExp          : arithExp cmpOp arithExp
+{
+}
+
+                | arithExp
+{
+}
+
+
+arithExp        : arithExp arithOp prodExp
+{
+}
+
+                | prodExp
+{
+}
+
+
+prodExp         : prodExp prodOp termExp
+{
+}
+
+                | termExp
+{
+}
+
+
+termExp	        : DASH term
+{
+}
+
+		        | term
+{
+}
+
+
+cmpOp           : EQUALS
+{
+}
+
+                | NOTEQUALS
+{
+}
+
+                | GREATER
+{
+}
+
+                | GREATEREQ
+{
+}
+
+                | LESS
+{
+}
+
+                | LESSEQ
+{
+}
+
+
+arithOp         : CROSS
+{
+}
+
+                | DASH
+{
+}
+
+
+prodOp          : STAR
+{
+}
+
+                | SLASH
+{
+}
+
+
+term            : lval
+{
+}
+
+	            | INTLITERAL
+{
+}
+
+                | STRLITERAL
+{
+}
+
+                | CHARLIT
+{
+}
+
+                | TRUE
+{
+}
+
+                | FALSE
+{
+}
+
+                | NULLPTR
+{
+}
+
+                | LPAREN exp RPAREN
+{
+}
+
+                | fncall
+{
+}
+
+
+lval             : id
+{
+}
+
+                | id LBRACE exp RBRACE
+{
+}
+
+                | AT id
+{
+}
+
+                | CARAT id
+{
+}
+
 
 id			: ID
-		  {
-		  }
+{
+}
 	
 %%
 

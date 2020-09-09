@@ -1,0 +1,5 @@
+assignExp : id {}
+lval : id {}
+exp : id {}
+stmtList : id {}
+fncall : id {}

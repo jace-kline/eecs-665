@@ -1,2 +1,5 @@
 *.tgz
 *.tar.gz
+*.o
+*.d
+*.swp
