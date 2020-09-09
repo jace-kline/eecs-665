@@ -54,50 +54,26 @@ fncall          ::=  id LPAREN RPAREN   // fn call with no args
 
 actualsList     ::= exp
                 | actualList COMMA exp
-
+                
 exp             ::= assignExp
-                | evalExp
-
-evalExp         ::= logicalExp
-                | arithExp
-
-exp             ::= assignExp
-                | orExp
-
-orExp           ::= orExp OR andExp
-                | andExp
-
-andExp          ::= andExp AND cmpExp
-                | cmpExp
-
-cmpExp          ::= arithExp cmpOp arithExp
-                | arithExp
-
-arithExp        ::= arithExp arithOp prodExp
-                | prodExp
-
-prodExp         ::= prodExp prodOp termExp
-                | termExp
-
-termExp         ::= NOT exp
+                | exp DASH exp
+                | exp CROSS exp
+                | exp STAR exp
+                | exp SLASH exp
+                | exp AND exp
+                | exp OR exp
+                | exp EQUALS exp
+                | exp NOTEQUALS exp
+                | exp GREATER exp
+                | exp GREATEREQ exp
+                | exp LESS exp
+                | exp LESSEQ exp
+                | NOT exp
                 | DASH term
                 | term
 
-cmpOp           ::= EQUALS
-                | NOTEQUALS
-                | GREATER
-                | GREATEREQ
-                | LESS
-                | LESSEQ
-
-arithOp         ::= CROSS
-                | DASH
-
-prodOp          ::= STAR
-                | SLASH
-
 term            ::= lval
-                | INTLIT
+                | INTLITERAL
                 | STRLITERAL
                 | CHARLIT
                 | TRUE

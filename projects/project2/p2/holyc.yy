@@ -62,7 +62,7 @@ have translation attributes for non-terminals in the next
 project)
 */
 %union {
-   holyc::Token*                         transToken;
+   holyc::Token* transToken;
 }
 
 %token                   END	   0 "end file"
@@ -128,9 +128,9 @@ program 	: globals
 		  }
 
 globals 	: globals decl 
-	  	  { 
+	  	  {
 	  	  }
-		| /* epsilon */
+			| /* epsilon */
 		  {
 		  }
 
@@ -144,11 +144,24 @@ varDecl 	: type id
 type 		: INT
 	  	  { 
 		  }
-		| INTPTR
+			| INTPTR
 	  	  { 
 		  }
+		  	| BOOL
+		  {
+		  }
+		  	| BOOLPTR
+		  {
+		  }
+		  	| CHAR
+		  {
+		  }
+		  	| CHARPTR
+		  {
+		  }
+		  	| VOID
 
-id		: ID
+id			: ID
 		  {
 		  }
 	
