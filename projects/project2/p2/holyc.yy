@@ -45,7 +45,9 @@
 
    // Our code for interoperation between scanner/parser
    #include "scanner.hpp"
-   //#include "tokens.hpp"
+
+   // Include our ParseTree class
+   // #include "parsetree.hpp"
 
   //Request tokens from our scanner member, not 
   // from a global function
@@ -112,8 +114,6 @@ project)
 %token	<transToken>     TRUE
 %token	<transToken>     VOID
 %token	<transToken>     WHILE
-%token	<transToken>	 TEST1
-%token	<transToken>	 TEST2
 
 /* NOTE: Make sure to add precedence and associativity 
  * declarations

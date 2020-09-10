@@ -20,7 +20,6 @@ public:
 	lineNum = 1;
 	colNum = 1;
    };
-
    virtual ~Scanner() {
    };
 
@@ -47,68 +46,53 @@ public:
 		val = '\n';
 	} else if (text == "'\\\\"){
 		val = '\\';
+	} else {
+		val = text.c_str()[1];
 	}
 	this->yylval->transToken = new CharLitToken(
 		this->lineNum, this->colNum, val);
-	// colNum += static_cast<size_t>(yyleng);
+	colNum += static_cast<size_t>(yyleng);
 	return TokenKind::CHARLIT;
    }
 
-   int makeStrToken(int col, const std::string text) {
-      this->yylval->transToken = new StrToken(this->lineNum, static_cast<size_t>(col), text);
-      return TokenKind::STRLITERAL;
-   }
-
-   int makeIDToken() {
-      this->yylval->transToken = new IDToken(this->lineNum, this->colNum, std::string(yytext));
-      colNum += static_cast<size_t>(yyleng);
-      return TokenKind::ID;
-   }
-
-   int makeIntLitToken(int val) {
-      yylval->transToken = new IntLitToken(lineNum, colNum, val);
-      colNum += static_cast<size_t>(yyleng);
-      return TokenKind::INTLITERAL;
-   }
-
    void errIllegal(size_t l, size_t c, std::string match){
-	holyc::Report::fatal(l, c, "Illegal character "
+	Report::fatal(l, c, "Illegal character "
 		+ match);
    }
 
    void errChrEscEmpty(size_t l, size_t c){
-	holyc::Report::fatal(l, c, "Empty escape sequence in"
+	Report::fatal(l, c, "Empty escape sequence in"
 	" character literal");
    }
 
    void errChrEmpty(size_t l, size_t c){
-	holyc::Report::fatal(l, c, "Empty character literal");
+	Report::fatal(l, c, "Empty character literal");
    }
 
    void errChrEsc(size_t l, size_t c){
-	holyc::Report::fatal(l, c, "Bad escape sequence in"
+	Report::fatal(l, c, "Bad escape sequence in"
 	" char literal");
    }
 
    void errStrEsc(size_t l, size_t c){
-	holyc::Report::fatal(l, c, "String literal with bad"
+	Report::fatal(l, c, "String literal with bad"
 	" escape sequence ignored");
 	
    }
 
    void errStrUnterm(size_t l, size_t c){
-	holyc::Report::fatal(l, c, "Unterminated string"
+	Report::fatal(l, c, "Unterminated string"
 	" literal ignored");
 	
    }
 
    void errStrEscAndUnterm(size_t l, size_t c){
-	holyc::Report::fatal(l, c, "Unterminated string literal"
+	Report::fatal(l, c, "Unterminated string literal"
 	"  with bad escape sequence ignored");
    }
 
    void errIntOverflow(size_t l, size_t c){
-	holyc::Report::fatal(l, c, "Integer literal too large;"
+	Report::fatal(l, c, "Integer literal too large;"
 	"  using max value");
    }
 
