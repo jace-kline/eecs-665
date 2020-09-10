@@ -1,0 +1,7 @@
+int myint = 5;
+
+int main() {
+    myfunction();
+    myint = myint + 3;
+    return;
+}

@@ -14,6 +14,10 @@ TokenList operator+(holyc::Token* left_token, const TokenList& right);
 
 TokenList operator+(const TokenList& left, holyc::Token* right_token);
 
+TokenList operator*=(TokenList& left, const TokenList& right);
+
+TokenList operator*=(TokenList& left, holyc::Token* right_token);
+
 void copyElements(const TokenList& from, TokenList& to);
 
 // fold over list and convert each token to its string form

@@ -16,7 +16,8 @@
 %token-table
 
 %code requires{
-	#include "helper.hpp"
+	#include <list>
+	// #include "helper.hpp"
 	#include "tokens.hpp"
 	namespace holyc {
 		class Scanner;
@@ -64,7 +65,11 @@ have translation attributes for non-terminals in the next
 project)
 */
 %union {
-   holyc::Token* transToken;
+   	holyc::Token* transToken;
+	holyc::CharLitToken* transCharToken;
+	holyc::StrToken* transStrToken;
+	holyc::IDToken* transIDToken;
+	holyc::IntLitToken* transIntToken;
 }
 
 %token                   END	   0 "end file"
@@ -114,6 +119,33 @@ project)
 %token	<transToken>     TRUE
 %token	<transToken>     VOID
 %token	<transToken>     WHILE
+// %type <transList> globals
+// %type <transList> decl
+// %type <transList> varDecl
+// %type <transList> type
+// %type <transList> fnDecl
+// %type <transList> formals
+// %type <transList> formalsList
+// %type <transList> formalDecl
+// %type <transList> fnBody
+// %type <transList> stmtList
+// %type <transList> stmt
+// %type <transList> fncall
+// %type <transList> actualsList
+// %type <transList> exp
+// %type <transList> assignExp
+// %type <transList> orExp
+// %type <transList> andExp
+// %type <transList> cmpExp
+// %type <transList> arithExp
+// %type <transList> prodExp
+// %type <transList> termExp
+// %type <transList> cmpOp
+// %type <transList> arithOp
+// %type <transList> prodOp
+// %type <transList> term
+// %type <transList> lval
+// %type <transList> id
 
 /* NOTE: Make sure to add precedence and associativity 
  * declarations
@@ -127,13 +159,11 @@ project)
 */
 program 	: globals
 {
-	outputTokenStrs(tokenStrList($1), std::cout);
-	return 0;
+
 }
 
 globals 	: globals decl 
 {
-	$$ = $1 + $2;
 }
 			| /* epsilon */
 {
@@ -141,88 +171,88 @@ globals 	: globals decl
 
 decl 		: varDecl SEMICOLON
 {
-	$$ = $1 + $2;
+
 }
 			| fnDecl
 {
-	$$ = $1;
+
 }
 
 varDecl 	: type id
 {
-	$$ = $1 + $2;
+
 }
 
 type 		: INT
 {
-	$$ = $1;
+
 }
 			| INTPTR
 {
-	$$ = $1;
+
 }
 		  	| BOOL
 {
-	$$ = $1;
+
 }
 		  	| BOOLPTR
 {
-	$$ = $1;
+
 }
 		  	| CHAR
 {
-	$$ = $1;
+
 }
 		  	| CHARPTR
 {
-	$$ = $1;
+
 }
 		  	| VOID
 {
-	$$ = $1;
+
 }
 
 fnDecl          : type id formals fnBody
 {
-	$$ = $1 + $2 + $3 + $4;
+
 }
 
 
 formals         : LPAREN RPAREN
 {
-	$$ = $1 + $2;
+
 }
 
                 | LPAREN formalsList RPAREN
 {
-	$$ = $1 + $2 + $3;
+
 }
 
 
 formalsList     : formalDecl
 {
-	$$ = $1;
+
 }
 
                 | formalDecl COMMA formalsList
 {
-	$$ = $1 + $2 + $3;
+
 }
 
 
 formalDecl      : type id
 {
-	$$ = $1 + $2;
+
 }
 
 fnBody          : LCURLY stmtList RCURLY
 {
-	$$ = $1 + $2 + $3;
+
 }
 
 stmtList        : stmtList stmt
 {
-	$$ = $1 + $2;
+
 }
 
                 | /* epsilon */
@@ -232,297 +262,297 @@ stmtList        : stmtList stmt
 
 stmt            : varDecl SEMICOLON
 {
-	$$ = $1 + $2;
+
 }
 
                 | assignExp SEMICOLON
 {
-	$$ = $1 + $2;
+
 }
 
                 | lval DASHDASH SEMICOLON
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | lval CROSSCROSS SEMICOLON
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | FROMCONSOLE lval SEMICOLON
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | TOCONSOLE exp SEMICOLON
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | IF LPAREN exp RPAREN LCURLY stmtList RCURLY
 {
-	$$ = $1 + $2 + $3 + $4 + $5 + $6 + $7;
+
 }
 
                 | IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
 {
-	$$ = $1 + $2 + $3 + $4 + $5 + $6 + $7 + $8 + $9 + $10 + $11;
+
 }
 
                 | WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
 {
-	$$ = $1 + $2 + $3 + $4 + $5 + $6 + $7;
+
 }
 
                 | RETURN exp SEMICOLON
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | RETURN SEMICOLON
 {
-	$$ = $1 + $2;
+
 }
 
                 | fncall SEMICOLON
 {
-	$$ = $1 + $2;
+
 }
 
 fncall          :  id LPAREN RPAREN   // fn call with no args
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | id LPAREN actualsList RPAREN  // with args
 {
-	$$ = $1 + $2 + $3 + $4;
+
 }
 
 
 actualsList     : exp
 {
-	$$ = $1
+
 }
 
                 | actualsList COMMA exp
 {
-	$$ = $1 + $2 + $3;
+
 }
 
 
 exp             : NOT exp
 {
-	$$ = $1 + $2;
+
 }
 
 				| assignExp
 {
-	$$ = $1;
+
 }
 
 				| orExp
 {
-	$$ = $1;
+
 }
 
 
 assignExp       : lval ASSIGN exp
 {
-	$$ = $1 + $2 + $3;
+
 }
 
 
 orExp           : orExp OR andExp
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | andExp
 {
-	$$ = $1;
+
 }
 
 
 andExp          : andExp AND cmpExp
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | cmpExp
 {
-	$$ = $1;
+
 }
 
 
 cmpExp          : arithExp cmpOp arithExp
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | arithExp
 {
-	$$ = $1;
+
 }
 
 
 arithExp        : arithExp arithOp prodExp
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | prodExp
 {
-	$$ = $1;
+
 }
 
 
 prodExp         : prodExp prodOp termExp
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | termExp
 {
-	$$ = $1;
+
 }
 
 
 termExp	        : DASH term
 {
-	$$ = $1 + $2;
+
 }
 
 		        | term
 {
-	$$ = $1;
+
 }
 
 
 cmpOp           : EQUALS
 {
-	$$ = $1;
+
 }
 
                 | NOTEQUALS
 {
-	$$ = $1;
+
 }
 
                 | GREATER
 {
-	$$ = $1;
+
 }
 
                 | GREATEREQ
 {
-	$$ = $1;
+
 }
 
                 | LESS
 {
-	$$ = $1;
+
 }
 
                 | LESSEQ
 {
-	$$ = $1;
+
 }
 
 
 arithOp         : CROSS
 {
-	$$ = $1;
+
 }
 
                 | DASH
 {
-	$$ = $1;
+
 }
 
 
 prodOp          : STAR
 {
-	$$ = $1;
+
 }
 
                 | SLASH
 {
-	$$ = $1;
+
 }
 
 
 term            : lval
 {
-	$$ = $1;
+
 }
 
 	            | INTLITERAL
 {
-	$$ = $1;
+
 }
 
                 | STRLITERAL
 {
-	$$ = $1;
+
 }
 
                 | CHARLIT
 {
-	$$ = $1;
+
 }
 
                 | TRUE
 {
-	$$ = $1;
+
 }
 
                 | FALSE
 {
-	$$ = $1;
+
 }
 
                 | NULLPTR
 {
-	$$ = $1;
+
 }
 
                 | LPAREN exp RPAREN
 {
-	$$ = $1 + $2 + $3;
+
 }
 
                 | fncall
 {
-	$$ = $1;
+
 }
 
 
 lval             : id
 {
-	$$ = $1;
+
 }
 
                 | id LBRACE exp RBRACE
 {
-	$$ = $1 + $2 + $3 + $4;
+
 }
 
                 | AT id
 {
-	$$ = $1 + $2;
+
 }
 
                 | CARAT id
 {
-	$$ = $1 + $2;
+
 }
 
 
 id			: ID
 {
-	$$ = $1;
+
 }
 	
 %%
