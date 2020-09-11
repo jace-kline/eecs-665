@@ -38,7 +38,7 @@
 }
 
 %parse-param { holyc::Scanner &scanner }
-
+%parse-param { std::ostream *unparseOutStream }
 %code{
    // C std code for utility functions
    #include <iostream>
@@ -163,7 +163,7 @@ program 	: globals
 {
 	holyc::Token* eof_token = new holyc::Token(scanner.getLine(), scanner.getCol(), holyc::Parser::token::END);
 	UnparseNode unparsed = *$1 + *eof_token;
-	writeUnparsed(unparsed, std::cout);
+	if(unparseOutStream != NULL) writeUnparsed(unparsed, *unparseOutStream);
 	// std::cout << unparsed.str << std::endl;
 }
 
