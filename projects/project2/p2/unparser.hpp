@@ -1,6 +1,7 @@
 #ifndef __UNPARSER_HPP
 #define __UNPARSER_HPP
 
+#include <list>
 #include <string>
 #include <ostream>
 #include "tokens.hpp"
@@ -14,6 +15,12 @@ struct UnparseNode {
     UnparseNode operator+(const UnparseNode& other);
 };
 
-void writeUnparsed(UnparseNode* node, std::ostream& os);
+void writeUnparsed(UnparseNode& node, std::ostream& os);
+
+std::list<std::string> lines(std::string s);
+
+bool onlyWS(std::string s);
+
+std::string removeBlankLines(std::string s);
 
 #endif

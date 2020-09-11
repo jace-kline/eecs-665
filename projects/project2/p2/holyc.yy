@@ -161,11 +161,13 @@ project)
 */
 program 	: globals
 {
-	writeUnparsed($1, std::cout);
-	// std::cout << $1->str << std::endl;
+	holyc::Token* eof_token = new holyc::Token(scanner.getLine(), scanner.getCol(), holyc::Parser::token::END);
+	UnparseNode unparsed = *$1 + *eof_token;
+	writeUnparsed(unparsed, std::cout);
+	// std::cout << unparsed.str << std::endl;
 }
 
-globals 	: globals decl 
+globals 	: globals decl
 {
 	$$ = new UnparseNode(*$1 + *$2);
 }
