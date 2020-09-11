@@ -18,7 +18,8 @@
 %code requires{
 	#include <list>
 	// #include "helper.hpp"
-	#include "tokens.hpp"
+	#include "unparser.hpp"
+	// #include "tokens.hpp"
 	namespace holyc {
 		class Scanner;
 	}
@@ -70,6 +71,7 @@ project)
 	holyc::StrToken* transStrToken;
 	holyc::IDToken* transIDToken;
 	holyc::IntLitToken* transIntToken;
+	UnparseNode* unparsePtr;
 }
 
 %token                   END	   0 "end file"
@@ -119,33 +121,33 @@ project)
 %token	<transToken>     TRUE
 %token	<transToken>     VOID
 %token	<transToken>     WHILE
-// %type <transList> globals
-// %type <transList> decl
-// %type <transList> varDecl
-// %type <transList> type
-// %type <transList> fnDecl
-// %type <transList> formals
-// %type <transList> formalsList
-// %type <transList> formalDecl
-// %type <transList> fnBody
-// %type <transList> stmtList
-// %type <transList> stmt
-// %type <transList> fncall
-// %type <transList> actualsList
-// %type <transList> exp
-// %type <transList> assignExp
-// %type <transList> orExp
-// %type <transList> andExp
-// %type <transList> cmpExp
-// %type <transList> arithExp
-// %type <transList> prodExp
-// %type <transList> termExp
-// %type <transList> cmpOp
-// %type <transList> arithOp
-// %type <transList> prodOp
-// %type <transList> term
-// %type <transList> lval
-// %type <transList> id
+%type <unparsePtr> globals
+%type <unparsePtr> decl
+%type <unparsePtr> varDecl
+%type <unparsePtr> type
+%type <unparsePtr> fnDecl
+%type <unparsePtr> formals
+%type <unparsePtr> formalsList
+%type <unparsePtr> formalDecl
+%type <unparsePtr> fnBody
+%type <unparsePtr> stmtList
+%type <unparsePtr> stmt
+%type <unparsePtr> fncall
+%type <unparsePtr> actualsList
+%type <unparsePtr> exp
+%type <unparsePtr> assignExp
+%type <unparsePtr> orExp
+%type <unparsePtr> andExp
+%type <unparsePtr> cmpExp
+%type <unparsePtr> arithExp
+%type <unparsePtr> prodExp
+%type <unparsePtr> termExp
+%type <unparsePtr> cmpOp
+%type <unparsePtr> arithOp
+%type <unparsePtr> prodOp
+%type <unparsePtr> term
+%type <unparsePtr> lval
+%type <unparsePtr> id
 
 /* NOTE: Make sure to add precedence and associativity 
  * declarations
@@ -159,400 +161,404 @@ project)
 */
 program 	: globals
 {
-
+	writeUnparsed($1, std::cout);
+	// std::cout << $1->str << std::endl;
 }
 
 globals 	: globals decl 
 {
+	$$ = new UnparseNode(*$1 + *$2);
 }
 			| /* epsilon */
 {
+	$$ = new UnparseNode("");
 }
 
 decl 		: varDecl SEMICOLON
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2));
 }
 			| fnDecl
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
 varDecl 	: type id
 {
-
+	$$ = new UnparseNode(*$1 + *$2);
 }
 
 type 		: INT
 {
-
+	$$ = new UnparseNode(*$1);
 }
 			| INTPTR
 {
-
+	$$ = new UnparseNode(*$1);
 }
 		  	| BOOL
 {
-
+	$$ = new UnparseNode(*$1);
 }
 		  	| BOOLPTR
 {
-
+	$$ = new UnparseNode(*$1);
 }
 		  	| CHAR
 {
-
+	$$ = new UnparseNode(*$1);
 }
 		  	| CHARPTR
 {
-
+	$$ = new UnparseNode(*$1);
 }
 		  	| VOID
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
 fnDecl          : type id formals fnBody
 {
-
+	$$ = new UnparseNode(*$1 + *$2 + *$3 + *$4);
 }
 
 
 formals         : LPAREN RPAREN
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + UnparseNode(*$2));
 }
 
                 | LPAREN formalsList RPAREN
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$2));
 }
 
 
 formalsList     : formalDecl
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | formalDecl COMMA formalsList
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + *$3);
 }
 
 
 formalDecl      : type id
 {
-
+	$$ = new UnparseNode(*$1 + *$2);
 }
 
 fnBody          : LCURLY stmtList RCURLY
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$3));
 }
 
 stmtList        : stmtList stmt
 {
-
+	$$ = new UnparseNode(*$1 + *$2);
 }
 
                 | /* epsilon */
 {
+	$$ = new UnparseNode("");
 }
 
 
 stmt            : varDecl SEMICOLON
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2));
 }
 
                 | assignExp SEMICOLON
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2));
 }
 
                 | lval DASHDASH SEMICOLON
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + UnparseNode(*$3));
 }
 
                 | lval CROSSCROSS SEMICOLON
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + UnparseNode(*$3));
 }
 
                 | FROMCONSOLE lval SEMICOLON
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$3));
 }
 
                 | TOCONSOLE exp SEMICOLON
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$3));
 }
 
                 | IF LPAREN exp RPAREN LCURLY stmtList RCURLY
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + UnparseNode(*$2) + *$3 + UnparseNode(*$4) + UnparseNode(*$5) + *$6 + UnparseNode(*$7));
 }
 
                 | IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + UnparseNode(*$2) + *$3 + UnparseNode(*$4) + UnparseNode(*$5) + *$6 + UnparseNode(*$7) + UnparseNode(*$8) + UnparseNode(*$9) + *$10 + UnparseNode(*$11));
 }
 
                 | WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + UnparseNode(*$2) + *$3 + UnparseNode(*$4) + UnparseNode(*$5) + *$6 + UnparseNode(*$7));
 }
 
                 | RETURN exp SEMICOLON
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$3));
 }
 
                 | RETURN SEMICOLON
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + UnparseNode(*$2));
 }
 
                 | fncall SEMICOLON
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2));
 }
 
 fncall          :  id LPAREN RPAREN   // fn call with no args
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + UnparseNode(*$3));
 }
 
                 | id LPAREN actualsList RPAREN  // with args
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + *$3 + UnparseNode(*$4));
 }
 
 
 actualsList     : exp
 {
-
+	$$ = $1;
 }
 
                 | actualsList COMMA exp
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + *$3);
 }
 
 
 exp             : NOT exp
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2);
 }
 
 				| assignExp
 {
-
+	$$ = $1;
 }
 
 				| orExp
 {
-
+	$$ = $1;
 }
 
 
 assignExp       : lval ASSIGN exp
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + *$3);
 }
 
 
 orExp           : orExp OR andExp
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + *$3);
 }
 
                 | andExp
 {
-
+	$$ = $1;
 }
 
 
 andExp          : andExp AND cmpExp
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + *$3);
 }
 
                 | cmpExp
 {
-
+	$$ = $1;
 }
 
 
 cmpExp          : arithExp cmpOp arithExp
 {
-
+	$$ = new UnparseNode(*$1 + *$2 + *$3);
 }
 
                 | arithExp
 {
-
+	$$ = $1;
 }
 
 
 arithExp        : arithExp arithOp prodExp
 {
-
+	$$ = new UnparseNode(*$1 + *$2 + *$3);
 }
 
                 | prodExp
 {
-
+	$$ = $1;
 }
 
 
 prodExp         : prodExp prodOp termExp
 {
-
+	$$ = new UnparseNode(*$1 + *$2 + *$3);
 }
 
                 | termExp
 {
-
+	$$ = $1;
 }
 
 
 termExp	        : DASH term
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2);
 }
 
 		        | term
 {
-
+	$$ = $1;
 }
 
 
 cmpOp           : EQUALS
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | NOTEQUALS
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | GREATER
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | GREATEREQ
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | LESS
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | LESSEQ
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
 
 arithOp         : CROSS
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | DASH
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
 
 prodOp          : STAR
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | SLASH
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
 
 term            : lval
 {
-
+	$$ = $1;
 }
 
 	            | INTLITERAL
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | STRLITERAL
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | CHARLIT
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | TRUE
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | FALSE
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | NULLPTR
 {
-
+	$$ = new UnparseNode(*$1);
 }
 
                 | LPAREN exp RPAREN
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$3));
 }
 
                 | fncall
 {
-
+	$$ = $1;
 }
 
 
 lval             : id
 {
-
+	$$ = $1;
 }
 
                 | id LBRACE exp RBRACE
 {
-
+	$$ = new UnparseNode(*$1 + UnparseNode(*$2) + *$3 + UnparseNode(*$4));
 }
 
                 | AT id
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2);
 }
 
                 | CARAT id
 {
-
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2);
 }
 
 
 id			: ID
 {
-
+	$$ = new UnparseNode(*$1);
 }
 	
 %%
