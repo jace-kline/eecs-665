@@ -14,7 +14,7 @@ TESTS := $(TESTPROGS:.tnc=)
 all: 
 	make holycc
 
-clean:
+clean: cleantest
 	rm -rf *.output *.o *.cc *.hh $(DEPS) holycc
 
 -include $(DEPS)

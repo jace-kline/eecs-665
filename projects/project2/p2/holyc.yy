@@ -232,7 +232,7 @@ formals         : LPAREN RPAREN
 
                 | LPAREN formalsList RPAREN
 {
-	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$2));
+	$$ = new UnparseNode(UnparseNode(*$1) + *$2 + UnparseNode(*$3));
 }
 
 

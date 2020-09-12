@@ -1,0 +1,11 @@
+# This is a comment
+
+bool myfunction(int intarg, charptr charptrarg) {
+    int myint;
+    int otherint;
+    myint = myint + intarg;
+    charptr mystring;
+    mystring = "This is a string";
+    bool b;
+    return (b = !(myint > 5 && intarg == (otherint = 2)));
+}
