@@ -1,18 +1,24 @@
-TEST_SRCS := $(wildcard *.holyc)
-TESTS := $(TEST_SRCS:.holyc=.err)
+TEST_FILES := $(wildcard test*.holyc)
+TESTS := $(TEST_FILES:.holyc=)
+TEST_CLEANS := $(addsuffix .clean,$(TESTS))
+# TESTS := $(TEST_SRCS:.holyc=.err)
 
-all: test
-
-.PHONY: all test clean
+.PHONY: test clean
 
 test: $(TESTS)
-	@echo "Running tests..."
 
-test%.err: test%.holyc
-	@printf "%s" "$*: "
-	@touch $@
-	@../holycc $< -p 2> $@
-	@printf "%s\n" "Complete"
+test%: test%.holyc
+	@printf "%s\n" "Running $@: "
+	# @touch $@/test.err
+	@../holycc $< -t $@.tokens
+	@../holycc $< -p 1> $@.unparsed 2> $@.err
+	-diff $@.unparsed $@.tokens
+	@touch $@.err.expected
+	-diff $@.err $@.err.expected
+	@printf "%s\n\n" "$@ complete"
 
-clean:
-	rm -rf *.err
+clean: $(TEST_CLEANS)
+	@echo "Cleaning up test directories..."
+
+%.clean: %.holyc
+	@rm -rf $*.err $*.unparsed $*.tokens

@@ -38,7 +38,7 @@ lexer.o: lexer.yy.cc
 	$(CXX) $(FLAGS) -Wno-sign-compare -Wno-sign-conversion -Wno-old-style-cast -Wno-switch-default -g -std=c++14 -c lexer.yy.cc -o lexer.o
 
 test: all
-	$(MAKE) -C p2_tests/
+	$(MAKE) -C p2_tests/ test
 	
 cleantest:
 	$(MAKE) -C p2_tests/ clean

@@ -1,3 +1,0 @@
-Whoops, you didn't tell holycc what to do!
-Usage: holycc <infile> [-p]: Parse the input to check syntax
- [-t <tokensFile>]: Output tokens to <tokensFile>
