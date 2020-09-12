@@ -209,7 +209,7 @@ namespace holyc {
     /// Symbol semantic values.
     union semantic_type
     {
-#line 68 "holyc.yy"
+#line 67 "holyc.yy"
 
    	holyc::Token* transToken;
 	holyc::CharLitToken* transCharToken;
@@ -406,7 +406,7 @@ namespace holyc {
     {};
 
     /// Build a parser object.
-    Parser (holyc::Scanner &scanner_yyarg, std::ostream *unparseOutStream_yyarg);
+    Parser (holyc::Scanner &scanner_yyarg);
     virtual ~Parser ();
 
     /// Parse.  An alias for parse ().
@@ -753,13 +753,12 @@ namespace holyc {
 
     // User arguments.
     holyc::Scanner &scanner;
-    std::ostream *unparseOutStream;
   };
 
 
 #line 5 "holyc.yy"
 } // holyc
-#line 763 "grammar.hh"
+#line 762 "grammar.hh"
 
 
 
