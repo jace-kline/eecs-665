@@ -106,6 +106,10 @@ public:
 		<< " ***ERROR*** " << msg << std::endl;
    }
 
+   size_t getLine() { return lineNum; }
+
+   size_t getCol() { return colNum; }
+
    static std::string tokenKindString(int tokenKind);
 
    void outputTokens(std::ostream& outstream);
