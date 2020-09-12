@@ -209,7 +209,7 @@ namespace holyc {
     /// Symbol semantic values.
     union semantic_type
     {
-#line 67 "holyc.yy"
+#line 68 "holyc.yy"
 
    	holyc::Token* transToken;
 	holyc::CharLitToken* transCharToken;

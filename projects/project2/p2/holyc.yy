@@ -38,6 +38,7 @@
 }
 
 %parse-param { holyc::Scanner &scanner }
+
 %code{
    // C std code for utility functions
    #include <iostream>

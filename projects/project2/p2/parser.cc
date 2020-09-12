@@ -41,7 +41,7 @@
 
 
 // Unqualified %code blocks.
-#line 41 "holyc.yy"
+#line 42 "holyc.yy"
 
    // C std code for utility functions
    #include <iostream>
@@ -609,7 +609,7 @@ namespace holyc {
           switch (yyn)
             {
   case 2:
-#line 162 "holyc.yy"
+#line 163 "holyc.yy"
 {
 	holyc::Token* eof_token = new holyc::Token(scanner.getLine(), scanner.getCol(), holyc::Parser::token::END);
 	UnparseNode unparsed = *(yystack_[0].value.unparsePtr) + *eof_token;
@@ -620,7 +620,7 @@ namespace holyc {
     break;
 
   case 3:
-#line 170 "holyc.yy"
+#line 171 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -628,7 +628,7 @@ namespace holyc {
     break;
 
   case 4:
-#line 174 "holyc.yy"
+#line 175 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode("");
 }
@@ -636,7 +636,7 @@ namespace holyc {
     break;
 
   case 5:
-#line 179 "holyc.yy"
+#line 180 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -644,7 +644,7 @@ namespace holyc {
     break;
 
   case 6:
-#line 183 "holyc.yy"
+#line 184 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.unparsePtr));
 }
@@ -652,7 +652,7 @@ namespace holyc {
     break;
 
   case 7:
-#line 188 "holyc.yy"
+#line 189 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -660,7 +660,7 @@ namespace holyc {
     break;
 
   case 8:
-#line 193 "holyc.yy"
+#line 194 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -668,7 +668,7 @@ namespace holyc {
     break;
 
   case 9:
-#line 197 "holyc.yy"
+#line 198 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -676,7 +676,7 @@ namespace holyc {
     break;
 
   case 10:
-#line 201 "holyc.yy"
+#line 202 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -684,7 +684,7 @@ namespace holyc {
     break;
 
   case 11:
-#line 205 "holyc.yy"
+#line 206 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -692,7 +692,7 @@ namespace holyc {
     break;
 
   case 12:
-#line 209 "holyc.yy"
+#line 210 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -700,7 +700,7 @@ namespace holyc {
     break;
 
   case 13:
-#line 213 "holyc.yy"
+#line 214 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -708,7 +708,7 @@ namespace holyc {
     break;
 
   case 14:
-#line 217 "holyc.yy"
+#line 218 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -716,7 +716,7 @@ namespace holyc {
     break;
 
   case 15:
-#line 222 "holyc.yy"
+#line 223 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[3].value.unparsePtr) + *(yystack_[2].value.unparsePtr) + *(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -724,7 +724,7 @@ namespace holyc {
     break;
 
   case 16:
-#line 228 "holyc.yy"
+#line 229 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[1].value.transToken)) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -732,7 +732,7 @@ namespace holyc {
     break;
 
   case 17:
-#line 233 "holyc.yy"
+#line 234 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -740,7 +740,7 @@ namespace holyc {
     break;
 
   case 18:
-#line 239 "holyc.yy"
+#line 240 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.unparsePtr));
 }
@@ -748,7 +748,7 @@ namespace holyc {
     break;
 
   case 19:
-#line 244 "holyc.yy"
+#line 245 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -756,7 +756,7 @@ namespace holyc {
     break;
 
   case 20:
-#line 250 "holyc.yy"
+#line 251 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -764,7 +764,7 @@ namespace holyc {
     break;
 
   case 21:
-#line 255 "holyc.yy"
+#line 256 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -772,7 +772,7 @@ namespace holyc {
     break;
 
   case 22:
-#line 260 "holyc.yy"
+#line 261 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -780,7 +780,7 @@ namespace holyc {
     break;
 
   case 23:
-#line 265 "holyc.yy"
+#line 266 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode("");
 }
@@ -788,7 +788,7 @@ namespace holyc {
     break;
 
   case 24:
-#line 271 "holyc.yy"
+#line 272 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -796,7 +796,7 @@ namespace holyc {
     break;
 
   case 25:
-#line 276 "holyc.yy"
+#line 277 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -804,7 +804,7 @@ namespace holyc {
     break;
 
   case 26:
-#line 281 "holyc.yy"
+#line 282 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -812,7 +812,7 @@ namespace holyc {
     break;
 
   case 27:
-#line 286 "holyc.yy"
+#line 287 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -820,7 +820,7 @@ namespace holyc {
     break;
 
   case 28:
-#line 291 "holyc.yy"
+#line 292 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -828,7 +828,7 @@ namespace holyc {
     break;
 
   case 29:
-#line 296 "holyc.yy"
+#line 297 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -836,7 +836,7 @@ namespace holyc {
     break;
 
   case 30:
-#line 301 "holyc.yy"
+#line 302 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[6].value.transToken)) + UnparseNode(*(yystack_[5].value.transToken)) + *(yystack_[4].value.unparsePtr) + UnparseNode(*(yystack_[3].value.transToken)) + UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -844,7 +844,7 @@ namespace holyc {
     break;
 
   case 31:
-#line 306 "holyc.yy"
+#line 307 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[10].value.transToken)) + UnparseNode(*(yystack_[9].value.transToken)) + *(yystack_[8].value.unparsePtr) + UnparseNode(*(yystack_[7].value.transToken)) + UnparseNode(*(yystack_[6].value.transToken)) + *(yystack_[5].value.unparsePtr) + UnparseNode(*(yystack_[4].value.transToken)) + UnparseNode(*(yystack_[3].value.transToken)) + UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -852,7 +852,7 @@ namespace holyc {
     break;
 
   case 32:
-#line 311 "holyc.yy"
+#line 312 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[6].value.transToken)) + UnparseNode(*(yystack_[5].value.transToken)) + *(yystack_[4].value.unparsePtr) + UnparseNode(*(yystack_[3].value.transToken)) + UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -860,7 +860,7 @@ namespace holyc {
     break;
 
   case 33:
-#line 316 "holyc.yy"
+#line 317 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -868,7 +868,7 @@ namespace holyc {
     break;
 
   case 34:
-#line 321 "holyc.yy"
+#line 322 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[1].value.transToken)) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -876,7 +876,7 @@ namespace holyc {
     break;
 
   case 35:
-#line 326 "holyc.yy"
+#line 327 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -884,7 +884,7 @@ namespace holyc {
     break;
 
   case 36:
-#line 331 "holyc.yy"
+#line 332 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -892,7 +892,7 @@ namespace holyc {
     break;
 
   case 37:
-#line 336 "holyc.yy"
+#line 337 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[3].value.unparsePtr) + UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -900,7 +900,7 @@ namespace holyc {
     break;
 
   case 38:
-#line 342 "holyc.yy"
+#line 343 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -908,7 +908,7 @@ namespace holyc {
     break;
 
   case 39:
-#line 347 "holyc.yy"
+#line 348 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -916,7 +916,7 @@ namespace holyc {
     break;
 
   case 40:
-#line 353 "holyc.yy"
+#line 354 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -924,7 +924,7 @@ namespace holyc {
     break;
 
   case 41:
-#line 358 "holyc.yy"
+#line 359 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -932,7 +932,7 @@ namespace holyc {
     break;
 
   case 42:
-#line 363 "holyc.yy"
+#line 364 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -940,7 +940,7 @@ namespace holyc {
     break;
 
   case 43:
-#line 369 "holyc.yy"
+#line 370 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -948,7 +948,7 @@ namespace holyc {
     break;
 
   case 44:
-#line 375 "holyc.yy"
+#line 376 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -956,7 +956,7 @@ namespace holyc {
     break;
 
   case 45:
-#line 380 "holyc.yy"
+#line 381 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -964,7 +964,7 @@ namespace holyc {
     break;
 
   case 46:
-#line 386 "holyc.yy"
+#line 387 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -972,7 +972,7 @@ namespace holyc {
     break;
 
   case 47:
-#line 391 "holyc.yy"
+#line 392 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -980,7 +980,7 @@ namespace holyc {
     break;
 
   case 48:
-#line 397 "holyc.yy"
+#line 398 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + *(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -988,7 +988,7 @@ namespace holyc {
     break;
 
   case 49:
-#line 402 "holyc.yy"
+#line 403 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -996,7 +996,7 @@ namespace holyc {
     break;
 
   case 50:
-#line 408 "holyc.yy"
+#line 409 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + *(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -1004,7 +1004,7 @@ namespace holyc {
     break;
 
   case 51:
-#line 413 "holyc.yy"
+#line 414 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -1012,7 +1012,7 @@ namespace holyc {
     break;
 
   case 52:
-#line 419 "holyc.yy"
+#line 420 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[2].value.unparsePtr) + *(yystack_[1].value.unparsePtr) + *(yystack_[0].value.unparsePtr));
 }
@@ -1020,7 +1020,7 @@ namespace holyc {
     break;
 
   case 53:
-#line 424 "holyc.yy"
+#line 425 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -1028,7 +1028,7 @@ namespace holyc {
     break;
 
   case 54:
-#line 430 "holyc.yy"
+#line 431 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -1036,7 +1036,7 @@ namespace holyc {
     break;
 
   case 55:
-#line 435 "holyc.yy"
+#line 436 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -1044,7 +1044,7 @@ namespace holyc {
     break;
 
   case 56:
-#line 441 "holyc.yy"
+#line 442 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1052,7 +1052,7 @@ namespace holyc {
     break;
 
   case 57:
-#line 446 "holyc.yy"
+#line 447 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1060,7 +1060,7 @@ namespace holyc {
     break;
 
   case 58:
-#line 451 "holyc.yy"
+#line 452 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1068,7 +1068,7 @@ namespace holyc {
     break;
 
   case 59:
-#line 456 "holyc.yy"
+#line 457 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1076,7 +1076,7 @@ namespace holyc {
     break;
 
   case 60:
-#line 461 "holyc.yy"
+#line 462 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1084,7 +1084,7 @@ namespace holyc {
     break;
 
   case 61:
-#line 466 "holyc.yy"
+#line 467 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1092,7 +1092,7 @@ namespace holyc {
     break;
 
   case 62:
-#line 472 "holyc.yy"
+#line 473 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1100,7 +1100,7 @@ namespace holyc {
     break;
 
   case 63:
-#line 477 "holyc.yy"
+#line 478 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1108,7 +1108,7 @@ namespace holyc {
     break;
 
   case 64:
-#line 483 "holyc.yy"
+#line 484 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1116,7 +1116,7 @@ namespace holyc {
     break;
 
   case 65:
-#line 488 "holyc.yy"
+#line 489 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1124,7 +1124,7 @@ namespace holyc {
     break;
 
   case 66:
-#line 494 "holyc.yy"
+#line 495 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -1132,7 +1132,7 @@ namespace holyc {
     break;
 
   case 67:
-#line 499 "holyc.yy"
+#line 500 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transIntToken));
 }
@@ -1140,7 +1140,7 @@ namespace holyc {
     break;
 
   case 68:
-#line 504 "holyc.yy"
+#line 505 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transStrToken));
 }
@@ -1148,7 +1148,7 @@ namespace holyc {
     break;
 
   case 69:
-#line 509 "holyc.yy"
+#line 510 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transCharToken));
 }
@@ -1156,7 +1156,7 @@ namespace holyc {
     break;
 
   case 70:
-#line 514 "holyc.yy"
+#line 515 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1164,7 +1164,7 @@ namespace holyc {
     break;
 
   case 71:
-#line 519 "holyc.yy"
+#line 520 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1172,7 +1172,7 @@ namespace holyc {
     break;
 
   case 72:
-#line 524 "holyc.yy"
+#line 525 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transToken));
 }
@@ -1180,7 +1180,7 @@ namespace holyc {
     break;
 
   case 73:
-#line 529 "holyc.yy"
+#line 530 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -1188,7 +1188,7 @@ namespace holyc {
     break;
 
   case 74:
-#line 534 "holyc.yy"
+#line 535 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -1196,7 +1196,7 @@ namespace holyc {
     break;
 
   case 75:
-#line 540 "holyc.yy"
+#line 541 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = (yystack_[0].value.unparsePtr);
 }
@@ -1204,7 +1204,7 @@ namespace holyc {
     break;
 
   case 76:
-#line 545 "holyc.yy"
+#line 546 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[3].value.unparsePtr) + UnparseNode(*(yystack_[2].value.transToken)) + *(yystack_[1].value.unparsePtr) + UnparseNode(*(yystack_[0].value.transToken)));
 }
@@ -1212,7 +1212,7 @@ namespace holyc {
     break;
 
   case 77:
-#line 550 "holyc.yy"
+#line 551 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -1220,7 +1220,7 @@ namespace holyc {
     break;
 
   case 78:
-#line 555 "holyc.yy"
+#line 556 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(UnparseNode(*(yystack_[1].value.transToken)) + *(yystack_[0].value.unparsePtr));
 }
@@ -1228,7 +1228,7 @@ namespace holyc {
     break;
 
   case 79:
-#line 561 "holyc.yy"
+#line 562 "holyc.yy"
 {
 	(yylhs.value.unparsePtr) = new UnparseNode(*(yystack_[0].value.transIDToken));
 }
@@ -1707,14 +1707,14 @@ namespace holyc {
   const short
   Parser::yyrline_[] =
   {
-       0,   161,   161,   169,   174,   178,   182,   187,   192,   196,
-     200,   204,   208,   212,   216,   221,   227,   232,   238,   243,
-     249,   254,   259,   265,   270,   275,   280,   285,   290,   295,
-     300,   305,   310,   315,   320,   325,   330,   335,   341,   346,
-     352,   357,   362,   368,   374,   379,   385,   390,   396,   401,
-     407,   412,   418,   423,   429,   434,   440,   445,   450,   455,
-     460,   465,   471,   476,   482,   487,   493,   498,   503,   508,
-     513,   518,   523,   528,   533,   539,   544,   549,   554,   560
+       0,   162,   162,   170,   175,   179,   183,   188,   193,   197,
+     201,   205,   209,   213,   217,   222,   228,   233,   239,   244,
+     250,   255,   260,   266,   271,   276,   281,   286,   291,   296,
+     301,   306,   311,   316,   321,   326,   331,   336,   342,   347,
+     353,   358,   363,   369,   375,   380,   386,   391,   397,   402,
+     408,   413,   419,   424,   430,   435,   441,   446,   451,   456,
+     461,   466,   472,   477,   483,   488,   494,   499,   504,   509,
+     514,   519,   524,   529,   534,   540,   545,   550,   555,   561
   };
 
   // Print the state stack on the debug stream.
@@ -1801,7 +1801,7 @@ namespace holyc {
 } // holyc
 #line 1803 "parser.cc"
 
-#line 565 "holyc.yy"
+#line 566 "holyc.yy"
 
 
 void holyc::Parser::error(const std::string& err_message){
