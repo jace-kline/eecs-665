@@ -1,0 +1,60 @@
+spec-parse ::= spec-parse rule-parse 
+        | rule-parse
+
+rule-parse ::= regex-parse action-parse
+
+regex-parse ::= regex-parse BAR regex-term
+                | regex-term
+
+regex-term ::= regex-term regex-bunch
+            | regex-bunch
+
+regex-bunch ::= regex-group regex-unary-op
+            | regex-group
+
+regex-group ::= regex-char
+            | LPAREN regex-parse RPAREN
+            | DOUBLEQUOTE not-newline-chars DOUBLEQUOTE
+
+regex-char ::= LBRACE char-class RBRACE
+            | BACKSLASH esc-char
+            | normal-char
+            | DOT
+
+esc-char ::= t | n | DOUBLEQUOTE | SINGLEQUOTE | BACKSLASH | UNDERSCORE
+
+regex-unary-op ::= STAR
+                | PLUS
+                | QUESTION
+
+char-class ::= CARAT char-class-body
+            | char-class-body
+
+char-class-body ::= char-class-body char-class-term
+                 | char-class-term
+
+char-class-term ::= normal-char
+                 | esc-char
+                 | DOUBLEQUOTE any-char DOUBLEQUOTE
+                 | char-range
+
+char-range ::= normal-char DASH normal-char
+
+action ::= directive
+        | token-def
+
+directive ::= LPAREN SKIP RPAREN
+           | LPAREN ERR RPAREN quoted-str
+
+quoted-str ::= DOUBLEQUOTE str DOUBLEQUOTE
+            | DOUBLEQUOTE DOUBLEQUOTE
+
+token-def ::= token-name bool
+
+str ::= str char
+     | char
+
+char ::= normal-char
+      | BACKSLASH esc-char
+
+
