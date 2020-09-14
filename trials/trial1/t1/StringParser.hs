@@ -24,13 +24,3 @@ trimWS = dropWhile isSpaceNotNewline
 isNewline :: Char -> Bool
 isNewline '\n' = True
 isNewline _    = False
-
-
-
-
-
-matchFront :: String -> [String] -> Maybe String
-matchFront s xs = do
-    let ys = Just $ filter (\x -> take (length x) s == x) xs
-    (Just (m:ms)) <- ys
-    return m 

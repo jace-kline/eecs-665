@@ -58,20 +58,31 @@ regexGroupParser = cons1 <|> cons2 <|> cons3 <|> fail "Failed to parse RegexGrou
         cons3 = pure GroupQuoted <*> zeroOrMore anyCharParser
 
 data CharPrimitive = Chr Char
-                    | EscSeq String
+                    | EscSeq EscChar
+                    deriving (Show, Eq)
 
-escSeqs :: [String]
-escSeqs = ["\t", "\"", "\'", "\\", "\n", "\\_"]
+data EscChar = Tab | Backslash | Singlequote | Doublequote | Newline | Space
+    deriving (Show, Eq)
+
+toEscChar :: String -> Either String (EscCharToken, String)
+toEscChar [] = Left "No characters to parse"
+toEscChar (c:cs) 
+            | (c == '\t') = f Tab
+            | (c == '\"') = f Doublequote
+            | (c == '\'') = f Singlequote
+            | (c == '\n') = f Newline
+            | (c == '\\') = case cs of
+                []       -> f Backslash
+                (' ':_)  -> f Backslash
+                ('_':ys) -> return (Space, ys)
+            | otherwise = Left "No escape character match"
+                where f t = return (t, cs)
+
+escCharParser :: StringParser EscCharToken
+escCharParser = Parser $ \s -> toEscChar s
 
 charPrimitiveParser :: StringParser CharPrimitive
-charPrimitiveParser = Parser $ \ts ->
-    case ts of
-        []     -> Left "No characters to parse"
-        (v:vs) -> case filter (\x -> take (length x) s == x) escSeqs of
-                    [] -> if isAscii v && isPrint v 
-                          then return (Chr v, vs)
-                          else Left "Invalid character encountered"
-                    [m] -> return $ (EscSeq m, drop (length m) vs)
+charPrimitiveParser = pars
 
 anyCharParser :: StringParser Char
 anyCharParser = normalCharParser <|> escCharParser <|> fail "Could not parse character"
