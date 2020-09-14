@@ -38,6 +38,7 @@
 }
 
 %parse-param { holyc::Scanner &scanner }
+%parse-param { std::string* unparseFileNamePtr }
 
 %code{
    // C std code for utility functions
@@ -163,7 +164,10 @@ program 	: globals
 {
 	holyc::Token* eof_token = new holyc::Token(scanner.getLine(), scanner.getCol(), holyc::Parser::token::END);
 	UnparseNode unparsed = *$1 + *eof_token;
-	writeUnparsed(unparsed, std::cout);
+	if(unparseFileNamePtr != nullptr) {
+		std::ofstream ofs(*unparseFileNamePtr);
+		if(ofs.good()) writeUnparsed(unparsed, ofs);
+	}
 	// std::cout << unparsed.str << std::endl;
 }
 

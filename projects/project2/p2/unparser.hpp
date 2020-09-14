@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <ostream>
+#include <fstream>
 #include "tokens.hpp"
 
 // An UnparseNode object is simply a wrapper around a std::string with overloaded operators

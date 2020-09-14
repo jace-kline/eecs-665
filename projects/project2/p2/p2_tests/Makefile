@@ -10,7 +10,7 @@ test: $(TESTS)
 test%: test%.holyc
 	@printf "%s\n" "Running $@: "
 	@../holycc $< -t $@.tokens
-	@../holycc $< -p 1> $@.unparsed 2> $@.err
+	@../holycc $< -u $@.unparsed 2> $@.err
 	-diff $@.unparsed $@.tokens
 	@touch $@.err.expected
 	-diff $@.err $@.err.expected
