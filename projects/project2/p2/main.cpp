@@ -11,6 +11,7 @@ static void usageAndDie(){
 	std::cerr << "Usage: holycc <infile>"
 	<< " [-p]: Parse the input to check syntax\n"
 	<< " [-t <tokensFile>]: Output tokens to <tokensFile>\n"
+	<< " [-u <unparsedTokensFile>]: Output the yield of the parse tree to the given file\n"
 	;
 	exit(1);
 }
@@ -42,7 +43,7 @@ static void writeTokenStream(const char * inPath, const char * outPath){
 	}
 }
 
-static bool parse(const char * inFile){
+static bool parse(const char * inFile, const char * unparseFile){
 	std::ifstream inStream(inFile);
 	if (!inStream.good()){
 		std::string msg = "Bad input stream ";
@@ -51,7 +52,7 @@ static bool parse(const char * inFile){
 	}
 
 	holyc::Scanner scanner(&inStream);
-	holyc::Parser parser(scanner);
+	holyc::Parser parser(scanner, (unparseFile != NULL) ? new std::string(unparseFile) : nullptr);
 	int errCode = parser.parse();
 	if (errCode != 0){ return false; }
 
@@ -66,6 +67,7 @@ main( const int argc, const char **argv )
 	}
 	const char * inFile = NULL;
 	const char * tokensFile = NULL;
+	const char * unparseFile = NULL;
 	bool checkParse = false;
 	bool useful = false;
 	int i = 1;
@@ -77,6 +79,11 @@ main( const int argc, const char **argv )
 				useful = true;
 			} else if (argv[i][1] == 'p'){
 				i++;
+				checkParse = true;
+				useful = true;
+			} else if (argv[i][1] == 'u'){
+				i++;
+				unparseFile = argv[i];
 				checkParse = true;
 				useful = true;
 			} else {
@@ -112,7 +119,7 @@ main( const int argc, const char **argv )
 
 	if (checkParse){
 		try {
-			bool parsed = parse(inFile);
+			bool parsed = parse(inFile, unparseFile);
 			if (!parsed){
 				std::cerr << "Parse failed" << std::endl;
 			}
