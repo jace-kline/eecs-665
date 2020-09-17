@@ -1,53 +1,91 @@
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Parser where
-    
-import Control.Monad
-import Control.Applicative
 
-newtype Parser t a = Parser { runParser :: [t] -> Either String (a, [t]) }
+import Data.Char
+import Text.ParserCombinators.ReadP
 
-instance Functor (Parser t) where
-    fmap f (Parser g) = Parser $ \ts -> fmap (\(x,y) -> (f x, y)) $ g ts
+data ParseContext where
+    TopLevel :: ParseContext
+    QuotedStr :: ParseContext
+    CharClass :: ParseContext
+    QuotedCharClass :: ParseContext
+    deriving (Eq, Show)
 
-instance Applicative (Parser t) where
-    pure x = Parser $ \ts -> pure (x, ts)
-    liftA2 f (Parser g) (Parser h) = Parser $ \ts -> do
-        (x, ts')  <- g ts
-        (y, ts'') <- h ts'
-        return (f x y, ts'')
+escSeqs :: [String]
+escSeqs = ["\\t", "\\\"", "\\'", "\\\\", "\\n"]
 
-instance Alternative (Parser t) where
-    empty = Parser $ \_ -> Left "Parse failed on disjunction options"
-    (Parser g) <|> (Parser h) = Parser $ \ts -> 
-        case g ts of
-            Left m   -> h ts
-            x        -> x
+toEscRep :: String -> Char
+toEscRep s = case s of
+    "\\t"   -> '\t'
+    "\\\""  -> '\"'
+    "\\'"   -> '\''
+    "\\\\"  -> '\\'
+    "\\n"   -> '\n'
+    _       -> error $ "Invalid argument"
 
-instance Monad (Parser t) where
-    return = pure
-    (Parser g) >>= h = Parser $ \ts -> 
-        case g ts of
-            Right (x, ts') -> (runParser $ h x) ts'
-            Left es        -> Left es
+-- These are chars that should not be parsed by the
+-- normalSeqParse parser, depending on context
+reserveChars :: ParseContext -> [Char]
+reserveChars context = case context of
+    TopLevel -> "\\<>[()].$*+?|\n\t"
+    QuotedStr -> "\""
+    CharClass -> "]^"
+    QuotedCharClass -> "\""
 
-instance MonadFail (Parser t) where
-    fail msg = Parser $ \_ -> Left msg
+escSeqParse :: ParseContext -> ReadP String
+escSeqParse context = esc +++ space
+    where esc = do
+                s <- choice $ map string escSeqs
+                return [toEscRep s]
+          space = do
+                string "\\_"
+                return $ case context of
+                    TopLevel -> "[ ]"
+                    _        -> "\\_"
 
+-- parses a character (normal or escape)
+singleCharParse :: ParseContext -> ReadP String
+singleCharParse context = escSeqParse context <++ p
+    where p = do
+            ch <- satisfy (\c -> isPrint c && (not $ c `elem` (reserveChars context)))
+            return [ch]
 
-combine :: Parser t a -> Parser t [a] -> Parser t [a]
-combine = liftA2 (:)
+infixl 6 <**>
+(<**>) :: (Monoid a) => ReadP a -> ReadP a -> ReadP a
+l <**> r = do
+    lval <- l
+    rval <- r
+    return $ lval <> rval
 
-someWithSeparator :: Parser t a -> Parser t b -> Parser t [a]
-someWithSeparator f sep = (liftA3 (\x _ z -> x : z) f sep (someWithSeparator f sep)) 
-                        <|> fmap (\x -> [x]) f
+trimSpaces :: ReadP a -> ReadP a
+trimSpaces p = do
+    skipSpaces
+    v <- p
+    return v
 
-appSum :: (Alternative f) => [f a] -> f a                      
-appSum = foldr (<|>) empty
+combine :: (Monoid a) => ReadP [a] -> ReadP a
+combine pas = foldr1 (<>) <$> pas
 
-failWithContext :: String -> ([t] -> String) -> Parser t a
-failWithContext msg f = Parser $ \ts -> Left $ msg ++ f ts
+surroundedBy :: String -> String -> ReadP String -> ReadP String
+surroundedBy l r p = (string l >>= return) <**> p <**> (string r >>= return)
 
-zeroOrMore :: Parser t a -> Parser t [a]
-zeroOrMore p = (pure (:) <*> p <*> zeroOrMore p) <|> ((pure :: a -> [a]) p) <|> pure []
+leftAssocOp :: String -> ReadP String -> ReadP String
+leftAssocOp op baseparser = f
+    where g = trimSpaces baseparser <**> trimSpaces (string op >>= return) <**> f
+          f = g <++ baseparser
 
-oneOrMore :: Parser t a -> Parser t [a]
-oneOrMore p = (pure (:) <*> p <*> oneOrMore p) <|> ((pure :: a -> [a]) p) <|> empty 
+quotedStr :: ReadP String
+quotedStr = surroundedBy "\"" "\"" $ combine $ many $ singleCharParse QuotedStr
+
+runReadP :: ReadP a -> String -> [(a, String)]
+runReadP = readP_to_S
+
+runParser = runReadP
+
+evalReadP :: ReadP a -> String -> Maybe a
+evalReadP p s = case runReadP p s of
+    []  -> Nothing
+    xs  -> Just $ (fst . last) xs
+
+evalParser = evalReadP
