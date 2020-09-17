@@ -9,11 +9,14 @@ test: $(TESTS)
 
 test%: test%.holyc
 	@printf "%s\n" "Running $@: "
-	@../holycc $< -t $@.tokens
-	@../holycc $< -u $@.unparsed 2> $@.err
-	-diff $@.unparsed $@.tokens
+	@touch $@.tokens
+	@../holycc $< -t $@.tokens 1> /dev/null
+	@../holycc $< -u $@.unparsed 1> /dev/null 2> $@.err
+	@-if test -f "@.unparsed"; then diff $@.unparsed $@.tokens; fi
+	@echo "Token diff:"
+	@echo "Error diff:"
 	@touch $@.err.expected
-	-diff $@.err $@.err.expected
+	@-diff $@.err $@.err.expected
 	@printf "%s\n\n" "$@ complete"
 
 clean: $(TEST_CLEANS)
