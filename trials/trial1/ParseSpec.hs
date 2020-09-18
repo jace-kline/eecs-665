@@ -8,17 +8,21 @@ import Data.Char
 import Text.Regex.Posix
 import Text.ParserCombinators.ReadP
 
-data RuleParse where
-    RuleParse :: RegexParse -> ActionParse -> RuleParse
+type RuleParse = (RegexParse, ActionParse)
+type Name = String
+type Value = String
 
 data ActionParse where
     Skip :: ActionParse
     Err :: String -> ActionParse
-    Token :: String -> Bool -> ActionParse
+    Token :: Name -> Bool -> Value -> ActionParse
     deriving (Eq, Show)
 
+ruleParse :: ReadP RuleParse
+ruleParse = (,) <$> regexParse <*> actionParse
+
 actionParse :: ReadP ActionParse
-actionParse = skipSpaces >> (skip +++ err +++ token)
+actionParse = skipSpaces >> (skip +++ err +++ token) >>= \ret -> skipSpaces >> return ret
     where 
         skip = string "(SKIP)" >> return Skip
         err = do
@@ -30,6 +34,6 @@ actionParse = skipSpaces >> (skip +++ err +++ token)
             id <- token_id
             skipSpaces
             b <- store
-            return $ Token id b
+            return $ Token id b []
         token_id = (foldr (:) []) <$> (many1 $ satisfy isUpper)
         store = (string "true" >> return True) +++ (string "false" >> return False)

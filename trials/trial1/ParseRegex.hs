@@ -24,7 +24,7 @@ data RegexParse where
 regexParse :: ReadP RegexParse
 regexParse = skipSpaces >> (eof <++ regex)
     where 
-        eof = string "<<EOF>>" >> skipSpaces >> return EOF
+        eof = string "<<EOF>>" >> return EOF
         regex = RegexParse <$> ((return "^") <**> disjunctionsParse)
         
 disjunctionsParse :: ReadP String
@@ -43,8 +43,10 @@ unaryBunchParse = groupParse <**> opParse <++ groupParse
         f op = string op >>= return
 
 groupParse :: ReadP String
-groupParse = parens <++ quotedParse <++ charParse
-    where parens = skipSpaces >> surroundedBy "(" ")" disjunctionsParse
+groupParse = parens <++ quotedParse <++ dotParse <++ charParse
+    where
+        dotParse = string "." >>= return 
+        parens = surroundedBy "(" ")" disjunctionsParse
 
 quotedParse :: ReadP String
 quotedParse = surroundedBy "\"" "\"" $ combine $ many1 $ singleCharParse QuotedStr

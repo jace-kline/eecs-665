@@ -28,7 +28,7 @@ toEscRep s = case s of
 -- normalSeqParse parser, depending on context
 reserveChars :: ParseContext -> [Char]
 reserveChars context = case context of
-    TopLevel -> "\\<>[()].$*+?|\n\t"
+    TopLevel -> "\\<>[()].$*+?|\n\t "
     QuotedStr -> "\""
     CharClass -> "]^"
     QuotedCharClass -> "\""
@@ -72,11 +72,19 @@ surroundedBy l r p = (string l >>= return) <**> p <**> (string r >>= return)
 
 leftAssocOp :: String -> ReadP String -> ReadP String
 leftAssocOp op baseparser = f
-    where g = trimSpaces baseparser <**> trimSpaces (string op >>= return) <**> f
+    where g = baseparser <**> (string op >>= return) <**> f
           f = g <++ baseparser
 
 quotedStr :: ReadP String
 quotedStr = surroundedBy "\"" "\"" $ combine $ many $ singleCharParse QuotedStr
+
+parallel :: ((a,String) -> (a,String) -> (a,String)) -> [ReadP a] -> ReadP a
+parallel f ps = readS_to_P $ \s ->
+    let ys = filter (\xs -> not (null xs)) $ map (\p -> runParser p s) ps
+    in case ys of
+        [] -> []
+        zs -> let (v, rest) = foldr1 f $ concat zs
+              in [(v, rest)]
 
 runReadP :: ReadP a -> String -> [(a, String)]
 runReadP = readP_to_S

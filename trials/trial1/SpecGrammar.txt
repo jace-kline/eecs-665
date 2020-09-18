@@ -3,11 +3,14 @@ spec-parse ::= spec-parse rule-parse
 
 rule-parse ::= regex-parse action-parse
 
+disjunctions
 regex-parse ::= regex-parse BAR regex-term
                 | regex-term
 
+conjunctions
 regex-term ::= regex-term regex-bunch
-            | regex-bunch
+            | regex-bunch DOLLAR
+            | DOLLAR
 
 regex-bunch ::= regex-group regex-unary-op
             | regex-group
