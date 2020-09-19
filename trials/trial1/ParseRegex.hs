@@ -1,25 +1,21 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric #-}
 module ParseRegex where
 
 import Parser
 import Data.Char
 import Text.Regex.Posix
 import Text.ParserCombinators.ReadP
-
--- Use the operator <string> =~ <regex-string> :: String
--- If no match, an empty string is returned
--- If match, the string is returned
-
--- Since we imported a library that can directly read strings as Regexs
--- and interpret them, we can just manipulate our strings to match the
--- expected syntax
--- We must make sure that each regex only matches from the front of the string
+import Data.Binary
+import GHC.Generics (Generic)
 
 data RegexParse where
     EOF :: RegexParse
     RegexParse :: String -> RegexParse
-    deriving (Eq, Show)
+    deriving (Generic, Eq, Show)
+
+instance Binary RegexParse
 
 regexParse :: ReadP RegexParse
 regexParse = skipSpaces >> (eof <++ regex)

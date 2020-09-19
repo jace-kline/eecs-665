@@ -1,2 +1,1 @@
-(\n)(\t)(\_)(\\)
-Hello, this is a new line
+maaan bites dog

@@ -1,6 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleContexts #-}
-module Lexer where
+module Lex where
 
 import Parser
 import ParseRegex
@@ -20,17 +20,18 @@ type Input = String
 type InputMachine = [ReadP (Token,Length)]
 
 data TokenInstance where
-    TokenInstance :: Token -> Location -> TokenInstance
+    TokenInstance :: Token -> Length -> Location -> TokenInstance
+    deriving (Eq, Show)
 
 outputTokenInstance :: TokenInstance -> IO ()
-outputTokenInstance (TokenInstance Skip (l,c)) = return ()
-outputTokenInstance (TokenInstance (Err e) (l,c)) = hPutStrLn stderr $ e ++ concat [" [", show l, show c, "]", "\n"]
-outputTokenInstance (TokenInstance (Token n b s) (l,c)) = do
+outputTokenInstance (TokenInstance Skip len (l,c)) = return ()
+outputTokenInstance (TokenInstance (Err e) len (l,c)) = hPutStrLn stderr $ e ++ concat [" [", show l, ",", show c, "]", "\n"]
+outputTokenInstance (TokenInstance (Token n b s) len (l,c)) = do
     putStr n
     case b of
         False -> return ()
-        True  -> putStr $ ' ':s
-    putStr $ concat ["[", show l, show c, "]", "\n"]
+        True  -> putStr $ ':':s
+    putStr $ concat [" [", show l, ",", show c, "]", "\n"]
 
 
 regexParsers :: [(RegexParse,Token)] -> InputMachine
@@ -50,24 +51,25 @@ matchLongest ps = parallel f ps
     where f l@((tl,ll),sl) r@((tr,lr),sr) = if ll >= lr then l else r
 
 
-lineTokenize :: InputMachine -> ReadP [(Token,Col)]
+lineTokenize :: InputMachine -> ReadP [(Token,Length,Col)]
 lineTokenize ps = foldl g start <$> (many $ matchLongest ps)
     where 
-        start = [(Skip,1)]
-        g :: [(Token,Col)] -> (Token,Length) -> [(Token,Col)]
-        g xs@((t,c):_) (t',len) = (t',c+len):xs
+        start = [(Skip,0,1)]
+        g :: [(Token,Length,Col)] -> (Token,Length) -> [(Token,Length,Col)]
+        g xs@((t,l,c):_) (t',len) = (t',len,c+l):xs
 
 lineTokenizer :: InputMachine -> Line -> ReadP [TokenInstance]
 lineTokenizer ps l = map f <$> (lineTokenize ps)
     where
-        f :: (Token,Col) -> TokenInstance
-        f (t,c) = TokenInstance t (l,c)
+        f :: (Token,Length,Col) -> TokenInstance
+        f (t,len,c) = TokenInstance t len (l,c)
 
 linesTokenizer :: InputMachine -> [String] -> [TokenInstance]
 linesTokenizer ps ls = 
     let lineTokenizers = map (lineTokenizer ps) [1..(length ls)]
         parsedLines = map (uncurry runParser) $ zip lineTokenizers ls
-    in concat $ map fst $ concat parsedLines
+    in 
+        if null parsedLines then [] else reverse $ concat $ map (fst . last) parsedLines
 
 lexer :: InputMachine -> Input -> IO ()
 lexer m s = sequence_ $ map outputTokenInstance $ linesTokenizer m (lines s)

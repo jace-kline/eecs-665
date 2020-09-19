@@ -1,5 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric #-}
 module ParseSpec where
 
 import Parser
@@ -7,6 +8,8 @@ import ParseRegex
 import Data.Char
 import Text.Regex.Posix
 import Text.ParserCombinators.ReadP
+import Data.Binary
+import GHC.Generics (Generic)
 
 type RuleParse = (RegexParse, ActionParse)
 type Name = String
@@ -16,9 +19,14 @@ data ActionParse where
     Skip :: ActionParse
     Err :: String -> ActionParse
     Token :: Name -> Bool -> Value -> ActionParse
-    deriving (Eq, Show)
+    deriving (Generic, Eq, Show)
 
-ruleParse :: ReadP RuleParse
+instance Binary ActionParse
+
+specLinesLexer :: [String] -> [[(RegexParse,ActionParse)]]
+specLinesLexer ls = map (map fst . runParser ruleParse) ls
+
+ruleParse :: ReadP (RegexParse,ActionParse)
 ruleParse = (,) <$> regexParse <*> actionParse
 
 actionParse :: ReadP ActionParse
