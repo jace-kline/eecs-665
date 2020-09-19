@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Parser where
 
+import Data.Monoid
 import Data.Char
 import Text.ParserCombinators.ReadP
 
