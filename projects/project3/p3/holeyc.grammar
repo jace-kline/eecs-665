@@ -1,0 +1,105 @@
+/*********************************************************************
+ Grammar for Holy C programs
+ ********************************************************************/
+program         ::= globals
+\\
+
+globals         ::= globals decl
+                | /* epsilon */
+\\
+
+decl            ::= varDecl
+                | fnDecl
+
+
+varDecl         ::= type id SEMICOLON
+\\
+
+type            ::= INT
+		|   INTPTR
+                |   BOOL
+                |   BOOLPTR
+                |   CHAR
+                |   CHARPTR
+                |   VOID
+\\
+
+fnDecl          ::= type id formals fnBody
+\\
+
+formals         ::= LPAREN RPAREN
+                | LPAREN formalsList RPAREN
+\\
+
+formalsList     ::= formalDecl
+                | formalDecl COMMA formalsList
+
+formalDecl      ::= type id
+\\
+
+fnBody          ::= LCURLY stmtList RCURLY
+\\
+
+stmtList        ::= stmtList stmt
+                | /* epsilon */
+\\
+
+stmt            ::= varDecl SEMICOLON \\ VarDeclStmtNode
+                | assignExp SEMICOLON \\ AssignStmtNode
+                | lval DASHDASH SEMICOLON \\ LValStmtNode
+                | lval CROSSCROSS SEMICOLON \\..
+                | FROMCONSOLE lval SEMICOLON \\..
+                | TOCONSOLE exp SEMICOLON \\ExpStmtNode
+                | IF LPAREN exp RPAREN LCURLY stmtList RCURLY
+                | IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
+                | WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
+                | RETURN exp SEMICOLON \\ExpStmtNode
+                | RETURN SEMICOLON \\ExpStmtNode
+                | fncall SEMICOLON \\FnCallStmtNode
+\\
+
+assignExp       ::= lval ASSIGN exp 
+\\
+
+fncall          ::=  id LPAREN RPAREN   // fn call with no args
+                | id LPAREN actualsList RPAREN  // with args
+\\
+
+actualsList     ::= exp
+                | actualList COMMA exp
+\\
+
+exp             ::= assignExp
+                | exp DASH exp
+                | exp CROSS exp
+                | exp STAR exp
+                | exp SLASH exp
+                | exp AND exp
+                | exp OR exp
+                | exp EQUALS exp
+                | exp NOTEQUALS exp
+                | exp GREATER exp
+                | exp GREATEREQ exp
+                | exp LESS exp
+                | exp LESSEQ exp
+                | NOT exp
+                | DASH term
+                | term
+\\
+
+term            ::= lval
+                | INTLITERAL
+                | STRLITERAL
+                | CHARLIT
+                | TRUE
+                | FALSE
+                | NULLPTR
+                | LPAREN exp RPAREN
+                | fncall
+
+lval             ::= id
+                | id LBRACE exp RBRACE
+                | AT id
+                | CARAT id
+
+id              ::= ID
