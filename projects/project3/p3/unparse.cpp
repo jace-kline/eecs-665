@@ -10,6 +10,14 @@ static void doIndent(std::ostream& out, int indent){
 	for (int k = 0 ; k < indent; k++){ out << "\t"; }
 }
 
+static void unparseExp(std::ostream& out, int indent, ExpNode* exp){
+	doIndent(out, indent);
+	bool p = exp->parenthesize();
+	if(p) out << "(";
+	exp->unparse(out, 0);
+	if(p) out << ")"; 
+}
+
 /*
 In this code, the intention is that functions are grouped 
 into files by purpose, rather than by class.
@@ -37,6 +45,7 @@ void ProgramNode::unparse(std::ostream& out, int indent){
 		   type DeclNode *.
 		*/
 		global->unparse(out, indent);
+		out << "\n";
 	}
 }
 
@@ -100,13 +109,14 @@ void ExpStmtNode::unparse(std::ostream& out, int indent){
 	switch(t_) {
 		case TOCONSOLE: {
 			out << "TOCONSOLE ";
-			this->exp_->unparse(out, 0);
+			exp_->unparse(out,0);
 			break;
 		}
 		case RETURN: {
 			out << "return";
 			if(this->exp_ != nullptr) {
-				this->exp_->unparse(out, 0);
+				out << " ";
+				exp_->unparse(out,0);
 			}
 			break;
 		}
@@ -116,7 +126,7 @@ void ExpStmtNode::unparse(std::ostream& out, int indent){
 
 void CondStmtNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	out << (t_ == WHILE ? "while(" : "if(");
+	out << (t_ == WHILE ? "while (" : "if (");
 	this->exp_->unparse(out,0);
 	out << "){\n";
 	for (auto stmt : *stmtList1_) {
@@ -124,7 +134,7 @@ void CondStmtNode::unparse(std::ostream& out, int indent){
 		out << "\n";
 	}
 	doIndent(out,indent);
-	out << "}\n";
+	out << "} ";
 	if(t_ == IFELSE) {
 		doIndent(out, indent);
 		out << "else {\n";
@@ -133,8 +143,9 @@ void CondStmtNode::unparse(std::ostream& out, int indent){
 			out << "\n";
 		}
 		doIndent(out, indent);
-		out << "}\n";
+		out << "}";
 	}
+	out << "\n";
 }
 
 void FnCallStmtNode::unparse(std::ostream& out, int indent){
@@ -159,43 +170,38 @@ void FnCallNode::unparse(std::ostream& out, int indent){
 void AssignExpNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
 	this->lval_->unparse(out,0);
-	out << " = (";
-	this->exp_->unparse(out,0);
-	out << ")";
+	out << " = ";
+	unparseExp(out,0,exp_);
 }
 
 void BinOpExpNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
-	out << "(";
-	this->left_->unparse(out,0);
+	unparseExp(out,0,left_);
 	out << " ";
 	switch(op_) {
-		case DASH_BIN : out << "-"; break;
-		case CROSS : out << "+"; break;
-		case STAR : out << "*"; break;
-		case SLASH : out << "/"; break;
-		case AND : out << "&&"; break;
-		case OR : out << "||"; break;
-		case EQUALS : out << "=="; break;
-		case NOTEQUALS : out << "!="; break;
-		case GREATER : out << ">"; break;
-		case GREATEREQ : out << ">="; break;
-		case LESS : out << "<"; break;
-		case LESSEQ : out << "<="; break;
+		case DASH_BIN : out << "- "; break;
+		case CROSS : out << "+ "; break;
+		case STAR : out << "* "; break;
+		case SLASH : out << "/ "; break;
+		case AND : out << "&& "; break;
+		case OR : out << "|| "; break;
+		case EQUALS : out << "== "; break;
+		case NOTEQUALS : out << "!= "; break;
+		case GREATER : out << "> "; break;
+		case GREATEREQ : out << ">= "; break;
+		case LESS : out << "< "; break;
+		case LESSEQ : out << "<= "; break;
 	}
-	this->right_->unparse(out,0);
-	out << ")";
+	unparseExp(out,0,right_);
 }
 
 void UnOpExpNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
-	out << "(";
 	switch(op_) {
 		case NOT: out << "!"; break;
 		case DASH_UN: out << "-"; break;
 	}
-	this->exp_->unparse(out,0);
-	out << ")";
+	unparseExp(out,0,exp_);
 }
 
 void LValUnOpNode::unparse(std::ostream& out, int indent){
@@ -206,8 +212,9 @@ void LValUnOpNode::unparse(std::ostream& out, int indent){
 
 void LValIndexNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
-	out << this->id_ << "[";
-	this->exp_->unparse(out, 0);
+	this->id_->unparse(out,0);
+	out << "[";
+	this->exp_->unparse(out,0);
 	out << "]";
 }
 
@@ -222,9 +229,7 @@ void TermPrimitiveNode::unparse(std::ostream& out, int indent){
 
 void TermGrpNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
-	out << "(";
-	this->exp_->unparse(out,0);
-	out << ")";
+	unparseExp(out,0,exp_);
 }
 
 void IntLitNode::unparse(std::ostream& out, int indent){
@@ -234,6 +239,7 @@ void IntLitNode::unparse(std::ostream& out, int indent){
 
 void CharLitNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
+	out << "'";
 	out << this->val_;
 }
 
@@ -255,9 +261,7 @@ void FnDeclNode::unparse(std::ostream& out, int indent){
 	this->type_->unparse(out, 0);
 	out << " ";
 	this->id_->unparse(out, 0);
-	out << "(";
 	this->formals_->unparse(out,0);
-	out << ")";
 	this->fnBody_->unparse(out,indent);
 }
 

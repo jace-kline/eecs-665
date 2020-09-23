@@ -1,0 +1,11 @@
+int main(){
+	int x;
+	x = (5 + (3 / 4));
+	bool y;
+	bool z;
+	z = true;
+	y = (!z);
+	while (true){
+		TOCONSOLE "hello";
+	}
+}

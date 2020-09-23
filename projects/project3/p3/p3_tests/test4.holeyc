@@ -1,0 +1,6 @@
+int main() {
+    char y;
+    FROMCONSOLE y;
+    TOCONSOLE 5 + toint(y);
+    return 0;
+}

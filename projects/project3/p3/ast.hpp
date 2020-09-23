@@ -181,16 +181,19 @@ private:
 **/
 class ExpNode : public ASTNode{
 public:
-	ExpNode(size_t line, size_t col) 
-	: ASTNode(line, col){
+	ExpNode(size_t line, size_t col, bool parenthesize) 
+	: ASTNode(line, col), parenthesize_(parenthesize){
 	}
 	virtual void unparse(std::ostream& out, int indent) = 0;
+	bool parenthesize() const { return parenthesize_; }
+private:
+	bool parenthesize_;
 };
 
 class FnCallNode : public ExpNode {
 public:
 	FnCallNode(size_t line, size_t col, IDNode* id, std::list<ExpNode *> * argsList)
-	: ExpNode(line,col), id_(id), argsList_(argsList){
+	: ExpNode(line,col,true), id_(id), argsList_(argsList){
 	}
 	void unparse(std::ostream& out, int indent) override;
 private:
@@ -201,7 +204,7 @@ private:
 class AssignExpNode : public ExpNode{
 public:
 	AssignExpNode(size_t line, size_t col, LValNode* lval, ExpNode* exp) 
-	: ExpNode(line, col), lval_(lval), exp_(exp) {
+	: ExpNode(line, col, false), lval_(lval), exp_(exp) {
 	}
 	void unparse(std::ostream& out, int indent) override;
 private:
@@ -214,7 +217,7 @@ enum BinOpType {DASH_BIN, CROSS, STAR, SLASH, AND, OR, EQUALS, NOTEQUALS, GREATE
 class BinOpExpNode : public ExpNode{
 public:
 	BinOpExpNode(size_t line, size_t col, ExpNode* left, ExpNode* right, BinOpType op) 
-	: ExpNode(line, col), left_(left), right_(right), op_(op) {
+	: ExpNode(line, col, true), left_(left), right_(right), op_(op) {
 	}
 	void unparse(std::ostream& out, int indent) override;
 private:
@@ -229,7 +232,7 @@ enum UnOpType {NOT, DASH_UN};
 class UnOpExpNode : public ExpNode{
 public:
 	UnOpExpNode(size_t line, size_t col, ExpNode* exp, UnOpType op) 
-	: ExpNode(line, col), exp_(exp), op_(op) {
+	: ExpNode(line, col, true), exp_(exp), op_(op) {
 	}
 	void unparse(std::ostream& out, int indent) override;
 private:
@@ -241,7 +244,7 @@ private:
 class LValNode : public ExpNode {
 protected:
 	LValNode(size_t line, size_t col) 
-	: ExpNode(line, col) {
+	: ExpNode(line, col, false) {
 	}
 public:
 	virtual void unparse(std::ostream& out, int indent) = 0;
@@ -277,7 +280,7 @@ enum TermPrimitiveType {TRUE, FALSE, NULLPTR};
 class TermPrimitiveNode : public ExpNode{
 public:
 	TermPrimitiveNode(size_t line, size_t col, TermPrimitiveType t) 
-	: ExpNode(line, col), t_(t) {
+	: ExpNode(line, col, false), t_(t) {
 	}
 	void unparse(std::ostream& out, int indent) override;
 private:
@@ -288,7 +291,7 @@ private:
 class TermGrpNode : public ExpNode {
 	public:
 	TermGrpNode(size_t line, size_t col, ExpNode* exp)
-	: ExpNode(line, col), exp_(exp){
+	: ExpNode(line, col, false), exp_(exp){
 	}
 	void unparse(std::ostream& out, int indent) override;
 private:
@@ -298,7 +301,7 @@ private:
 class IntLitNode : public ExpNode {
 public:
 	IntLitNode(IntLitToken * token) 
-	: ExpNode(token->line(), token->col()), val_(token->num()) {
+	: ExpNode(token->line(), token->col(), false), val_(token->num()) {
 		val_ = token->num();
 	}
 	void unparse(std::ostream& out, int indent) override;
@@ -309,7 +312,7 @@ private:
 class CharLitNode : public ExpNode {
 public:
 	CharLitNode(CharLitToken * token) 
-	: ExpNode(token->line(), token->col()), val_(token->val()) {
+	: ExpNode(token->line(), token->col(), false), val_(token->val()) {
 		val_ = token->val();
 	}
 	void unparse(std::ostream& out, int indent) override;
@@ -320,7 +323,7 @@ private:
 class StrLitNode : public ExpNode{
 public:
 	StrLitNode(StrToken * token) 
-	: ExpNode(token->line(), token->col()), val_(token->str()) {
+	: ExpNode(token->line(), token->col(), false), val_(token->str()) {
 		val_ = token->str();
 	}
 	void unparse(std::ostream& out, int indent) override;

@@ -1,0 +1,8 @@
+bool isGood() {}
+
+# Test comment
+
+int isBad(boolptr a, char b, intptr c) {
+    int x;
+    x = 1 + (2 / 3);
+}

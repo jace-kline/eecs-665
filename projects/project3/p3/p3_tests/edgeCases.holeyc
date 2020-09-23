@@ -1,0 +1,14 @@
+int main(int argc, charptr argv) {
+    intptr x;
+    x[3]++;
+    bool myvar;
+    myvar = true && true || (tobool(5 - 4));
+    funccall(x,x[3],2 + 7 / 5, !myvar);
+    int myint;
+    intptr another;
+    myint = @argc;
+    another = ^argc;
+    int y;
+    y = x[17 + 33 - 10 * 6 / 5];
+    printFunc("Hello this is a test", 1, 2, 3);
+}

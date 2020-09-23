@@ -1,0 +1,5 @@
+int main(){
+	int x;
+	x = 7;
+	return ((fncall(3 + 3)) / x) + (5 * 3);
+}

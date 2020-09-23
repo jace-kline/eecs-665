@@ -1,0 +1,35 @@
+int main() {
+    int x;
+    x = 1;
+    x--;
+    x++;
+    char y;
+    FROMCONSOLE y;
+    TOCONSOLE (toint(y) + 5);
+
+    if(x < (5 - 4)) {
+        TOCONSOLE "x is less than 1";
+    }
+
+    if(y == 'c) {
+        TOCONSOLE "y is character c";
+    } else {
+        TOCONSOLE "y is not character c";
+    }
+
+    int i;
+    i = 0;
+    while(i < 20) {
+        TOCONSOLE "hello";
+        i++;
+        x--;
+    }
+
+    myfunction(^x);
+
+    return (x);
+}
+
+void myfunction(intptr p) {
+    return;
+}
