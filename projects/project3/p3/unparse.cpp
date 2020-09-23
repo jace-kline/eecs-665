@@ -10,24 +10,6 @@ static void doIndent(std::ostream& out, int indent){
 	for (int k = 0 ; k < indent; k++){ out << "\t"; }
 }
 
-// Map each binary operator to its string representation
-std::string binOpStr(BinOpType t) {
-	switch(t) {
-		case DASH : return "-";
-		case CROSS : return "+";
-		case STAR : return "*";
-		case SLASH : return "/";
-		case AND : return "&&";
-		case OR : return "||";
-		case EQUALS : return "==";
-		case NOTEQUALS : return "!=";
-		case GREATER : return ">";
-		case GREATEREQ : return ">=";
-		case LESS : return "<";
-		case LESSEQ : return "<=";
-	}
-}
-
 /*
 In this code, the intention is that functions are grouped 
 into files by purpose, rather than by class.
@@ -58,6 +40,29 @@ void ProgramNode::unparse(std::ostream& out, int indent){
 	}
 }
 
+void FnBodyNode::unparse(std::ostream& out, int indent){
+	out << "{\n";
+	for(auto stmt : *stmtList_) {
+		stmt->unparse(out,indent+1);
+		out << "\n";
+	}
+	doIndent(out,indent);
+	out << "}\n";
+}
+
+void FormalsNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << "(";
+	int i = formalsList_->size();
+	for(auto formal : *formalsList_) {
+		formal->unparse(out,0);
+		i--;
+		if(i > 0) out << ", ";
+	}
+	out << ")";
+
+}
+
 void VarDeclStmtNode::unparse(std::ostream& out, int indent){
 	this->varDecl_->unparse(out, indent);
 }
@@ -65,7 +70,7 @@ void VarDeclStmtNode::unparse(std::ostream& out, int indent){
 void AssignStmtNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	this->assignExp_->unparse(out, 0);
-	out << ";\n";
+	out << ";";
 }
 
 void LValStmtNode::unparse(std::ostream& out, int indent){
@@ -74,14 +79,17 @@ void LValStmtNode::unparse(std::ostream& out, int indent){
 		case INC: {
 			this->lval_->unparse(out, 0);
 			out << "++";
+			break;
 		}
 		case DEC: {
 			this->lval_->unparse(out, 0);
 			out << "--";
+			break;
 		}
 		case FROMCONSOLE: {
-			out << "FROMCONSOLE "
+			out << "FROMCONSOLE ";
 			this->lval_->unparse(out, 0);
+			break;
 		}
 	}
 	out << ";";
@@ -93,12 +101,14 @@ void ExpStmtNode::unparse(std::ostream& out, int indent){
 		case TOCONSOLE: {
 			out << "TOCONSOLE ";
 			this->exp_->unparse(out, 0);
+			break;
 		}
 		case RETURN: {
 			out << "return";
 			if(this->exp_ != nullptr) {
 				this->exp_->unparse(out, 0);
 			}
+			break;
 		}
 	}
 	out << ";";
@@ -158,7 +168,21 @@ void BinOpExpNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
 	out << "(";
 	this->left_->unparse(out,0);
-	out << " " << binOpStr(this->op_) << " ";
+	out << " ";
+	switch(op_) {
+		case DASH_BIN : out << "-"; break;
+		case CROSS : out << "+"; break;
+		case STAR : out << "*"; break;
+		case SLASH : out << "/"; break;
+		case AND : out << "&&"; break;
+		case OR : out << "||"; break;
+		case EQUALS : out << "=="; break;
+		case NOTEQUALS : out << "!="; break;
+		case GREATER : out << ">"; break;
+		case GREATEREQ : out << ">="; break;
+		case LESS : out << "<"; break;
+		case LESSEQ : out << "<="; break;
+	}
 	this->right_->unparse(out,0);
 	out << ")";
 }
@@ -167,11 +191,55 @@ void UnOpExpNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
 	out << "(";
 	switch(op_) {
-		case NOT: out << "!";
-		case DASH: out << "-";
+		case NOT: out << "!"; break;
+		case DASH_UN: out << "-"; break;
 	}
 	this->exp_->unparse(out,0);
 	out << ")";
+}
+
+void LValUnOpNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << (t_ == AT ? "@" : "^");
+	this->id_->unparse(out, 0);
+}
+
+void LValIndexNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << this->id_ << "[";
+	this->exp_->unparse(out, 0);
+	out << "]";
+}
+
+void TermPrimitiveNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	switch(t_) {
+		case TRUE: out << "true"; break;
+		case FALSE: out << "false"; break;
+		case NULLPTR: out << "NULLPTR"; break;
+	}
+}
+
+void TermGrpNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << "(";
+	this->exp_->unparse(out,0);
+	out << ")";
+}
+
+void IntLitNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << this->val_;
+}
+
+void CharLitNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << this->val_;
+}
+
+void StrLitNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << this->val_;
 }
 
 void VarDeclNode::unparse(std::ostream& out, int indent){
@@ -188,24 +256,9 @@ void FnDeclNode::unparse(std::ostream& out, int indent){
 	out << " ";
 	this->id_->unparse(out, 0);
 	out << "(";
-	if(formals_ != nullptr) {
-		int i = formals_->size();
-		for(auto formal : *formals_) {
-			formal->unparse(out, 0);
-			i--;
-			if(i > 0) {
-				out << ", ";
-			}
-		}
-	}
-	out << "){\n";
-	if(stmtList_ != nullptr) {
-		for(auto stmt : *stmtList_) {
-			stmt->unparse(out, indent+1);
-		}
-	}
-	doIndent(out, indent);
-	out << "}";
+	this->formals_->unparse(out,0);
+	out << ")";
+	this->fnBody_->unparse(out,indent);
 }
 
 void FormalDeclNode::unparse(std::ostream& out, int indent){
@@ -223,35 +276,19 @@ void IDNode::unparse(std::ostream& out, int indent){
 
 // Type Nodes
 
-void IntTypeNode::unparse(std::ostream& out, int indent){
-	out << "int";
+void TypeNode::unparse(std::ostream& out, int indent){
+	doIndent(out, indent);
+	switch(t_)
+	{
+		case INT: out << "int"; break;
+		case INTPTR: out << "intptr"; break;
+		case BOOL: out << "bool"; break;
+		case BOOLPTR: out << "boolptr"; break;
+		case CHAR: out << "char"; break;
+		case CHARPTR: out << "charptr"; break;
+		case VOID: out << "void"; break;
+	}
 }
-
-void IntPtrTypeNode::unparse(std::ostream& out, int indent){
-	out << "intptr";
-}
-
-void BoolTypeNode::unparse(std::ostream& out, int indent){
-	out << "bool";
-}
-
-void BoolPtrTypeNode::unparse(std::ostream& out, int indent){
-	out << "boolptr";
-}
-
-void CharTypeNode::unparse(std::ostream& out, int indent){
-	out << "char";
-}
-
-void CharPtrTypeNode::unparse(std::ostream& out, int indent){
-	out << "charptr";
-}
-
-void VoidTypeNode::unparse(std::ostream& out, int indent){
-	out << "void";
-}
-
-
 
 
 } // End namespace holeyc
