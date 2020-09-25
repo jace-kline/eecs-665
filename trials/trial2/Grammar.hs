@@ -12,13 +12,26 @@ type ErrMsg = String
 type GrammarStruct = [VarDerive]
 type VarDerive = (Variable, [Prod])
 
+prodElemLists :: [Prod] -> [[ProdElement]]
+prodElemLists prods = filter (\xs -> not (null xs)) $ map prodElements prods
+
 data Prod = Prod [ProdElement]
           | Epsilon
           deriving (Eq,Show)
 
+prodElements :: Prod -> [ProdElement]
+prodElements Epsilon = []
+prodElements (Prod ls) = ls
+
 data ProdElement = Var Variable
                  | Term Terminal
+                 | Eps
                  deriving (Eq,Show)
+
+unProdElem :: ProdElement -> String
+unProdElem (Var v) = v
+unProdElem (Term t) = t
+unProdElem Eps = ""
 
 data LineLex = Assign String [String]
              | Bar [String]
@@ -32,26 +45,28 @@ maybeToEither e ma = case ma of
     Nothing  -> Left e
     (Just x) -> Right x
 
-mkGrammar :: String -> Either ErrMsg Grammar
-mkGrammar input = do
-    g <- maybeToEither "Error in grammar spec: Parse error" f
+mkLL1Grammar :: String -> Either ErrMsg Grammar
+mkLL1Grammar input = do
+    g <- maybeToEither "Error in grammar spec: Parse error" $ mkGrammar input
     let g_struct = grammar g
-    if immediateLeftRecursion g_struct
-        then Left "Error in grammar spec: Immediate left recursion"
-        else if not (isLL1 g_struct)
-                then Left "Error in grammar spec: The grammar is not LL(1)"
+    if leftRecursive g_struct
+        then Left "Error in grammar spec: Immediate left recursion detected"
+        else if not (leftFactored g_struct)
+                then Left "Error in grammar spec: The grammar is not left factored"
                 else Right g 
-    where
-        f :: Maybe Grammar
-        f = do
-            ls <- parseGrammarLines input
-            let (s, vs, ts) = (getStart ls, getVars ls, getTerms ls)
-            g <- varDerivations ls
-            return $ Grammar { start = s, vars = vs, terms = ts, grammar = g }
 
+mkGrammar :: String -> Maybe Grammar
+mkGrammar input = do
+    ls <- parseGrammarLines input
+    let (s, vs, ts) = (getStart ls, getVars ls, getTerms ls)
+    g <- varDerivations ls
+    return $ Grammar { start = s, vars = vs, terms = ts, grammar = g }
 
-immediateLeftRecursion :: GrammarStruct -> Bool
-immediateLeftRecursion xs = any id $ map g xs
+isLL1 :: GrammarStruct -> Bool
+isLL1 g = not (leftRecursive g) && leftFactored g
+
+leftRecursive :: GrammarStruct -> Bool
+leftRecursive xs = any id $ map g xs
     where 
         g :: VarDerive -> Bool
         g (v,prods) = any id $ map (q v) prods
@@ -62,14 +77,12 @@ immediateLeftRecursion xs = any id $ map g xs
             _      -> False
         q v _ = True
 
-isLL1 :: GrammarStruct -> Bool
-isLL1 xs = any id $ map g xs
+leftFactored :: GrammarStruct -> Bool
+leftFactored xs = all id $ map (g . prodElemLists . snd) xs
     where
-        g :: VarDerive -> Bool
-        g (v,prods) = q prods
-        q :: [Prod] -> Bool
-        q [] = True
-        q (p:ps) = q ps && (all id [p /= p' | p' <- ps])
+        g :: [[ProdElement]] -> Bool
+        g lls = (length lls) == (length $ groupBy (==) $ sort $ map (unProdElem . head) lls)
+
 
 parseGrammarLines :: String -> Maybe [LineLex]
 parseGrammarLines s = sequence $ map ((\xs -> if null xs then Nothing else Just (extract xs)) . (runParser lineParser)) (lines s)
