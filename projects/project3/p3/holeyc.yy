@@ -498,5 +498,5 @@ id		: ID
 
 void holeyc::Parser::error(const std::string& msg){
 	std::cout << msg << std::endl;
-	std::cerr << "syntax error" << std::endl;
+	std::cerr << "syntax error\nNo AST built" << std::endl;
 }
