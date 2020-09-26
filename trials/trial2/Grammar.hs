@@ -26,12 +26,14 @@ prodElements (Prod ls) = ls
 data ProdElement = Var Variable
                  | Term Terminal
                  | Eps
+                 | Eof
                  deriving (Eq,Show)
 
 unProdElem :: ProdElement -> String
 unProdElem (Var v) = v
 unProdElem (Term t) = t
 unProdElem Eps = ""
+unProdElem Eof = ""
 
 data LineLex = Assign String [String]
              | Bar [String]
