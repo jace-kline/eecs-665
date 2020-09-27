@@ -23,6 +23,9 @@ trimSpaces p = do
 combine :: (Monoid a) => ReadP [a] -> ReadP a
 combine pas = foldr1 (<>) <$> pas
 
+ignore :: ReadP a -> ReadP ()
+ignore p = p >> return ()
+
 surroundedBy :: String -> String -> ReadP String -> ReadP String
 surroundedBy l r p = (string l >>= return) <**> p <**> (string r >>= return)
 

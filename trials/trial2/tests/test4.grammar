@@ -1,0 +1,4 @@
+S ::= lparen S rparen
+    | B
+B ::= lbrace S rbrace
+    | star

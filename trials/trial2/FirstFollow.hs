@@ -95,3 +95,6 @@ followSets g = saturate followIter $ addEOFstart $ initialSets g
             zs -> 
                 let restFirstSet = firstSetSequence g zs
                 in (delete Eps restFirstSet) ++ (if Eps `elem` restFirstSet then lookupSet v sets else [])
+
+followSet :: Grammar -> Variable -> [ProdElement]
+followSet g v = lookupSet v $ followSets g

@@ -1,0 +1,7 @@
+lparen:test [1,1]
+lbrace [1,1]
+lparen:hello [1,1]
+star [1,1]
+rparen [1,1]
+rbrace:peace [1,1]
+rparen [1,1]

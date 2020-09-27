@@ -1,8 +1,11 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Grammar where
 
 import Data.Char
 import Data.List
 import Text.ParserCombinators.ReadP
+import GHC.Generics (Generic)
+import Data.Binary
 import Parser
 
 type Variable = String
@@ -10,6 +13,14 @@ type Terminal = String
 type ErrMsg = String
 -- type GrammarStruct = [(Variable, [Prod])]
 type GrammarStruct = [VarDerive]
+
+-- maps the variables to each of their RHS productions individually
+flattenGStruct :: [(Variable, [Prod])] -> [(Variable, Prod)]
+flattenGStruct = concat . map f
+    where 
+        f :: (Variable, [Prod]) -> [(Variable, Prod)]
+        f (v,ps) = zip (repeat v) ps
+
 type VarDerive = (Variable, [Prod])
 
 prodElemLists :: [Prod] -> [[ProdElement]]
@@ -17,7 +28,9 @@ prodElemLists prods = filter (\xs -> not (null xs)) $ map prodElements prods
 
 data Prod = Prod [ProdElement]
           | Epsilon
-          deriving (Eq,Show)
+          deriving (Generic,Eq,Show)
+
+instance Binary Prod
 
 prodElements :: Prod -> [ProdElement]
 prodElements Epsilon = []
@@ -27,7 +40,9 @@ data ProdElement = Var Variable
                  | Term Terminal
                  | Eps
                  | Eof
-                 deriving (Eq,Show)
+                 deriving (Generic,Eq,Show)
+
+instance Binary ProdElement
 
 unProdElem :: ProdElement -> String
 unProdElem (Var v) = v
@@ -39,8 +54,22 @@ data LineLex = Assign String [String]
              | Bar [String]
              deriving (Eq,Show)
 
-data Grammar = Grammar { start :: Variable, vars :: [Variable], terms :: [Terminal], grammar :: GrammarStruct }
-    deriving (Show)
+data Grammar = Grammar Variable [Variable] [Terminal] GrammarStruct
+    deriving (Generic,Show)
+
+instance Binary Grammar
+
+start :: Grammar -> Variable
+start (Grammar s vs ts g) = s
+
+vars :: Grammar -> [Variable]
+vars (Grammar s vs ts g) = vs
+
+terms :: Grammar -> [Terminal]
+terms (Grammar s vs ts g) = ts
+
+grammar :: Grammar -> GrammarStruct
+grammar (Grammar s vs ts g) = g
 
 maybeToEither :: e -> Maybe a -> Either e a
 maybeToEither e ma = case ma of
@@ -62,7 +91,7 @@ mkGrammar input = do
     ls <- parseGrammarLines input
     let (s, vs, ts) = (getStart ls, getVars ls, getTerms ls)
     g <- varDerivations ls
-    return $ Grammar { start = s, vars = vs, terms = ts, grammar = g }
+    return $ Grammar s vs ts g
 
 isLL1 :: GrammarStruct -> Bool
 isLL1 g = not (leftRecursive g) && leftFactored g
