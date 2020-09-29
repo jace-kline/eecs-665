@@ -1,6 +1,0 @@
-S ::= A bcd
-    | B xyz
-A ::= a A 
-    |
-B ::= B b
-    | b

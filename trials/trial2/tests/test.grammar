@@ -1,5 +1,0 @@
-A ::= B
-   |
-B ::= C
-B ::= hello
-   | w o rld

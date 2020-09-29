@@ -21,7 +21,7 @@ termParser ts = trimSpaces (noVal +++ withVal)
         withVal = do
             t <- noVal
             char ':'
-            many1 $ satisfy (\c -> isAscii c && not (isSpace c))
+            many1 $ satisfy (\c -> isAscii c && not (c == '['))
             return t
 
 lineColParser :: ReadP ()
