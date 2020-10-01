@@ -19,6 +19,7 @@ static Type getType(TypeNode * node) {
 	if(s == "charptr") return CHARPTR;
 	if(s == "bool") return BOOL;
 	if(s == "boolptr") return BOOLPTR;
+	return VOID;
 }
 
 static SemSymbol * mkSymbol(Kind k, TypeNode * typeNode, IDNode * idNode) {
@@ -31,14 +32,33 @@ static QueryResult mkAddSymbol(Kind k, TypeNode * typeNode, IDNode * idNode, Sym
 	return symTab->add(idNode->getName(), mkSymbol(k, typeNode, idNode));
 }
 
+static void printErr(IDNode * node, std::string msg) {
+	*err << node->line() << "," << node->col() << ": " << msg << "\n";
+}
+
+static bool stmtListAnalysis(std::list<StmtNode *> * list, SymbolTable * symTab) {
+	bool valid = true;
+	for (auto node : *list) {
+		valid = node->nameAnalysis(symTab) && valid;
+	}
+	return valid;
+}
+
+static bool expListAnalysis(std::list<ExpNode *> * list, SymbolTable * symTab) {
+	bool valid = true;
+	for (auto node : *list) {
+		valid = node->nameAnalysis(symTab) && valid;
+	}
+	return valid;
+}
+
 //TODO here is a subset of the nodes needed to do nameAnalysis, 
 // you should add the rest to allow for a complete treatment
 // of any AST
 
-// bool ASTNode::nameAnalysis(SymbolTable * symTab){
-// 	throw new ToDoError("This function should have"
-// 		"been overriden in the subclass!");
-// }
+bool ASTNode::nameAnalysis(SymbolTable * symTab){
+	return true;
+}
 
 bool ProgramNode::nameAnalysis(SymbolTable * symTab){
 	bool res = true;
@@ -55,13 +75,17 @@ bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 			*out << myID->getName() << " (" << myType->show() << ")\n";
 			return true;
 		}
-		case INVALID_MULTIPLE: {}
+		case INVALID_MULTIPLE: {
+			printErr(myID, "Invalid type in declaration");
+			printErr(myID, "Multiply declared identifier");
+			break;
+		}
 		case INVALID_TYPE: {
-			*err << line() << "," << col() << ": Invalid type in declaration\n";
-			if(res == INVALID_TYPE) break;
+			printErr(myID, "Invalid type in declaration");
+			break;
 		}
 		case MULTIPLE_DECL: {
-			*err << line() << "," << col() << ": Multiply declared identifier\n";
+			printErr(myID, "Multiply declared identifier");
 			break;
 		}
 		default: break;
@@ -75,15 +99,17 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 
 	// display error messages for top-level function name declaration
 	switch (retRes) {
-		case INVALID_MULTIPLE: {}
+		case INVALID_MULTIPLE: {
+			printErr(myID, "Invalid type in declaration");
+			printErr(myID, "Multiply declared identifier");
+			break;
+		}
 		case INVALID_TYPE: {
-			success = false;
-			*err << line() << "," << col() << ": Invalid type in declaration\n";
-			if(retRes == INVALID_TYPE) break;
+			printErr(myID, "Invalid type in declaration");
+			break;
 		}
 		case MULTIPLE_DECL: {
-			success = false;
-			*err << line() << "," << col() << ": Multiply declared identifier\n";
+			printErr(myID, "Multiply declared identifier");
 			break;
 		}
 		default: break;
@@ -128,12 +154,117 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 	*out << out_.str();
 
 	// Run nameAnalysis over the function body statements
-	for(StmtNode * stmt : *myBody) {
-		success = stmt->nameAnalysis(symTab) && success;
-	}
+	success = stmtListAnalysis(myBody, symTab) && success;
+
+	// pop the scope
+	symTab->popScope();
 	return success;
 }
 
+bool IDNode::nameAnalysis(SymbolTable * symTab) {
+	QueryResult res = symTab->reference(name);
+	switch(res) {
+		case SUCCESS: return true;
+		case UNDECLARED: printErr(this, "Undeclared identifier"); break;
+		default: break;
+	}
+	return false;
+}
 
+bool RefNode::nameAnalysis(SymbolTable * symTab) {
+	return myID->nameAnalysis(symTab);
+}
+
+bool DerefNode::nameAnalysis(SymbolTable * symTab) {
+	return myID->nameAnalysis(symTab);
+}
+
+bool IndexNode::nameAnalysis(SymbolTable * symTab) {
+	return (myBase->nameAnalysis(symTab) && myOffset->nameAnalysis(symTab));
+}
+
+bool AssignStmtNode::nameAnalysis(SymbolTable * symTab) {
+	return myExp->nameAnalysis(symTab);
+}
+
+bool FromConsoleStmtNode::nameAnalysis(SymbolTable * symTab) {
+	return myDst->nameAnalysis(symTab);
+}
+
+bool ToConsoleStmtNode::nameAnalysis(SymbolTable * symTab) {
+	return mySrc->nameAnalysis(symTab);
+}
+
+bool PostDecStmtNode::nameAnalysis(SymbolTable * symTab) {
+	return myLVal->nameAnalysis(symTab);
+}
+
+bool PostIncStmtNode::nameAnalysis(SymbolTable * symTab) {
+	return myLVal->nameAnalysis(symTab);
+}
+
+bool IfStmtNode::nameAnalysis(SymbolTable * symTab) {
+	bool valid = true;
+	valid = myCond->nameAnalysis(symTab) && valid;
+
+	symTab->createScope();
+	valid = stmtListAnalysis(myBody, symTab) && valid;
+	symTab->popScope();
+	return valid;
+}
+
+bool IfElseStmtNode::nameAnalysis(SymbolTable * symTab) {
+	bool valid = true;
+	valid = myCond->nameAnalysis(symTab) && valid;
+
+	// name analysis on true branch
+	symTab->createScope();
+	valid = stmtListAnalysis(myBodyTrue, symTab) && valid;
+	symTab->popScope();
+
+	// name analysis on false branch
+	symTab->createScope();
+	valid = stmtListAnalysis(myBodyFalse, symTab) && valid;
+	symTab->popScope();
+
+	return valid;
+}
+
+bool WhileStmtNode::nameAnalysis(SymbolTable * symTab) {
+	bool valid = true;
+	valid = myCond->nameAnalysis(symTab) && valid;
+
+	symTab->createScope();
+	valid = stmtListAnalysis(myBody, symTab) && valid;
+	symTab->popScope();
+	return valid;
+}
+
+bool ReturnStmtNode::nameAnalysis(SymbolTable * symTab) {
+	return myExp->nameAnalysis(symTab);
+}
+
+bool CallExpNode::nameAnalysis(SymbolTable * symTab) {
+	return (myID->nameAnalysis(symTab) 
+			&& expListAnalysis(myArgs, symTab));
+}
+
+bool BinaryExpNode::nameAnalysis(SymbolTable * symTab) {
+	return (myExp1->nameAnalysis(symTab) 
+			&& myExp2->nameAnalysis(symTab));
+}
+
+bool UnaryExpNode::nameAnalysis(SymbolTable * symTab) {
+	return myExp->nameAnalysis(symTab);
+}
+
+bool AssignExpNode::nameAnalysis(SymbolTable * symTab) {
+	return (myDst->nameAnalysis(symTab) 
+			&& mySrc->nameAnalysis(symTab));
+}
+
+bool CallStmtNode::nameAnalysis(SymbolTable * symTab) {
+	return myCallExp->nameAnalysis(symTab);
+}
 
 }
