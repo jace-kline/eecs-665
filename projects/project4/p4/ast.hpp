@@ -63,6 +63,7 @@ public:
 	ExpNode(size_t lIn, size_t cIn) : ASTNode(lIn, cIn){ }
 	virtual void unparseNested(std::ostream& out);
 	virtual void unparse(std::ostream& out, int indent) override = 0;
+	virtual bool nameAnalysis(SymbolTable *) override {return true;}
 };
 
 class LValNode : public ExpNode{
@@ -70,6 +71,7 @@ public:
 	LValNode(size_t lIn, size_t cIn) : ExpNode(lIn, cIn){}
 	void unparse(std::ostream& out, int indent) override = 0;
 	void unparseNested(std::ostream& out) override;
+	virtual bool nameAnalysis(SymbolTable *) override = 0;
 };
 
 class IDNode : public LValNode{
@@ -121,6 +123,7 @@ public:
 	TypeNode(size_t l, size_t c) : ASTNode(l, c){ }
 	void unparse(std::ostream&, int) override = 0;
 	virtual std::string show() = 0;
+	virtual bool nameAnalysis(SymbolTable *) override {return true;}
 };
 
 class CharTypeNode : public TypeNode{
@@ -138,12 +141,14 @@ class StmtNode : public ASTNode{
 public:
 	StmtNode(size_t lIn, size_t cIn) : ASTNode(lIn, cIn){ }
 	virtual void unparse(std::ostream& out, int indent) override = 0;
+	virtual bool nameAnalysis(SymbolTable *) override = 0;
 };
 
 class DeclNode : public StmtNode{
 public:
 	DeclNode(size_t l, size_t c) : StmtNode(l, c){ }
 	void unparse(std::ostream& out, int indent) override =0;
+	virtual bool nameAnalysis(SymbolTable *) override = 0;
 };
 
 class VarDeclNode : public DeclNode{
