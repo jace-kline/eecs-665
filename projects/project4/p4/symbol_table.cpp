@@ -1,17 +1,6 @@
 #include "symbol_table.hpp"
 namespace holeyc{
 
-Type getType(TypeNode * node) {
-	std::string s = node->show();
-	if(s == "void") return VOID;
-	if(s == "int") return INT;
-	if(s == "intptr") return INTPTR;
-	if(s == "char") return CHAR;
-	if(s == "charptr") return CHARPTR;
-	if(s == "bool") return BOOL;
-	if(s == "boolptr") return BOOLPTR;
-}
-
 ScopeTable::ScopeTable(){
 	symbols = new HashMap<std::string, SemSymbol *>();
 }

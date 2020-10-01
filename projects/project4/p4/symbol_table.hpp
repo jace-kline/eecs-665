@@ -3,7 +3,6 @@
 #include <string>
 #include <unordered_map>
 #include <list>
-#include "ast.hpp"
 
 //Use an alias template so that we can use
 // "HashMap" and it means "std::unordered_map"
@@ -25,7 +24,6 @@ enum Kind {VAR, FN};
 // define a Type type
 enum Type {INT, INTPTR, BOOL, BOOLPTR, CHAR, CHARPTR, VOID};
 
-Type getType(TypeNode * node);
 
 class SemSymbol {
 	protected:
