@@ -1,0 +1,6 @@
+int myint;
+void myvoid;
+
+void main(void x, void y) {
+    return myvoid;
+}

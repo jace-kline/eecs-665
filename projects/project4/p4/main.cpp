@@ -175,7 +175,7 @@ int main(int argc, char * argv[]){
 				outputAST(analysis->ast, nameFile);
 				return 0;
 			}
-			std::cout << "Type Analysis Failed\n";
+			std::cerr << "Name Analysis Failed\n";
 			return 1;
 		}
 	} catch (holeyc::ToDoError * e){

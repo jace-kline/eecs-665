@@ -22,7 +22,7 @@ static QueryResult addSymbol(SemSymbol * symbol, IDNode * idNode, SymbolTable * 
 	return symTab->add(idNode->getName(), symbol);
 }
 
-static void printErr(IDNode * node, std::string msg) {
+static void printErr(ASTNode * node, std::string msg) {
 	Report::fatal(node->line(), node->col(), msg);
 }
 
@@ -70,12 +70,12 @@ bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 			return true;
 		}
 		case INVALID_MULTIPLE: {
-			printErr(myID, "Invalid type in declaration");
+			printErr(myType, "Invalid type in declaration");
 			printErr(myID, "Multiply declared identifier");
 			break;
 		}
 		case INVALID_TYPE: {
-			printErr(myID, "Invalid type in declaration");
+			printErr(myType, "Invalid type in declaration");
 			break;
 		}
 		case MULTIPLE_DECL: {
@@ -97,12 +97,12 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 	// display error messages for top-level function name declaration
 	switch (res) {
 		case INVALID_MULTIPLE: {
-			printErr(myID, "Invalid type in declaration");
+			printErr(myRetType, "Invalid type in declaration");
 			printErr(myID, "Multiply declared identifier");
 			break;
 		}
 		case INVALID_TYPE: {
-			printErr(myID, "Invalid type in declaration");
+			printErr(myRetType, "Invalid type in declaration");
 			break;
 		}
 		case MULTIPLE_DECL: {
