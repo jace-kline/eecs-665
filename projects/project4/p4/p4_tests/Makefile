@@ -12,10 +12,10 @@ all: $(TESTS)
 	@../holeycc $*.holeyc -n $*.out 2> $*.err ;\
 	PROG_EXIT_CODE=$$?;\
 	echo "diff output...";\
-	diff $*.out $*.out.expected;\
+	diff -B --ignore-all-space $*.out $*.out.expected;\
 	OUT_EXIT_CODE=$$?;\
 	echo "diff error...";\
-	diff $*.err $*.err.expected;\
+	diff -B --ignore-all-space $*.err $*.err.expected;\
 	ERR_EXIT_CODE=$$?;\
 	exit $$PROG_EXIT_CODE && $$OUT_EXIT_CODE && $$ERR_EXIT_CODE
 

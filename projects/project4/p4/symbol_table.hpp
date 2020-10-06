@@ -4,6 +4,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <list>
+#include <iostream>
 
 //Use an alias template so that we can use
 // "HashMap" and it means "std::unordered_map"
@@ -82,6 +83,9 @@ class ScopeTable {
 
 		// returns the associated ID string's symbol ptr or nullptr if not found
 		SemSymbol * lookup(std::string id);
+
+		// for debugging purposes --> show the ids in scope
+		void showIds();
 	private:
 		HashMap<std::string, SemSymbol *> * symbols;
 };
@@ -112,9 +116,9 @@ class SymbolTable{
 		QueryResult add(std::string id, SemSymbol * symbol);
 
 		// Takes an id name and attempts to find that id in the symbol table
-		// If the name is found, then SUCCESS
-		// If not found, then UNDECLARED result
-		QueryResult reference(std::string id);
+		// returns the symbol that should be pointed to
+		// returns nullptr if not found
+		SemSymbol * reference(std::string id);
 
 	private:
 		std::list<ScopeTable *> * scopeTableChain;

@@ -56,7 +56,13 @@ QueryResult ScopeTable::add(std::string id, SemSymbol * symbol) {
 
 SemSymbol * ScopeTable::lookup(std::string id) {
 	auto search = symbols->find(id);
-	return (search != symbols->end()) ? search->second : nullptr;
+	return ((search != symbols->end()) ? search->second : nullptr);
+}
+
+void ScopeTable::showIds() {
+	for(auto pair : *symbols) {
+		std::cout << pair.first << ", ";
+	}
 }
 
 SymbolTable::SymbolTable(){
@@ -100,14 +106,15 @@ QueryResult SymbolTable::add(std::string id, SemSymbol * symbol) {
 	return FAIL;
 }
 
-QueryResult SymbolTable::reference(std::string id) {
+SemSymbol * SymbolTable::reference(std::string id) {
 	for (ScopeTable * scope : *scopeTableChain) {
+		// scope->showIds();
 		SemSymbol * symbol = scope->lookup(id);
 		if(symbol != nullptr) {
-			return SUCCESS;
+			return symbol;
 		}
 	}
-	return UNDECLARED;
+	return nullptr;
 }
 
 }

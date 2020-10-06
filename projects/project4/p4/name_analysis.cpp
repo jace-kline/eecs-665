@@ -51,10 +51,12 @@ bool ASTNode::nameAnalysis(SymbolTable * symTab){
 }
 
 bool ProgramNode::nameAnalysis(SymbolTable * symTab){
+	symTab->createScope();
 	bool res = true;
 	for (auto global : *myGlobals){
 		res = global->nameAnalysis(symTab) && res;
 	}
+	symTab->popScope();
 	return res;
 }
 
@@ -112,9 +114,9 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 
 	// Create a new scope context at top of stack
 	symTab->createScope();
-
 	for (FormalDeclNode * formal : *myFormals) {
 		success = formal->nameAnalysis(symTab) && success;
+		symbol->addArgType(getType(formal->getTypeNode()));
 	}
 
 	// Run nameAnalysis over the function body statements
@@ -126,12 +128,12 @@ bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 }
 
 bool IDNode::nameAnalysis(SymbolTable * symTab) {
-	QueryResult res = symTab->reference(name);
-	switch(res) {
-		case SUCCESS: return true;
-		case UNDECLARED: printErr(this, "Undeclared identifier"); break;
-		default: break;
+	SemSymbol * symbol = symTab->reference(name);
+	if(symbol != nullptr) {
+		mySymbol = symbol; 
+		return true;
 	}
+	printErr(this, "Undeclared identifier");
 	return false;
 }
 
