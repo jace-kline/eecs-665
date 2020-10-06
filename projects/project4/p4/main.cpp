@@ -8,6 +8,20 @@
 
 using namespace holeyc;
 
+static void outputAST(ASTNode * ast, const char * outPath){
+	if (strcmp(outPath, "--") == 0){
+		ast->unparse(std::cout, 0);
+	} else {
+		std::ofstream outStream(outPath);
+		if (!outStream.good()){
+			std::string msg = "Bad output file ";
+			msg += outPath;
+			throw new holeyc::InternalError(msg.c_str());
+		}
+		ast->unparse(outStream, 0);
+	}
+}
+
 static void usageAndDie(){
 	std::cerr << "Usage: holeycc <infile> <options>\n"
 	<< " [-t <tokensFile>]: Output tokens to <tokensFile>\n"
@@ -156,7 +170,9 @@ int main(int argc, char * argv[]){
 			doUnparsing(input, unparseFile);
 		}
 		if (nameFile){
-			if (doNameAnalysis(input) != nullptr){
+			NameAnalysis * analysis = doNameAnalysis(input);
+			if (analysis != nullptr){
+				outputAST(analysis->ast, nameFile);
 				return 0;
 			}
 			std::cout << "Type Analysis Failed\n";

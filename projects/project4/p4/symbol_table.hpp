@@ -1,6 +1,7 @@
 #ifndef HOLEYC_SYMBOL_TABLE_HPP
 #define HOLEYC_SYMBOL_TABLE_HPP
 #include <string>
+#include <sstream>
 #include <unordered_map>
 #include <list>
 
@@ -24,16 +25,38 @@ enum Kind {VAR, FN};
 // define a Type type
 enum Type {INT, INTPTR, BOOL, BOOLPTR, CHAR, CHARPTR, VOID};
 
+// mapping of type to string representation
+std::string typeStr(Type t);
 
 class SemSymbol {
 	protected:
 		Kind kind;
-		Type type;
+		Type ret_type;
 	public:
 		SemSymbol(Kind k, Type t)
-		: kind(k), type(t) {}
+		: kind(k), ret_type(t) {}
 		Kind getKind() const { return kind; }
-		Type getType() const { return type; }
+		Type getType() const { return ret_type; }
+		virtual std::string typeAnnotation() = 0;
+};
+
+class VarSymbol : public SemSymbol{
+	public:
+		VarSymbol(Type t)
+		: SemSymbol(VAR, t) {}
+		std::string typeAnnotation();
+};
+
+class FnSymbol : public SemSymbol{
+	private:
+		std::list<Type> arg_types;
+	public:
+		FnSymbol(Type t)
+		: SemSymbol(FN, t) {}
+		FnSymbol(Type t, std::list<Type>& l) 
+		: SemSymbol(FN, t), arg_types(l) {}
+		std::string typeAnnotation();
+		void addArgType(Type t);
 };
 
 

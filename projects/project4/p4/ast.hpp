@@ -7,6 +7,7 @@
 #include <list>
 #include "errors.hpp"
 #include "tokens.hpp"
+#include "symbol_table.hpp"
 
 namespace holeyc {
 
@@ -77,12 +78,21 @@ public:
 class IDNode : public LValNode{
 public:
 	IDNode(size_t lIn, size_t cIn, std::string nameIn)
-	: LValNode(lIn, cIn), name(nameIn){}
+	: LValNode(lIn, cIn), name(nameIn), isDecl(false), mySymbol(nullptr) {}
 	std::string getName(){ return name; }
 	void unparse(std::ostream& out, int indent) override;
 	bool nameAnalysis(SymbolTable *) override;
+	void linkSymbol(SemSymbol * symbol) {
+		mySymbol = symbol;
+	}
+	void setDecl() {
+		isDecl = true;
+	}
 private:
 	std::string name;
+	// if this is a declaration, we don't print type annotation
+	bool isDecl;
+	// semantic symbol to point to (after name analysis)
 	SemSymbol * mySymbol;
 };
 

@@ -9,10 +9,13 @@ import TokenStream
 import Accepter
 
 main = do
-    grammar_input <- readFile "tests/test4.grammar"
-    token_input <- readFile "tests/test4.tokens"
-    --print $ mkLL1Grammar input >>= \g -> return $ (firstSets g, followSets g)
-    print $ mkLL1Grammar grammar_input >>= \g -> return $ accepter g token_input
+    grammar_input <- readFile "test.grammar"
+    --token_input <- readFile "tests/test4.tokens"
+    let maybe_g = mkGrammar grammar_input
+    case maybe_g of
+        Nothing -> putStrLn "Bad grammar"
+        Just g  -> putStr $ "FIRST sets: " ++ show (firstSets g) ++ "\nFOLLOW sets: " ++ show (followSets g) ++ "\n"
+    --print $ mkLL1Grammar grammar_input >>= \g -> return $ accepter g token_input
     -- let ls = lines input
     -- --print $ extract $ runParser lineParser (head ls)
     -- let lexlines = parseGrammarLines input

@@ -319,6 +319,7 @@ void LValNode::unparseNested(std::ostream& out){
 void IDNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	out << name;
+	if((mySymbol != nullptr) && !isDecl) out << mySymbol->typeAnnotation();
 }
 
 void IntLitNode::unparse(std::ostream& out, int indent){

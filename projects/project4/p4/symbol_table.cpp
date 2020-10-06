@@ -1,6 +1,42 @@
 #include "symbol_table.hpp"
 namespace holeyc{
 
+std::string typeStr(Type t) {
+	switch(t) {
+		case INT: return "int";
+		case INTPTR: return "intptr";
+		case BOOL: return "bool";
+		case BOOLPTR: return "boolptr";
+		case CHAR: return "char";
+		case CHARPTR: return "charptr";
+		default: return "void";
+	}
+	return "void";
+}
+
+std::string VarSymbol::typeAnnotation() {
+	std::stringstream ss;
+	ss << "(" << typeStr(ret_type) << ")";
+	return ss.str();
+}
+
+std::string FnSymbol::typeAnnotation() {
+	std::stringstream ss;
+	ss << "(";
+	int i = arg_types.size();
+	for(Type t : arg_types) {
+		ss << typeStr(t);
+		i--;
+		if(i > 0) ss << ",";
+	}
+	ss << "->" << typeStr(ret_type) << ")";
+	return ss.str();
+}
+
+void FnSymbol::addArgType(Type t) {
+	arg_types.push_back(t);
+}
+
 ScopeTable::ScopeTable(){
 	symbols = new HashMap<std::string, SemSymbol *>();
 }
