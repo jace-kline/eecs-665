@@ -48,7 +48,7 @@ class FnSymbol : public SemSymbol{
 		std::list<Type> * arg_types;
 	public:
 		FnSymbol(Type t)
-		: SemSymbol(FN, t) {}
+		: SemSymbol(FN, t), arg_types(new std::list<Type>()) {}
 		FnSymbol(Type t, std::list<Type> * l) 
 		: SemSymbol(FN, t), arg_types(l) {}
 		std::string typeAnnotation();

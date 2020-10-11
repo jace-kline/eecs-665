@@ -4,8 +4,7 @@
 #include "ast.hpp"
 #include "symbol_table.hpp"
 #include "types.hpp"
-
-class NameAnalysis;
+#include "name_analysis.hpp"
 
 namespace holeyc{
 
@@ -40,7 +39,7 @@ public:
 		currentFnType = type;
 	}
 
-	const Type getCurrentFnType(){
+	Type getCurrentFnType() const {
 		return currentFnType;
 	}
 

@@ -1,0 +1,15 @@
+int a;
+bool b;
+boolptr bptr;
+bool g(int a){
+	return a(int) > 0;
+}
+bool func(boolptr bptr, int a){
+	a(int) = (a(int) + 1);
+	bool x;
+	x(bool) = (g(int->bool)(a(int)));
+	if (a(int) > 10){
+		return x(bool);
+	}
+	return func(boolptr,int->bool)(func(boolptr,int->bool)(^x(bool), a(int)), a(int));
+}

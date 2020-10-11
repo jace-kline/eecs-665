@@ -345,6 +345,7 @@ public:
 	bool nameAnalysis(SymbolTable *) override;
 	virtual DataType * typeAnalysis(TypeAnalysis *) override = 0;
 protected:
+	DataType * typeAnalysisHelper(TypeAnalysis *, Type argtype, Type rettype);
 	ExpNode * myExp1;
 	ExpNode * myExp2;
 };
@@ -588,6 +589,7 @@ public:
 	: StmtNode(l, c), myCallExp(expIn){ }
 	void unparse(std::ostream& out, int indent) override;
 	bool nameAnalysis(SymbolTable *) override;
+	DataType * typeAnalysis(TypeAnalysis *) override;
 private:
 	CallExpNode * myCallExp;
 };

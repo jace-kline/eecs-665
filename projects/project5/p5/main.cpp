@@ -5,6 +5,7 @@
 #include "scanner.hpp"
 #include "ast.hpp"
 #include "name_analysis.hpp"
+#include "type_analysis.hpp"
 
 using namespace holeyc;
 
@@ -91,14 +92,18 @@ static holeyc::NameAnalysis * doNameAnalysis(std::ifstream * input){
 	holeyc::ProgramNode * ast = syntacticAnalysis(input);
 	if (ast == nullptr){ return nullptr; }
 
-	return holeyc::NameAnalysis::build(ast);
+	NameAnalysis * na = holeyc::NameAnalysis::build(ast);
+	if(na == nullptr) std::cerr << "Name Analysis Failed\n";
+	return na;
 }
 
 static holeyc::TypeAnalysis * doTypeAnalysis(std::ifstream * input){
 	holeyc::NameAnalysis * nameAnalysis = doNameAnalysis(input);
 	if (nameAnalysis == nullptr){ return nullptr; }
 
-	return holeyc::TypeAnalysis::build(nameAnalysis);
+	TypeAnalysis * ta = holeyc::TypeAnalysis::build(nameAnalysis);
+	if (ta == nullptr) std::cerr << "Type Analysis Failed\n";
+	return ta;
 }
 
 int main(int argc, char * argv[]){
@@ -179,14 +184,12 @@ int main(int argc, char * argv[]){
 				outputAST(na->ast, nameFile);
 				return 0;
 			}
-			std::cerr << "Name Analysis Failed\n";
 			return 1;
 		}
 		if (checkTypes){
 			if (doTypeAnalysis(input) != nullptr){
 				return 0;
 			}
-			std::cerr << "Type Analysis Failed\n";
 			return 1;
 		}
 	} catch (holeyc::ToDoError * e){

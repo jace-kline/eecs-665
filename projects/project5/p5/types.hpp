@@ -11,7 +11,7 @@ namespace holeyc{
 enum Kind {VAR, FN, ERRKIND};
 
 // define a Type type
-enum Type {INT, INTPTR, BOOL, BOOLPTR, CHAR, CHARPTR, VOID, GENERICPTR, ERRTYPE};
+enum Type {INT, INTPTR, BOOL, BOOLPTR, CHAR, CHARPTR, VOID, GENERIC, GENERICPTR, ERRTYPE};
 
 // mapping of type to string representation
 std::string typeStr(Type t);
@@ -44,7 +44,11 @@ class DataType {
         bool isFn() const { return kind == FN; }
         bool isConcrete() const { return kind == VAR; }
         bool isConcreteOf(Type t) const { return (kind == VAR && ret_type == t);}
-        bool operator==(DataType& other) { return (kind == other.kind && ret_type == other.ret_type); }
+        bool isBase() const { return isConcrete() && isBaseType(ret_type);}
+        bool isPtr() const { return isPtrType(ret_type); }
+        bool operator==(DataType& other) { 
+            return (kind == other.kind && (ret_type == other.ret_type)); 
+        }
         bool operator==(Type rhs) { return (ret_type == rhs); }
         bool operator!=(Type rhs) { return (ret_type != rhs); }
 
@@ -53,6 +57,14 @@ class DataType {
     protected:
         Kind kind;
         Type ret_type;
+};
+
+class ErrType : public DataType {
+    public:
+        ErrType()
+        : DataType(ERRKIND, ERRTYPE) {}
+        DataType * toRef() override {return this;}
+        DataType * toDeref() override {return this;}
 };
 
 
@@ -84,14 +96,6 @@ class FnType : public DataType {
         DataType * toDeref() override {return new ErrType();}
     private:
         std::list<Type> * arg_types;
-};
-
-class ErrType : public DataType {
-    public:
-        ErrType()
-        : DataType(ERRKIND, ERRTYPE) {}
-        DataType * toRef() override {return this;}
-        DataType * toDeref() override {return this;}
 };
 
 }

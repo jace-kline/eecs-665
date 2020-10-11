@@ -32,6 +32,7 @@ DataType * ProgramNode::typeAnalysis(TypeAnalysis * ta){
 	for(auto global : *myGlobals) {
 		global->typeAnalysis(ta);
 	}
+	return nullptr;
 }
 
 DataType * IDNode::typeAnalysis(TypeAnalysis * ta){
@@ -39,7 +40,7 @@ DataType * IDNode::typeAnalysis(TypeAnalysis * ta){
 }
 
 DataType * RefNode::typeAnalysis(TypeAnalysis * ta){
-	DataType * t = typeAnalysis(ta)->toDeref();
+	DataType * t = myID->typeAnalysis(ta)->toDeref();
 	if(t->isErrType()) {
 		if(t->isFn()) ta->fnRef(this->line(), this->col());
 		else if(t->isConcrete()) ta->badRef(this->line(), this->col());
@@ -48,7 +49,7 @@ DataType * RefNode::typeAnalysis(TypeAnalysis * ta){
 }
 
 DataType * DerefNode::typeAnalysis(TypeAnalysis * ta){
-	DataType * t = typeAnalysis(ta)->toDeref();
+	DataType * t = myID->typeAnalysis(ta)->toDeref();
 	if(t->isErrType()) {
 		if(t->isFn()) ta->fnRef(this->line(), this->col());
 		else if(t->isConcrete()) ta->badDeref(this->line(), this->col());
@@ -77,6 +78,10 @@ DataType * DeclNode::typeAnalysis(TypeAnalysis * ta){
 DataType * FnDeclNode::typeAnalysis(TypeAnalysis * ta){
 	Type retType = myID->typeAnalysis(ta)->getRetType();
 	ta->setCurrentFnType(retType);
+	for (auto stmt : *myBody) {
+		stmt->typeAnalysis(ta);
+	}
+	return nullptr;
 }
 
 DataType * AssignStmtNode::typeAnalysis(TypeAnalysis * ta){
@@ -184,7 +189,7 @@ DataType * CallExpNode::typeAnalysis(TypeAnalysis * ta) {
 	if(id_type->isFn()) {
 		FnType * id_fntype = dynamic_cast<FnType *>(id_type);
 		std::list<Type> * required_arg_types = id_fntype->getArgTypes();
-		int len = required_arg_types->size();
+		size_t len = required_arg_types->size();
 		if(myArgs->size() != len) {
 			ta->badArgCount(myID->line(), myID->col());
 			return new ErrType();
@@ -193,7 +198,7 @@ DataType * CallExpNode::typeAnalysis(TypeAnalysis * ta) {
 		// for each arg, check argument type compatibility
 		auto iter_required = required_arg_types->begin();
 		auto iter_exps = myArgs->begin();
-		for(int i = 0; i < len; i++) {
+		for(size_t i = 0; i < len; i++) {
 			Type reqtype = *iter_required;
 			ExpNode * exp = *iter_exps;
 			DataType * dt = exp->typeAnalysis(ta);
@@ -214,93 +219,184 @@ DataType * CallExpNode::typeAnalysis(TypeAnalysis * ta) {
 	else return new ErrType();
 }
 
-DataType * PlusNode::typeAnalysis(TypeAnalysis * ta) {
+DataType * BinaryExpNode::typeAnalysisHelper(TypeAnalysis * ta, Type argtype, Type rettype) {
+	bool valid = true;
+	DataType * dt_left = myExp1->typeAnalysis(ta);
+	DataType * dt_right = myExp1->typeAnalysis(ta);
+	bool prev_errs = (dt_left->isErrType() || dt_right->isErrType());
+	bool opds_same = (*dt_left == *dt_right);
+	bool left_op_match = (dt_left->isConcreteOf(argtype));
+	bool right_op_match = (dt_right->isConcreteOf(argtype));
 
+	if(prev_errs) valid = false;
+	else if(argtype == INT) {
+		if(!opds_same && rettype == INT) {
+			ta->badMathOpr(line(),col());
+			valid = false;
+		}
+		if(!left_op_match) {
+			if(rettype == INT) ta->badMathOpd(myExp1->line(), myExp1->col());
+			else if(rettype == BOOL) ta->badRelOpd(myExp1->line(), myExp1->col());
+			valid = false;
+		}
+		if(!right_op_match) {
+			if(rettype == INT) ta->badMathOpd(myExp2->line(), myExp2->col());
+			else if(rettype == BOOL) ta->badRelOpd(myExp2->line(), myExp2->col());
+			valid = false;
+		}
+	} else if(argtype == BOOL && rettype == BOOL) {
+		if(!opds_same) {
+			// ta->badLogicOpr(line(),col());
+			valid = false;
+		}
+		if(!left_op_match) {
+			ta->badLogicOpd(myExp1->line(), myExp1->col());
+			valid = false;
+		}
+		if(!right_op_match) {
+			ta->badLogicOpd(myExp2->line(), myExp2->col());
+			valid = false;
+		}
+	} else if(argtype == GENERIC) {
+		if(!opds_same) {
+			ta->badEqOpr(line(),col());
+			valid = false;
+		}
+		if(!dt_left->isBase()) {
+			ta->badEqOpd(myExp1->line(), myExp1->col());
+			valid = false;
+		}
+		if(!dt_right->isBase()) {
+			ta->badEqOpd(myExp2->line(), myExp2->col());
+			valid = false;
+		}
+	}
+
+	if(valid) return new VarType(rettype);
+	else return new ErrType();
+}
+
+DataType * PlusNode::typeAnalysis(TypeAnalysis * ta) {
+	return typeAnalysisHelper(ta, INT, INT);
 }
 
 DataType * MinusNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, INT, INT);
 }
 
 DataType * TimesNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, INT, INT);
 }
 
 DataType * DivideNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, INT, INT);
 }
 
 DataType * AndNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, BOOL, BOOL);
 }
 
 DataType * OrNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, BOOL, BOOL);
 }
 
 DataType * EqualsNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, GENERIC, BOOL);
 }
 
 DataType * NotEqualsNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, GENERIC, BOOL);
 }
 
 DataType * LessNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, INT, BOOL);
 }
 
 DataType * LessEqNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, INT, BOOL);
 }
 
 DataType * GreaterNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, INT, BOOL);
 }
 
 DataType * GreaterEqNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return typeAnalysisHelper(ta, INT, BOOL);
 }
 
 DataType * NegNode::typeAnalysis(TypeAnalysis * ta) {
-
+	DataType * dt = myExp->typeAnalysis(ta);
+	if(!dt->isErrType() && !dt->isConcreteOf(INT)) {
+		ta->badMathOpd(myExp->line(), myExp->col());
+		return new ErrType();
+	}
+	return dt;
 }
 
 DataType * NotNode::typeAnalysis(TypeAnalysis * ta) {
-
-}
-
-DataType * PostDecStmtNode::typeAnalysis(TypeAnalysis * ta) {
-
+	DataType * dt = myExp->typeAnalysis(ta);
+	if(!dt->isErrType() && !dt->isConcreteOf(BOOL)) {
+		ta->badLogicOpd(myExp->line(), myExp->col());
+		return new ErrType();
+	}
+	return dt;
 }
 
 DataType * AssignExpNode::typeAnalysis(TypeAnalysis * ta){
+	bool valid = true;
+	DataType * lhs = myDst->typeAnalysis(ta);
+	DataType * rhs = mySrc->typeAnalysis(ta);
+	// check for previous errors
+	if(lhs->isErrType() || rhs->isErrType()) {
+		valid = false;
+	}
+	// check lhs and rhs are compatible
+	if(!(*lhs == *rhs) && !(lhs->isPtr() && rhs->getRetType() == GENERICPTR)) {
+		ta->badAssignOpr(line(),col());
+		valid = false;
+	}
+	// check lhs is concrete (valid operand)
+	if(!lhs->isErrType() && !lhs->isConcrete()) {
+		ta->badAssignOpd(myDst->line(), myDst->col());
+		valid = false;
+	}
+	// check rhs is concrete (valid operand)
+	if(!rhs->isErrType() && !rhs->isConcrete()) {
+		ta->badAssignOpd(mySrc->line(), mySrc->col());
+		valid = false;
+	}
 
+	if(valid) return lhs;
+	else return new ErrType();
 }
 
 DataType * IntLitNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return new VarType(INT);
 }
 
 DataType * StrLitNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return new VarType(CHARPTR);
 }
 
 DataType * CharLitNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return new VarType(CHAR);
 }
 
 DataType * NullPtrNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return new VarType(GENERICPTR);
 }
 
 DataType * TrueNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return new VarType(BOOL);
 }
 
 DataType * FalseNode::typeAnalysis(TypeAnalysis * ta) {
-
+	return new VarType(BOOL);
 }
 
+DataType * CallStmtNode::typeAnalysis(TypeAnalysis * ta) {
+	myCallExp->typeAnalysis(ta);
+	return nullptr;
+}
 
 }

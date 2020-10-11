@@ -19,7 +19,9 @@ static Type getType(TypeNode * node) {
 }
 
 static QueryResult addSymbol(SemSymbol * symbol, IDNode * idNode, SymbolTable * symTab) {
-	return symTab->add(idNode->getName(), symbol);
+	QueryResult res = symTab->add(idNode->getName(), symbol);
+	if(res == SUCCESS) idNode->linkSymbol(symbol);
+	return res;
 }
 
 static void printErr(ASTNode * node, std::string msg) {
