@@ -1,0 +1,17 @@
+int a;
+bool b;
+boolptr bptr;
+
+bool g(int a) {
+    return (a > 0);
+}
+
+bool func(boolptr bptr, int a) {
+    a = a + 1;
+    bool x;
+    x = g(a);
+    if (a > 10) {
+        return x;
+    }
+    return func(func(^x,a), a);
+}
