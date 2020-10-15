@@ -1,0 +1,8 @@
+FATAL [8,15]: Arithmetic operator applied to invalid operand
+FATAL [8,22]: Arithmetic operator applied to invalid operand
+FATAL [9,15]: Type of actual does not match type of formal
+FATAL [9,13]: Arithmetic operator applied to invalid operand
+FATAL [10,13]: Function call with wrong number of args
+FATAL [10,13]: Arithmetic operator applied to invalid operand
+FATAL [11,16]: Arithmetic operator applied to invalid operand
+Type Analysis Failed

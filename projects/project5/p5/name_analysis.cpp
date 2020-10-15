@@ -209,7 +209,7 @@ bool WhileStmtNode::nameAnalysis(SymbolTable * symTab) {
 }
 
 bool ReturnStmtNode::nameAnalysis(SymbolTable * symTab) {
-	return myExp->nameAnalysis(symTab);
+	return myExp == nullptr ? true : myExp->nameAnalysis(symTab);
 }
 
 bool CallExpNode::nameAnalysis(SymbolTable * symTab) {

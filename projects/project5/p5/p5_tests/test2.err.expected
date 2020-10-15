@@ -1,0 +1,8 @@
+FATAL [8,15]: Arithmetic operator applied to invalid operand
+FATAL [9,10]: Arithmetic operator applied to invalid operand
+FATAL [10,27]: Logical operator applied to non-bool operand
+FATAL [11,11]: Arithmetic operator applied to invalid operand
+FATAL [12,13]: Attempt to call a non-function
+FATAL [13,10]: Arithmetic operator applied to invalid operand
+FATAL [13,17]: Arithmetic operator applied to invalid operand
+Type Analysis Failed

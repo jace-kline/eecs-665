@@ -70,11 +70,11 @@ public:
 	}
 	void badRef(size_t line, size_t col){
 		hasError = true;
-		Report::fatal(line, col, "Attempt to reference a pointer type");
+		Report::fatal(line, col, "Invalid operand for reference");
 	}
 	void badDeref(size_t line, size_t col){
 		hasError = true;
-		Report::fatal(line, col, "Attempt to dereference a base type");
+		Report::fatal(line, col, "Invalid operand for dereference");
 	}
 	void badPtrBase(size_t line, size_t col){
 		hasError = true;
@@ -163,7 +163,7 @@ public:
 	void writeFn(size_t line, size_t col){
 		hasError = true;
 		Report::fatal(line, col,
-			"Attempt to write a function");
+			"Attempt to output a function");
 	}
 	
 	void readFn(size_t line, size_t col){

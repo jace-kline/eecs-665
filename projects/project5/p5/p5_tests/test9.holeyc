@@ -1,0 +1,11 @@
+int main() {
+    int x;
+    int y;
+    bool b;
+    charptr cptr1;
+    charptr cptr2;
+    x = (x == y);
+    if(b != x) {
+        return (cptr1 == cptr2);
+    }
+}

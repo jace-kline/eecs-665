@@ -1,0 +1,36 @@
+int f(int a) {
+    return a + 4;
+}
+
+int main() {
+    int x;
+    boolptr bptr;
+    if(@bptr == true) {
+        TOCONSOLE f;
+        x = f;
+    }
+    
+    if(bptr) {
+        return 7;
+    } else {
+        return 4;
+    }
+
+    while(x + 4) {
+        f = x;
+    }
+
+    bool b;
+    int y;
+    b = x > y;
+    b = bptr < x;
+    b = bptr <= x;
+    b = bptr > x;
+    b = x >= bptr;
+
+    b = !x;
+    b = !b;
+
+    x = -y;
+    x = -b;
+}

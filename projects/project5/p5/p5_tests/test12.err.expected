@@ -1,0 +1,5 @@
+FATAL [6,5]: Missing return value
+FATAL [10,15]: Attempt to output a function
+FATAL [11,15]: Attempt to write void
+FATAL [12,12]: Return with a value in void function
+Type Analysis Failed

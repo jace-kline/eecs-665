@@ -1,0 +1,13 @@
+void f() {
+    return;
+}
+
+int g(bool b) {
+    return;
+}
+
+void main() {
+    TOCONSOLE f;
+    TOCONSOLE f();
+    return 5;
+}

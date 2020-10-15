@@ -1,0 +1,4 @@
+FATAL [6,15]: Attempt to output a function
+FATAL [10,17]: Logical operator applied to non-bool operand
+Type Analysis Failed
+

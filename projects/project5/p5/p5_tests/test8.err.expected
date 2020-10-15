@@ -1,0 +1,6 @@
+FATAL [2,15]: Bad return value
+FATAL [8,16]: Type of actual does not match type of formal
+FATAL [8,14]: Logical operator applied to non-bool operand
+FATAL [9,14]: Function call with wrong number of args
+FATAL [9,14]: Logical operator applied to non-bool operand
+Type Analysis Failed

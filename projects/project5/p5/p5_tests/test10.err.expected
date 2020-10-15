@@ -1,0 +1,13 @@
+FATAL [8,14]: Invalid equality operation
+FATAL [9,19]: Attempt to output a function
+FATAL [10,13]: Invalid assignment operand
+FATAL [13,8]: Non-bool expression used as an if condition
+FATAL [19,13]: Non-bool expression used as a while condition
+FATAL [20,9]: Invalid assignment operand
+FATAL [26,9]: Relational operator applied to non-numeric operand
+FATAL [27,9]: Relational operator applied to non-numeric operand
+FATAL [28,9]: Relational operator applied to non-numeric operand
+FATAL [29,14]: Relational operator applied to non-numeric operand
+FATAL [31,10]: Logical operator applied to non-bool operand
+FATAL [35,10]: Arithmetic operator applied to invalid operand
+Type Analysis Failed

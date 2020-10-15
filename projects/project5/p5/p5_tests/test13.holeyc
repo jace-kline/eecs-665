@@ -1,0 +1,7 @@
+void main() {
+    bool b;
+    boolptr bptr;
+    b = @bptr;
+    b = (true && @bptr);
+    @bptr = b;
+}

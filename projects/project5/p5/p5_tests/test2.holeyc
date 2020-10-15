@@ -1,0 +1,15 @@
+bool f(int a) {
+    return (a > 0);
+}
+
+int main() {
+    bool p;
+    int x;
+    TOCONSOLE p + 1;
+    p = (true + 3) * 4;
+    p = true && (false || 3);
+    p = f("a" * 4);
+    x = 1 + p();
+    p = (true + false) == 7;
+    return 0;
+}

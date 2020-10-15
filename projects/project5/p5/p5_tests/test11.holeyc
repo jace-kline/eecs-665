@@ -1,0 +1,12 @@
+int g() {
+    return 5;
+}
+
+int main() {
+    TOCONSOLE g;
+    TOCONSOLE g();
+    boolptr p;
+    bool b;
+    b = true && @p;
+    return 0;
+}

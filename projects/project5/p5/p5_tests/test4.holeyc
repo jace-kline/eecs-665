@@ -1,0 +1,8 @@
+int main() {
+    bool mybool;
+    mybool = false;
+    boolptr bptr;
+    bptr = ^mybool;
+    @bptr = true;
+    return 0;
+}

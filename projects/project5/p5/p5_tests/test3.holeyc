@@ -1,0 +1,12 @@
+bool f(int a) {
+    return (a > 0);
+}
+
+int main() {
+    bool p;
+    int x;
+    TOCONSOLE true + "hello";
+    x = 1 + f(true);
+    x = 1 + f(1,2);
+    return 3 + true;
+}

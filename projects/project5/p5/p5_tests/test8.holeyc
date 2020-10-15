@@ -1,0 +1,11 @@
+int f(int a) {
+    return (a > 0);
+}
+
+int main(int argc, charptr argv) {
+    bool b;
+    b = true;
+    b = b && f(b);
+    b = b && f(1,2);
+    return 0;
+}

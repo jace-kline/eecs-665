@@ -1,0 +1,8 @@
+int main() {
+    bool b;
+    b = true;
+    boolptr bptr;
+    bptr = ^b;
+    bptr = NULLPTR;
+    return 0;
+}

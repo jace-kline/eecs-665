@@ -40,14 +40,16 @@ class DataType {
         : kind(k), ret_type(t) {}
         Kind getKind() const { return kind; }
         Type getRetType() const { return ret_type; }
+        bool isErr() const { return (kind == ERRKIND); }
         bool isErrType() const { return (ret_type == ERRTYPE); }
         bool isFn() const { return kind == FN; }
-        bool isConcrete() const { return kind == VAR; }
+        bool isConcrete() const { return kind == VAR && ret_type != GENERIC && ret_type != ERRTYPE; }
         bool isConcreteOf(Type t) const { return (kind == VAR && ret_type == t);}
         bool isBase() const { return isConcrete() && isBaseType(ret_type);}
         bool isPtr() const { return isPtrType(ret_type); }
-        bool operator==(DataType& other) { 
-            return (kind == other.kind && (ret_type == other.ret_type)); 
+        bool operator==(DataType& other) {
+            bool eq_cond = ret_type == other.ret_type || (isPtrType(ret_type) && other.ret_type == GENERICPTR) || (ret_type == GENERICPTR && isPtrType(other.ret_type));
+            return (kind == other.kind && eq_cond);
         }
         bool operator==(Type rhs) { return (ret_type == rhs); }
         bool operator!=(Type rhs) { return (ret_type != rhs); }
@@ -59,12 +61,19 @@ class DataType {
         Type ret_type;
 };
 
+
 class ErrType : public DataType {
     public:
-        ErrType()
-        : DataType(ERRKIND, ERRTYPE) {}
-        DataType * toRef() override {return this;}
-        DataType * toDeref() override {return this;}
+        // The constructor Type parameter represents
+        // the desired return type of the node
+        ErrType(Type t)
+        : DataType(ERRKIND, t) {}
+        DataType * toRef() override {
+            return new ErrType(refType(ret_type));
+        }
+        DataType * toDeref() override {
+            return new ErrType(derefType(ret_type));
+        }
 };
 
 
@@ -75,12 +84,12 @@ class VarType : public DataType {
         : DataType(VAR, t) {}
         DataType * toRef() override {
             Type t = refType(ret_type);
-            if(t == ERRTYPE) return new ErrType();
+            if(t == ERRTYPE) return new ErrType(ERRTYPE);
             return new VarType(t);
         }
         DataType * toDeref() override {
             Type t = derefType(ret_type);
-            if(t == ERRTYPE) return new ErrType();
+            if(t == ERRTYPE) return new ErrType(ERRTYPE);
             return new VarType(t);
         }
 };
@@ -92,8 +101,8 @@ class FnType : public DataType {
         FnType(Type t, std::list<Type> * ts)
         : DataType(FN, t), arg_types(ts) {}
         std::list<Type> * getArgTypes() { return arg_types; }
-        DataType * toRef() override {return new ErrType();}
-        DataType * toDeref() override {return new ErrType();}
+        DataType * toRef() override {return new ErrType(ERRTYPE);}
+        DataType * toDeref() override {return new ErrType(ERRTYPE);}
     private:
         std::list<Type> * arg_types;
 };

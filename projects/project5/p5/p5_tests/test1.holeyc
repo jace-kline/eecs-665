@@ -1,0 +1,14 @@
+bool p;
+bool f(int a) {
+    return (a < 0);
+}
+
+int main() {
+    p = true;
+    bool q;
+    q = f(-1);
+    if(p && q) {
+        return -1;
+    }
+    return 0;
+}

@@ -1,0 +1,9 @@
+int main() {
+    charptr mystr;
+    mystr = "hello";
+    charptr cptr;
+    cptr = mystr;
+    char c;
+    c = cptr[0];
+    return 0;
+}

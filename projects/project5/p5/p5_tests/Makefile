@@ -8,7 +8,9 @@ all: $(TESTS)
 %.test:
 	@echo "Testing $*.holeyc"
 	@touch $*.out #Creates out file to diff in case of no output
+	@touch $*.out.expected
 	@touch $*.err #The @ means don't show the command being invoked
+	@touch $*.err.expected
 	@../holeycc $*.holeyc -c 2> $*.err ;\
 	PROG_EXIT_CODE=$$?;\
 	echo "diff error...";\
