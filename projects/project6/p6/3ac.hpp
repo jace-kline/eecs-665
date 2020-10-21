@@ -253,15 +253,23 @@ public:
 	std::list<SymOpd *> getFormals() { return formals; }
 	holeyc::Label * makeLabel();
 
+	// construct a SymOpd and add to locals / formals
 	void gatherLocal(SemSymbol * sym);
 	void gatherFormal(SemSymbol * sym);
+
+	// looks up a SymOpd in the formals or locals
 	SymOpd * getSymOpd(SemSymbol * sym);
+
+	// make temp variable and push to temps list
 	AuxOpd * makeTmp(OpdWidth width);
 
 	std::string toString(bool verbose=false); 
 	std::string getName();
 
 	holeyc::Label * getLeaveLabel();
+
+	EnterQuad * getEnter() { return enter; }
+	Quad * getLeave() { return leave; }
 private:
 	EnterQuad * enter;
 	Quad * leave;

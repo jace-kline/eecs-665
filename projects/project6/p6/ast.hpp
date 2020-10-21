@@ -208,7 +208,7 @@ public:
 	void typeAnalysis(TypeAnalysis * typing) override;
 	virtual void to3AC(Procedure * proc) override;
 	virtual void to3AC(IRProgram * prog) override;
-private:
+protected:
 	TypeNode * myType;
 	IDNode * myID;
 };
@@ -409,6 +409,7 @@ protected:
 	void binaryEqTyping(TypeAnalysis * typing);
 	void binaryRelTyping(TypeAnalysis * typing);
 	void binaryMathTyping(TypeAnalysis * typing);
+	Opd * flattenHelper(Procedure *, BinOp);
 };
 
 class PlusNode : public BinaryExpNode{
@@ -546,6 +547,7 @@ public:
 	virtual void typeAnalysis(TypeAnalysis *) override = 0;
 	virtual Opd * flatten(Procedure * prog) override = 0;
 protected:
+	Opd * flattenHelper(Procedure *, UnaryOp);
 	ExpNode * myExp;
 };
 
