@@ -1,7 +1,13 @@
 #include "3ac.hpp"
 
-namespace holeyc{
+std::string unBrackets(std::string s_) {
+	s_.erase(0,1); // erase first character '['
+	size_t i = s_.size();
+	s_.erase(i-1, 1); // erase last character ']'
+	return s_;
+}
 
+namespace holeyc{
 
 Quad::Quad() : myComment(""){
 }
@@ -64,6 +70,14 @@ std::string LeaveQuad::repr(){
 std::string AssignQuad::repr(){
 	return dst->toString() + " := " + src->toString();
 	
+}
+
+std::string GetAddrQuad::repr(){
+	return dst->toString() + " := " + unBrackets(src->toString());
+}
+
+std::string SetAddrQuad::repr(){
+	return unBrackets(dst->toString()) + " := " + src->toString();
 }
 
 BinOpQuad::BinOpQuad(Opd * dstIn, BinOp opIn, Opd * src1In, Opd * src2In)
@@ -217,7 +231,7 @@ SetRetQuad::SetRetQuad(Opd * opdIn)
 
 std::string SetRetQuad::repr(){
 	std::string res = "";
-	res += "setret " + std::to_string(index) + " " + opd->toString(); 
+	res += "setret " + opd->toString(); 
 	return res;
 }
 

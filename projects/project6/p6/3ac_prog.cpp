@@ -43,10 +43,10 @@ std::string IRProgram::toString(bool verbose){
 	std::string res = "";
 	res += "[BEGIN GLOBALS]\n";
 	for (auto entry : globals){
-		res += entry.second->toString() + "\n"; 
+		res += unBrackets(entry.second->toString()) + "\n"; 
 	}
 	for (auto entry : strings){
-		res += entry.first->toString(); 
+		res += unBrackets(entry.first->toString()); 
 		res += " " + entry.second; 
 		res += "\n";
 	}

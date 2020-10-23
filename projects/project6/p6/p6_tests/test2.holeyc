@@ -1,0 +1,7 @@
+int v(int a) {
+    intptr ptr;
+    ptr = ^a;
+    @ptr = 12;
+    ptr[4] = 16;
+    return @ptr;
+}

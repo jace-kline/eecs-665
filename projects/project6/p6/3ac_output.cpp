@@ -2,6 +2,11 @@
 
 namespace holeyc{
 
+size_t widthLen(OpdWidth w) {
+	if(w == BYTE) return 1;
+	else return 8;
+}
+
 IRProgram * ProgramNode::to3AC(TypeAnalysis * ta){
 	IRProgram * prog = new IRProgram(ta);
 	for (auto global : *myGlobals){
@@ -39,11 +44,11 @@ void FnDeclNode::to3AC(IRProgram * prog){
 }
 
 void FnDeclNode::to3AC(Procedure * proc){
-	// pass - already handled above
+	// pass - handled above
 }
 
 void FormalDeclNode::to3AC(IRProgram * prog){
-	// pass
+	// pass - handled below
 }
 
 void FormalDeclNode::to3AC(Procedure * proc){
@@ -83,17 +88,49 @@ Opd * AssignExpNode::flatten(Procedure * proc){
 	return dstOpd;
 }
 
-Opd * LValNode::flatten(Procedure * proc){
-	// abstract -- no implementation
-	return nullptr;
+Opd * RefNode::flatten(Procedure * proc){
+	OpdWidth w = Opd::width(myID->getSymbol()->getDataType());
+	Opd * tmpOpd = proc->makeTmp(w);
+	Opd * idOpd = myID->flatten(proc);
+	proc->addQuad(new GetAddrQuad(tmpOpd, idOpd));
+	return tmpOpd;
 }
 
 Opd * DerefNode::flatten(Procedure * proc){
-	TODO(Implement me)
+	OpdWidth w = Opd::width(myID->getSymbol()->getDataType());
+	Opd * tmpOpd = proc->makeTmp(w);
+	Opd * idOpd = myID->flatten(proc);
+	proc->addQuad(new SetAddrQuad(tmpOpd, idOpd));
+	return tmpOpd;
 }
 
-Opd * RefNode::flatten(Procedure * proc){
-	TODO(Implement me)
+Opd * IndexNode::flatten(Procedure * proc){
+	Opd * idOpd = myBase->flatten(proc);
+	Opd * indexOpd = myOffset->flatten(proc);
+
+	// get base type's size of array identifier
+	OpdWidth w = Opd::width(myBase->getSymbol()->getDataType());
+
+	// create LitOpd for the index size
+	Opd * indexSizeOpd = new LitOpd(std::to_string(widthLen(w)), w);
+
+	// multiply index by index width and store in temp
+	// this stored value is an address offset from start of array
+	Opd * offsetOpd = proc->makeTmp(QUADWORD);
+	proc->addQuad(new BinOpQuad(offsetOpd, MULT, indexOpd, indexSizeOpd));
+
+	// add the offset to the array start address and store in a temp
+	// this value is also an address
+	Opd * addrOpd = proc->makeTmp(QUADWORD);
+	proc->addQuad(new BinOpQuad(addrOpd, ADD, idOpd, offsetOpd));
+
+	// we must create a new temp that can dereference
+	// the above address
+	Opd * valOpd = proc->makeTmp(w);
+	proc->addQuad(new SetAddrQuad(valOpd, addrOpd));
+
+	// return the temp that points to that index addr
+	return valOpd;
 }
 
 Opd * CallExpNode::flatten(Procedure * proc){
@@ -105,10 +142,19 @@ Opd * CallExpNode::flatten(Procedure * proc){
 		i++;
 	}
 
-	// call quad
-	proc->addQuad(new CallQuad(myID->getSymbol()));
+	SemSymbol * fnSym = myID->getSymbol();
 
-	return nullptr;
+	// call quad
+	proc->addQuad(new CallQuad(fnSym));
+
+	Opd * retOpd = nullptr;
+	// store return value (if function is not void)
+	if(!fnSym->getDataType()->isVoid()) {
+		retOpd = proc->makeTmp(Opd::width(fnSym->getDataType()));
+		proc->addQuad(new GetRetQuad(retOpd));
+	}
+
+	return retOpd;
 }
 
 Opd * UnaryExpNode::flattenHelper(Procedure * proc, UnaryOp op) {
@@ -232,6 +278,11 @@ void IfElseStmtNode::to3AC(Procedure * proc){
 	}
 	// if true branch taken, skip false branch
 	proc->addQuad(new JmpQuad(exitIfElseLbl));
+
+	// add NOP and label for else branch
+	Quad * nop = new NopQuad();
+	nop->addLabel(elseLbl);
+	proc->addQuad(nop);
 	
 	// false branch
 	for (auto stmt : *myBodyFalse) {
@@ -273,8 +324,8 @@ void ReturnStmtNode::to3AC(Procedure * proc){
 		Opd * retOpd = myExp->flatten(proc);
 		proc->addQuad(new SetRetQuad(retOpd));
 	}
-	// leave the function
-	proc->addQuad(proc->getLeave());
+	// add jump to leave the function
+	proc->addQuad(new JmpQuad(proc->getLeaveLabel()));
 }
 
 void VarDeclNode::to3AC(Procedure * proc){

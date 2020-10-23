@@ -7,6 +7,8 @@
 #include "err.hpp"
 #include "symbol_table.hpp"
 
+std::string unBrackets(std::string s);
+
 namespace holeyc{
 
 class TypeAnalysis;
@@ -29,6 +31,8 @@ enum OpdWidth{
 	ADDR, QUADWORD, BYTE
 };
 
+size_t widthLen(OpdWidth w);
+
 class Opd{
 public:
 	Opd(OpdWidth widthIn) : myWidth(widthIn){}
@@ -49,9 +53,9 @@ private:
 
 class SymOpd : public Opd{
 public:
-	SymOpd(OpdWidth width) : Opd(width){}
+	SymOpd(OpdWidth width) : Opd(width) {}
 	virtual std::string toString() override{
-		return mySym->getName();
+		return "[" + mySym->getName() + "]";
 	}
 	const SemSymbol * getSym(){ return mySym; }
 private:
@@ -79,7 +83,7 @@ public:
 	AuxOpd(std::string valIn, OpdWidth width) 
 	: Opd(width), val(valIn) { }
 	std::string toString() override{
-		return val;
+		return "[" + val + "]";
 	}
 private:
 	std::string val;
@@ -143,13 +147,27 @@ private:
 	Opd * src;
 };
 
-class LocQuad : public Quad {
+// stores the address of rhs in the value of lhs
+class GetAddrQuad : public Quad {
 public:
-	LocQuad(Opd * srcIn, Opd * tgtIn);
+	GetAddrQuad(Opd * dstIn, Opd * srcIn)
+	: dst(dstIn), src(srcIn) {}
 	std::string repr() override;
 private:
+	Opd * dst;
 	Opd * src;
-	Opd * tgt;
+};
+
+// changes the address of lhs to point at the address
+// stored in the value of rhs
+class SetAddrQuad : public Quad {
+public:
+	SetAddrQuad(Opd * dstIn, Opd * srcIn)
+	: dst(dstIn), src(srcIn) {}
+	std::string repr() override;
+private:
+	Opd * dst;
+	Opd * src;
 };
 
 class JmpQuad : public Quad {

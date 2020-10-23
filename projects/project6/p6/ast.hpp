@@ -89,7 +89,7 @@ public:
 	void attachSymbol(SemSymbol * symbolIn) { } 
 	bool nameAnalysis(SymbolTable * symTab) override { return false; }
 	virtual void typeAnalysis(TypeAnalysis *) override {; } 
-	virtual Opd * flatten(Procedure * proc) override;
+	virtual Opd * flatten(Procedure * proc) override = 0;
 };
 
 class IDNode : public LValNode{
@@ -144,9 +144,7 @@ public:
 	std::string nodeKind() override { return "Index"; }
 	virtual bool nameAnalysis(SymbolTable * symTab) override;
 	virtual void typeAnalysis(TypeAnalysis *) override;
-	virtual Opd * flatten(Procedure * prog) override{
-		throw new ToDoError("Implement");
-	}
+	virtual Opd * flatten(Procedure * prog) override;
 private:
 	IDNode * myBase;
 	ExpNode * myOffset;

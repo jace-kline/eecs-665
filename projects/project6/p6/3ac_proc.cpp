@@ -31,15 +31,15 @@ std::string Procedure::toString(bool verbose){
 
 	res += "[BEGIN " + this->getName() + " LOCALS]\n";
 	for (const auto formal : this->formals){
-		res += formal->toString() + " (formal)\n";
+		res += unBrackets(formal->toString()) + " (formal)\n";
 	}
 
 	for (auto local : this->locals){
-		res += local.second->toString() + " (local)\n";
+		res += unBrackets(local.second->toString()) + " (local)\n";
 	}
 
 	for (auto tmp : temps){
-		res += tmp->toString() + " (tmp)\n";
+		res += unBrackets(tmp->toString()) + " (tmp)\n";
 	}
 	res += "[END " + this->getName() + " LOCALS]\n";
 

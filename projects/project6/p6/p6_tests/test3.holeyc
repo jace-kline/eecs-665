@@ -1,0 +1,4 @@
+void f() {
+    intptr ptr;
+    ptr[4] = 16;
+}
