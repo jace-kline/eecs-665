@@ -74,11 +74,11 @@ Opd * NullPtrNode::flatten(Procedure * proc){
 }
 
 Opd * TrueNode::flatten(Procedure * prog){
-	return new LitOpd("1", QUADWORD);
+	return new LitOpd("1", BYTE);
 }
 
 Opd * FalseNode::flatten(Procedure * prog){
-	return new LitOpd("0", QUADWORD);
+	return new LitOpd("0", BYTE);
 }
 
 Opd * AssignExpNode::flatten(Procedure * proc){
@@ -109,7 +109,8 @@ Opd * IndexNode::flatten(Procedure * proc){
 	Opd * indexOpd = myOffset->flatten(proc);
 
 	// get base type's size of array identifier
-	OpdWidth w = Opd::width(myBase->getSymbol()->getDataType());
+	const DataType * baseType = PtrType::derefType(myBase->getSymbol()->getDataType());
+	OpdWidth w = Opd::width(baseType);
 
 	// create LitOpd for the index size
 	Opd * indexSizeOpd = new LitOpd(std::to_string(widthLen(w)), w);
@@ -134,10 +135,15 @@ Opd * IndexNode::flatten(Procedure * proc){
 }
 
 Opd * CallExpNode::flatten(Procedure * proc){
-	// for each arg, flatten and then setarg
-	size_t i = 1;
+	// for each arg, recursively flatten and add to list
+	std::list<Opd *> argOpds;
 	for(auto arg : *myArgs) {
-		Opd * argOpd = arg->flatten(proc);
+		argOpds.push_back(arg->flatten(proc));
+	}
+
+	// for each argument operand, create a setarg quad
+	size_t i = 1;
+	for(auto argOpd : argOpds) {
 		proc->addQuad(new SetArgQuad(i, argOpd));
 		i++;
 	}
@@ -148,9 +154,11 @@ Opd * CallExpNode::flatten(Procedure * proc){
 	proc->addQuad(new CallQuad(fnSym));
 
 	Opd * retOpd = nullptr;
+	const FnType * fnType = fnSym->getDataType()->asFn();
+	const DataType * retType = fnType->getReturnType();
 	// store return value (if function is not void)
-	if(!fnSym->getDataType()->isVoid()) {
-		retOpd = proc->makeTmp(Opd::width(fnSym->getDataType()));
+	if(!retType->isVoid()) {
+		retOpd = proc->makeTmp(Opd::width(retType));
 		proc->addQuad(new GetRetQuad(retOpd));
 	}
 
@@ -299,16 +307,24 @@ void WhileStmtNode::to3AC(Procedure * proc){
 	Label * loopLbl = proc->makeLabel();
 	Label * exitWhileLbl = proc->makeLabel();
 
+	// NOP with label - start of the loop sequence
+	Quad * startQuad = new NopQuad();
+	startQuad->addLabel(loopLbl);
+	proc->addQuad(startQuad);
+
+	// flatten the condition expression
 	Opd * cndOpd = myCond->flatten(proc);
-	Quad * cndQuad = new JmpIfQuad(cndOpd, exitWhileLbl);
-	cndQuad->addLabel(loopLbl);
-	proc->addQuad(cndQuad);
+	// conditional jump to the exit of the loop label if the condition is false
+	proc->addQuad(new JmpIfQuad(cndOpd, exitWhileLbl));
 
 	for (auto stmt : *myBody) {
 		stmt->to3AC(proc);
 	}
+
+	// If the loop body was executed, jump back to start
 	proc->addQuad(new JmpQuad(loopLbl));
 
+	// NOP with label - exit the loop sequence
 	Quad * exitQuad = new NopQuad();
 	exitQuad->addLabel(exitWhileLbl);
 	proc->addQuad(exitQuad);

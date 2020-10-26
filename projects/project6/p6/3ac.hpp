@@ -40,7 +40,7 @@ public:
 	virtual OpdWidth getWidth(){ return myWidth; }
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
-			if (basic->isChar()){ return BYTE; }
+			if (basic->isChar() || basic->isBool()){ return BYTE; }
 			return QUADWORD;
 		} else if (const PtrType * ptr = type->asPtr()){
 			return ADDR;

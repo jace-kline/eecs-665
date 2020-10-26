@@ -1,0 +1,42 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN f LOCALS]
+a (formal)
+b (formal)
+tmp0 (tmp)
+[END f LOCALS]
+lbl_fun_f:  enter f
+            getarg 1 [a]
+            getarg 2 [b]
+            [tmp0] := [a] ADD64 [b]
+            setret [tmp0]
+            goto lbl_0
+lbl_0:      leave f
+[BEGIN main LOCALS]
+argc (formal)
+argv (formal)
+a (local)
+b (local)
+c (local)
+tmp0 (tmp)
+tmp1 (tmp)
+tmp2 (tmp)
+[END main LOCALS]
+lbl_main:   enter main
+            getarg 1 [argc]
+            getarg 2 [argv]
+            setarg 1 [argc]
+            setarg 2 [a]
+            call f
+            getres [tmp0]
+            setarg 1 [b]
+            setarg 2 [c]
+            call f
+            getres [tmp1]
+            setarg 1 [tmp0]
+            setarg 2 [tmp1]
+            call f
+            getres [tmp2]
+            setret [tmp2]
+            goto lbl_1
+lbl_1:      leave main

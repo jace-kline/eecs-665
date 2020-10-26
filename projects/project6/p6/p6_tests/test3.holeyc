@@ -1,4 +1,6 @@
 void f() {
-    intptr ptr;
-    ptr[4] = 16;
+    intptr iptr;
+    iptr[4] = 16;
+    boolptr bptr;
+    bptr[4] = true;
 }

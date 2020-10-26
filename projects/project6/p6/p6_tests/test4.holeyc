@@ -1,0 +1,21 @@
+int f(int x, bool b) {
+    return x;
+}
+
+bool bfunc(int a, int b) {
+    return (a > b);
+}
+
+int main(int a, int b) {
+    bool q;
+    a = (2 + 3) * 5 / 7 * 20;
+    b = 3 + f(1, bfunc(a,b));
+    if(a < b) {
+        a++;
+        a--;
+    } else {
+        b++;
+        b--;
+    }
+    return (a * b);
+}

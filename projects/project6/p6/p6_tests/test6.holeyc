@@ -1,0 +1,33 @@
+bool bfunc(int a, int b) {
+    return a > b;
+}
+
+void main() {
+    int z;
+    if(bfunc(z+3, z)) {
+        TOCONSOLE "hello";
+        if(z > 5) {
+            z--;
+        }
+    } else {
+        int a;
+        int b;
+        TOCONSOLE "goodbye";
+        a = (b = 5);
+        if(a == b) {
+            TOCONSOLE "Input an integer: ";
+            FROMCONSOLE a;
+        }
+    }
+
+    while(z < 3) {
+        int i;
+        TOCONSOLE z;
+        z++;
+        i = 3;
+        while(i > 0) {
+            TOCONSOLE z + i;
+            i--;
+        }
+    }
+}
