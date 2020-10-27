@@ -105,14 +105,14 @@ std::string BinOpQuad::repr(){
 		opString = " AND8 ";
 		break;
 	case EQ:
-		if (dst->getWidth() == BYTE){
+		if (src1->getWidth() == BYTE){
 			opString = " EQ8 ";
 		} else {
 			opString = " EQ64 ";
 		}
 		break;
 	case NEQ:
-		if (dst->getWidth() == BYTE){
+		if (src1->getWidth() == BYTE){
 			opString = " NEQ8 ";
 		} else {
 			opString = " NEQ64 ";

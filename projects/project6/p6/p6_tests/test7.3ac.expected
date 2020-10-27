@@ -1,0 +1,14 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN main LOCALS]
+t (local)
+f (local)
+result (local)
+tmp0 (tmp)
+[END main LOCALS]
+lbl_main:   enter main
+            [t] := 1
+            [f] := 0
+            [tmp0] := [t] EQ8 [f]
+            [result] := [tmp0]
+lbl_0:      leave main

@@ -1,0 +1,8 @@
+int main() {
+ bool t;
+ bool f;
+ bool result;
+ t = true;
+ f = false;
+ result = t == f;
+}
