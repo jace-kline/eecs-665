@@ -10,6 +10,7 @@ void IRProgram::allocGlobals(){
 		SymOpd * opd = pair.second;
 		std::string s = "gbl_" + opd->getSym()->getName();
 		opd->setMemoryLoc(s);
+		opd->setIsGlobal();
 	}
 
 	// iterate over strings
@@ -38,21 +39,23 @@ void IRProgram::datagenX64(std::ostream& out){
 }
 
 void IRProgram::toX64(std::ostream& out){
+	allocGlobals();
 	datagenX64(out);
 	out << "\n.globl main\n.text\n\n";
 	for (Procedure * proc : procs) {
 		proc->toX64(out);
+		out << "\n";
 	}
 }
 
 void Procedure::allocLocals(){
-	size_t n = formals.size();
-	size_t m = locals.size();
-	size_t t = temps.size();
+	int n = formals.size();
+	int m = locals.size();
+	int t = temps.size();
 	int offset;
 
 	// iterate over formals
-	size_t i = 1;
+	int i = 1;
 	for (SymOpd * opd : formals) {
 		offset = (i <= 6) ? (-16 - (8 * i)) : (8 * (n - i));
 		opd->setMemoryLoc(std::to_string(offset) + "(%rbp)");
@@ -60,7 +63,7 @@ void Procedure::allocLocals(){
 	}
 
 	// we only subtract up to 6 args in the AR
-	size_t n_ = n < 7 ? n : 6;
+	int n_ = n < 7 ? n : 6;
 
 	// iterate over locals
 	i = 1;
@@ -79,7 +82,7 @@ void Procedure::allocLocals(){
 	}
 
 	// set procedure total storage offset
-	allocBytes = (8 * n) + (8 * m) + (8 * t);
+	allocBytes = (8 * n_) + (8 * m) + (8 * t);
 	spilloverArgBytes = n == n_ ? 0 : 8 * (n - n_);
 }
 
@@ -140,7 +143,13 @@ void AssignQuad::codegenX64(std::ostream& out){
 
 void LocQuad::codegenX64(std::ostream& out){
 	// (Optional)
-	TODO(Implement me)
+	if (srcLoc) { // reference
+		out << "leaq " << src->opdX64Repr() << ", %rax\n";
+		tgt->genStore(out, "%rax");
+	} else { // dereference
+		out << "movq " << src->opdX64Repr() << ", %rax\n";
+		tgt->genStore(out, "(%rax)");
+	}
 }
 
 void JmpQuad::codegenX64(std::ostream& out){
@@ -201,7 +210,7 @@ void LeaveQuad::codegenX64(std::ostream& out){
 	// Procedure epilogue
 	out << "addq $" << myProc->getAllocBytes() << ", %rsp\n"
 		<< "popq %rbp\n"
-		<< "addq " << myProc->getArgOverflowBytes() << ", %rsp\n"
+		<< "addq $" << myProc->getArgOverflowBytes() << ", %rsp\n"
 		<< "ret\n";
 }
 
@@ -246,19 +255,19 @@ void GetRetQuad::codegenX64(std::ostream& out){
 }
 
 void SymOpd::genLoad(std::ostream & out, std::string regStr){
-	out << "movq " << getMemoryLoc() << ", " << regStr << "\n";
+	out << "movq " << opdX64Repr() << ", " << regStr << "\n";
 }
 
 void SymOpd::genStore(std::ostream& out, std::string regStr){
-	out << "movq " << regStr << ", " << getMemoryLoc() << "\n";
+	out << "movq " << regStr << ", " << opdX64Repr() << "\n";
 }
 
 void AuxOpd::genLoad(std::ostream & out, std::string regStr){
-	out << "movq " << getMemoryLoc() << ", " << regStr << "\n";
+	out << "movq " << opdX64Repr() << ", " << regStr << "\n";
 }
 
 void AuxOpd::genStore(std::ostream& out, std::string regStr){
-	out << "movq " << regStr << ", " << getMemoryLoc() << "\n";
+	out << "movq " << regStr << ", " << opdX64Repr() << "\n";
 }
 
 void LitOpd::genLoad(std::ostream & out, std::string regStr){

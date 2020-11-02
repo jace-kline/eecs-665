@@ -1,7 +1,9 @@
 LEXER_TOOL := flex
+CC ?= gcc
 CXX ?= g++ # Set the C++ compiler to g++ iff it hasn't already been set
-CPP_SRCS := $(wildcard *.cpp) 
-OBJ_SRCS := parser.o lexer.o $(CPP_SRCS:.cpp=.o)
+CPP_SRCS := $(wildcard *.cpp)
+C_SRCS := $(wildcard *.c)
+OBJ_SRCS := parser.o lexer.o $(CPP_SRCS:.cpp=.o) $(C_SRCS:.c=.o)
 DEPS := $(OBJ_SRCS:.o=.d)
 FLAGS=-pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Wuninitialized -Winit-self -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 -Wundef -Werror -Wno-unused -Wno-unused-parameter 
 
@@ -18,6 +20,9 @@ clean:
 holeycc: $(OBJ_SRCS)
 	$(CXX) $(FLAGS) -g -std=c++14 -o $@ $(OBJ_SRCS)
 
+stdholeyc.o: stdholeyc.c 
+	$(CC) -g -c stdholeyc.c -o stdholeyc.o
+
 %.o: %.cpp 
 	$(CXX) $(FLAGS) -g -std=c++14 -MMD -MP -c -o $@ $<
 
@@ -33,10 +38,10 @@ lexer.yy.cc: holeyc.l
 lexer.o: lexer.yy.cc
 	$(CXX) $(FLAGS) -Wno-sign-compare -Wno-sign-conversion -Wno-old-style-cast -Wno-switch-default -g -std=c++14 -c lexer.yy.cc -o lexer.o
 
-test: p6
+test: p7
 
-p6: all
-	$(MAKE) -C p6_tests/
+p7: all
+	$(MAKE) -C p7_tests/
 
 cleantest:
-	$(MAKE) -C p6_tests/ clean
+	$(MAKE) -C p7_tests/ clean

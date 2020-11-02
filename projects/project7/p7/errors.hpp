@@ -37,12 +37,25 @@ public:
 		<< msg  << std::endl;
 	}
 
+	static void fatal_noLoc(
+		const char * msg
+	){
+		std::cerr << "FATAL: " 
+		<< msg  << std::endl;
+	}
+
 	static void fatal(
 		size_t l, 
 		size_t c, 
 		const std::string msg
 	){
 		fatal(l,c,msg.c_str());
+	}
+
+	static void fatal(
+		const std::string msg
+	){
+		fatal_noLoc(msg.c_str());
 	}
 
 	static void warn(

@@ -14,7 +14,9 @@ bool ProgramNode::nameAnalysis(SymbolTable * symTab){
 	}
 	//Leave the global scope
 	symTab->leaveScope();
-	return res;
+
+	if(!symTab->hasMain()) Report::fatal_noLoc("No 'main' function declared");
+	return res && symTab->hasMain();
 }
 
 bool AssignStmtNode::nameAnalysis(SymbolTable * symTab){
@@ -101,6 +103,7 @@ bool VarDeclNode::nameAnalysis(SymbolTable * symTab){
 
 bool FnDeclNode::nameAnalysis(SymbolTable * symTab){
 	std::string fnName = this->ID()->getName();
+	if (fnName == "main") symTab->setMain();
 
 	bool validRet = myRetType->nameAnalysis(symTab);
 

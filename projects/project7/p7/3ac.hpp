@@ -19,7 +19,7 @@ public:
 		this->name = nameIn;
 	}
 	std::string toString(){
-		return "lbl_" + this->name;
+		return name == "main" ? "main" : "lbl_" + this->name;
 	}
 	std::string getName(){
 		return name;
@@ -40,6 +40,7 @@ public:
 	virtual OpdWidth getWidth(){ return myWidth; }
 	virtual void genLoad(std::ostream& out, std::string dstReg) = 0;
 	virtual void genStore(std::ostream& out, std::string srcReg) = 0;
+	virtual std::string opdX64Repr() = 0;
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -76,6 +77,10 @@ public:
 	virtual std::string getMemoryLoc(){
 		return myLoc;
 	}
+	void setIsGlobal() { isGlobal = true; }
+	std::string opdX64Repr() { 
+		return isGlobal ? "(" + getMemoryLoc() + ")" : getMemoryLoc(); 
+	}
 private:
 	//Private Constructor
 	SymOpd(SemSymbol * sym, OpdWidth width)
@@ -84,6 +89,7 @@ private:
 	friend class Procedure;
 	friend class IRProgram;
 	std::string myLoc;
+	bool isGlobal;
 };
 
 class LitOpd : public Opd{
@@ -100,6 +106,7 @@ public:
 		override;
 	virtual void genStore(std::ostream& out, std::string loc)
 		override;
+	std::string opdX64Repr() { return "$" + val; }
 private:
 	std::string val;
 };
@@ -127,6 +134,7 @@ public:
 	virtual std::string getMemoryLoc(){
 		return myLoc;
 	}
+	std::string opdX64Repr() { return getMemoryLoc() ;}
 private:
 	std::string name;
 	std::string myLoc = "UNINIT";
@@ -338,8 +346,8 @@ public:
 	void toX64(std::ostream& out);
 	size_t localsSize() const;
 	size_t numTemps() const;
-	size_t getAllocBytes() const { return allocBytes; }
-	size_t getArgOverflowBytes() const { return spilloverArgBytes; }
+	int getAllocBytes() const { return allocBytes; }
+	int getArgOverflowBytes() const { return spilloverArgBytes; }
 
 	std::list<Quad *> * getQuads(){
 		return bodyQuads;
@@ -358,8 +366,8 @@ private:
 	std::list<Quad *> * bodyQuads;
 	std::string myName;
 	size_t maxTmp;
-	size_t allocBytes;
-	size_t spilloverArgBytes;
+	int allocBytes;
+	int spilloverArgBytes;
 };
 
 class IRProgram{

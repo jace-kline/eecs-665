@@ -61,7 +61,7 @@ public:
 	virtual SymbolKind getKind() const { return FN; }
 	SymbolKind getKind(){ return FN; }
 	std::string toString() {
-		return getName() == "main" ? "main" : "fun_" + getName(); 
+		return getName() == "main" ? "main" : "lbl_fun_" + getName(); 
 	}
 };
 
@@ -104,8 +104,11 @@ class SymbolTable{
 			getCurrentScope()->addFn(name, type);
 		}
 		void print();
+		bool hasMain() { return hasMainFunction; }
+		void setMain() { hasMainFunction = true; }
 	private:
 		std::list<ScopeTable *> * scopeTableChain;
+		bool hasMainFunction;
 };
 
 	

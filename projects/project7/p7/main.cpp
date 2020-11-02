@@ -17,6 +17,7 @@ static void usageAndDie(){
 	<< " [-n <nameFile]: Output name analysis to <namesFile>\n"
 	<< " [-c]: Do type checking\n"
 	<< " [-a <3ACFile>]: Output 3AC program to <3ACFile>\n"
+	<< " [-o <x64file>]: Output x64 assembly code to <x64file>\n"
 	<< "\n"
 	;
 	std::cout << std::flush;

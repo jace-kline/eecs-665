@@ -2,8 +2,8 @@
 #include "stdlib.h"
 
 void printByte(char c){
-	if (c == 0){ fprintf(stdout, "false"); }
-	else if (c == 1){ fprintf(stdout, "true"); }
+	if (c == 0){ fprintf(stdout, "0"); }
+	else if (c == 1){ fprintf(stdout, "1"); }
 	else { fprintf(stdout, "%c", c); }
 	fflush(stdout);
 }
@@ -16,10 +16,6 @@ void printInt(long int num){
 void printString(const char * str){
 	fprintf(stdout, "%s", str);
 	fflush(stdout);
-}
-
-char getByte() {
-	return getChar();
 }
 
 int8_t getBool(){
@@ -45,4 +41,8 @@ char getChar(){
 	scanf("%c", &c);
 	getchar(); // Consume trailing newline
 	return c;
+}
+
+char getByte() {
+	return getChar();
 }

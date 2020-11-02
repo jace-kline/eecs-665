@@ -5,6 +5,7 @@ namespace holeyc{
 
 SymbolTable::SymbolTable(){
 	scopeTableChain = new std::list<ScopeTable *>();
+	hasMainFunction = false;
 }
 
 void SymbolTable::print(){
