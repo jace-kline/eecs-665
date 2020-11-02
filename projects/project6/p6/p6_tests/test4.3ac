@@ -1,0 +1,70 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN f LOCALS]
+x (formal)
+b (formal)
+[END f LOCALS]
+lbl_fun_f: enter f
+getarg 1 [x]
+getarg 2 [b]
+setret [x]
+goto lbl_0
+lbl_0: leave f
+[BEGIN bfunc LOCALS]
+a (formal)
+b (formal)
+tmp0 (tmp)
+[END bfunc LOCALS]
+lbl_fun_bfunc: enter bfunc
+getarg 1 [a]
+getarg 2 [b]
+[tmp0] := [a] GT64 [b]
+setret [tmp0]
+goto lbl_1
+lbl_1: leave bfunc
+[BEGIN main LOCALS]
+a (formal)
+b (formal)
+q (local)
+tmp0 (tmp)
+tmp1 (tmp)
+tmp2 (tmp)
+tmp3 (tmp)
+tmp4 (tmp)
+tmp5 (tmp)
+tmp6 (tmp)
+tmp7 (tmp)
+tmp8 (tmp)
+[END main LOCALS]
+lbl_main: enter main
+getarg 1 [a]
+getarg 2 [b]
+[tmp0] := 2 ADD64 3
+[tmp1] := [tmp0] MULT64 5
+[tmp2] := [tmp1] DIV64 7
+[tmp3] := [tmp2] MULT64 20
+[a] := [tmp3]
+setarg 1 [a]
+setarg 2 [b]
+call bfunc
+getret [tmp4]
+setarg 1 1
+setarg 2 [tmp4]
+call f
+getret [tmp5]
+[tmp6] := 3 ADD64 [tmp5]
+[b] := [tmp6]
+[tmp7] := [a] LT64 [b]
+IFZ [tmp7] GOTO lbl_3
+[a] := [a] ADD64 1
+[a] := [a] SUB64 1
+goto lbl_4
+lbl_3: nop
+[b] := [b] ADD64 1
+[b] := [b] SUB64 1
+lbl_4: nop
+[tmp8] := [a] MULT64 [b]
+setret [tmp8]
+goto lbl_2
+lbl_2: leave main
+

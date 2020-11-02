@@ -1,0 +1,42 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN spook LOCALS]
+arg (formal)
+tmp0 (tmp)
+tmp1 (tmp)
+tmp2 (tmp)
+tmp3 (tmp)
+tmp4 (tmp)
+tmp5 (tmp)
+[END spook LOCALS]
+lbl_fun_spook: enter spook
+getarg 1 [arg]
+[tmp0] := [arg] NEQ64 2
+IFZ [tmp0] GOTO lbl_1
+[tmp1] := [arg] SUB64 1
+setarg 1 [tmp1]
+call spook
+getret [tmp2]
+setarg 1 [tmp2]
+call spook
+getret [tmp3]
+setret [tmp3]
+goto lbl_0
+lbl_1: nop
+[tmp4] := [arg] MULT64 2
+[tmp5] := 2 ADD64 [tmp4]
+setret [tmp5]
+goto lbl_0
+lbl_0: leave spook
+[BEGIN main LOCALS]
+a (local)
+tmp0 (tmp)
+[END main LOCALS]
+lbl_main: enter main
+setarg 1 2
+call spook
+getret [tmp0]
+setret [tmp0]
+goto lbl_2
+lbl_2: leave main
+

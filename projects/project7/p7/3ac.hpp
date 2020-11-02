@@ -135,9 +135,16 @@ private:
 enum BinOp {
 	ADD, SUB, DIV, MULT, OR, AND, EQ, NEQ, LT, GT, LTE, GTE
 };
+
+bool isCmpOp(BinOp op);
+std::string binOpToX64(BinOp op);
+
 enum UnaryOp{
 	NEG, NOT
 };
+
+std::string unOpToX64(UnaryOp op);
+
 enum Intrinsic {
 	OUTPUT, INPUT
 };
@@ -269,6 +276,8 @@ private:
 	Procedure * myProc;
 };
 
+std::string indexToReg(size_t index);
+
 class SetArgQuad : public Quad{
 public:
 	SetArgQuad(size_t indexIn, Opd * opdIn);
@@ -329,6 +338,8 @@ public:
 	void toX64(std::ostream& out);
 	size_t localsSize() const;
 	size_t numTemps() const;
+	size_t getAllocBytes() const { return allocBytes; }
+	size_t getArgOverflowBytes() const { return spilloverArgBytes; }
 
 	std::list<Quad *> * getQuads(){
 		return bodyQuads;
@@ -347,6 +358,8 @@ private:
 	std::list<Quad *> * bodyQuads;
 	std::string myName;
 	size_t maxTmp;
+	size_t allocBytes;
+	size_t spilloverArgBytes;
 };
 
 class IRProgram{

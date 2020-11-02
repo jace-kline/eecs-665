@@ -27,7 +27,7 @@ enum SymbolKind {
 class SemSymbol {
 public:
 	SemSymbol(std::string nameIn, DataType * typeIn) 
-	: myName(nameIn), myType(typeIn){ }
+	: myName(nameIn), myType(typeIn) { }
 	virtual std::string toString();
 	std::string getName() const { return myName; }
 	virtual SymbolKind getKind() const = 0;
@@ -59,7 +59,10 @@ public:
 	FnSymbol(std::string name, FnType * fnType)
 	: SemSymbol(name, fnType){ }
 	virtual SymbolKind getKind() const { return FN; }
-	SymbolKind getKind(){ return FN; } 
+	SymbolKind getKind(){ return FN; }
+	std::string toString() {
+		return getName() == "main" ? "main" : "fun_" + getName(); 
+	}
 };
 
 //A single scope. The symbol table is broken down into a 

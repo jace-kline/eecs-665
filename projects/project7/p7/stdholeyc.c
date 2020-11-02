@@ -18,6 +18,10 @@ void printString(const char * str){
 	fflush(stdout);
 }
 
+char getByte() {
+	return getChar();
+}
+
 int8_t getBool(){
 	char c;
 	scanf("%c", &c);

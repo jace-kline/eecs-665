@@ -1,0 +1,11 @@
+int spook(int arg){
+	if (arg != 2) {
+		return spook(spook(arg - 1));
+	}
+	return 2 + arg * 2;
+}
+
+int main(){
+	int a;
+	return spook(2);
+}

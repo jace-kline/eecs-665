@@ -1,0 +1,5 @@
+int main() {
+	TOCONSOLE "hello";
+	TOCONSOLE "goodbye";
+	return 0;
+}

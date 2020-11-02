@@ -1,0 +1,15 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN main LOCALS]
+a (local)
+b (local)
+tmp0 (tmp)
+[END main LOCALS]
+lbl_main: enter main
+[a] := 5
+[tmp0] := NEG64 [a]
+[b] := [tmp0]
+setret 0
+goto lbl_0
+lbl_0: leave main
+
