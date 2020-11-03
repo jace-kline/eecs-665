@@ -1,0 +1,10 @@
+int main() {
+	int a;
+	a = 5;
+	intptr iptr;
+	iptr = ^a;
+	int b;
+	b = @iptr + 5;
+	TOCONSOLE b;
+	return b;
+}

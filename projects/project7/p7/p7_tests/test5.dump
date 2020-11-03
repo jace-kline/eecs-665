@@ -1,0 +1,62 @@
+
+test5.o:     file format elf64-x86-64
+
+SYMBOL TABLE:
+0000000000000000 l    d  .text	0000000000000000 .text
+0000000000000000 l    d  .data	0000000000000000 .data
+0000000000000000 l    d  .bss	0000000000000000 .bss
+0000000000000000 l       .data	0000000000000000 gbl_a
+0000000000000008 l       .data	0000000000000000 gbl_b
+0000000000000009 l       .data	0000000000000000 gbl_cptr
+0000000000000011 l       .data	0000000000000000 str_0
+0000000000000079 l       .text	0000000000000000 lbl_0
+0000000000000000 g       .text	0000000000000000 main
+0000000000000000         *UND*	0000000000000000 printInt
+0000000000000000         *UND*	0000000000000000 printByte
+0000000000000000         *UND*	0000000000000000 printString
+
+
+
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 83 c5 10          	add    $0x10,%rbp
+   8:	48 83 ec 00          	sub    $0x0,%rsp
+   c:	48 c7 c0 05 00 00 00 	mov    $0x5,%rax
+  13:	48 89 04 25 00 00 00 00 	mov    %rax,0x0	17: R_X86_64_32S	.data
+  1b:	48 c7 c0 61 00 00 00 	mov    $0x61,%rax
+  22:	88 04 25 00 00 00 00 	mov    %al,0x0	25: R_X86_64_32S	.data+0x8
+  29:	48 8d 04 25 00 00 00 00 	lea    0x0,%rax	2d: R_X86_64_32S	.data+0x11
+  31:	48 89 04 25 00 00 00 00 	mov    %rax,0x0	35: R_X86_64_32S	.data+0x9
+  39:	48 8b 3c 25 00 00 00 00 	mov    0x0,%rdi	3d: R_X86_64_32S	.data
+  41:	e8 00 00 00 00       	callq  46 <main+0x46>	42: R_X86_64_PLT32	printInt-0x4
+  46:	48 c7 c7 0a 00 00 00 	mov    $0xa,%rdi
+  4d:	e8 00 00 00 00       	callq  52 <main+0x52>	4e: R_X86_64_PLT32	printByte-0x4
+  52:	48 0f b6 3c 25 00 00 00 00 	movzbq 0x0,%rdi	57: R_X86_64_32S	.data+0x8
+  5b:	e8 00 00 00 00       	callq  60 <main+0x60>	5c: R_X86_64_PLT32	printByte-0x4
+  60:	48 c7 c7 0a 00 00 00 	mov    $0xa,%rdi
+  67:	e8 00 00 00 00       	callq  6c <main+0x6c>	68: R_X86_64_PLT32	printByte-0x4
+  6c:	48 8b 3c 25 00 00 00 00 	mov    0x0,%rdi	70: R_X86_64_32S	.data+0x9
+  74:	e8 00 00 00 00       	callq  79 <lbl_0>	75: R_X86_64_PLT32	printString-0x4
+
+0000000000000079 <lbl_0>:
+  79:	48 83 c4 00          	add    $0x0,%rsp
+  7d:	5d                   	pop    %rbp
+  7e:	c3                   	retq   
+
+Disassembly of section .data:
+
+0000000000000000 <gbl_a>:
+	...
+
+0000000000000008 <gbl_b>:
+	...
+
+0000000000000009 <gbl_cptr>:
+	...
+
+0000000000000011 <str_0>:
+  11:	68 65 6c 6c 6f       	pushq  $0x6f6c6c65
+	...

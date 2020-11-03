@@ -1,0 +1,44 @@
+
+test10.o:     file format elf64-x86-64
+
+SYMBOL TABLE:
+0000000000000000 l    d  .text	0000000000000000 .text
+0000000000000000 l    d  .data	0000000000000000 .data
+0000000000000000 l    d  .bss	0000000000000000 .bss
+000000000000005b l       .text	0000000000000000 lbl_0
+0000000000000000 g       .text	0000000000000000 main
+0000000000000000         *UND*	0000000000000000 printInt
+
+
+
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 83 c5 10          	add    $0x10,%rbp
+   8:	48 83 ec 30          	sub    $0x30,%rsp
+   c:	48 c7 c0 05 00 00 00 	mov    $0x5,%rax
+  13:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+  17:	48 8d 45 e8          	lea    -0x18(%rbp),%rax
+  1b:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+  1f:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+  23:	48 89 45 e0          	mov    %rax,-0x20(%rbp)
+  27:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+  2b:	48 8b 00             	mov    (%rax),%rax
+  2e:	48 89 45 c8          	mov    %rax,-0x38(%rbp)
+  32:	48 8b 45 c8          	mov    -0x38(%rbp),%rax
+  36:	48 c7 c3 05 00 00 00 	mov    $0x5,%rbx
+  3d:	48 01 d8             	add    %rbx,%rax
+  40:	48 89 45 c0          	mov    %rax,-0x40(%rbp)
+  44:	48 8b 45 c0          	mov    -0x40(%rbp),%rax
+  48:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+  4c:	48 8b 7d d8          	mov    -0x28(%rbp),%rdi
+  50:	e8 00 00 00 00       	callq  55 <main+0x55>	51: R_X86_64_PLT32	printInt-0x4
+  55:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+  59:	eb 00                	jmp    5b <lbl_0>
+
+000000000000005b <lbl_0>:
+  5b:	48 83 c4 30          	add    $0x30,%rsp
+  5f:	5d                   	pop    %rbp
+  60:	c3                   	retq   

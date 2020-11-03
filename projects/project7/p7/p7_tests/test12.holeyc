@@ -1,0 +1,14 @@
+charptr cp;
+
+
+int main() {
+	charptr cptr;
+	char c;
+	char b;
+	c = 'a;
+	b = 'b;
+	cptr = ^c;
+	cp = ^b;
+	@cptr = @cp;
+	TOCONSOLE c;
+}

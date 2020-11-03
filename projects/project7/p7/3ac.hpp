@@ -36,7 +36,7 @@ enum OpdWidth{
 
 class Opd{
 public:
-	Opd(OpdWidth widthIn) : myWidth(widthIn), isGlobal(false), isString(false) {}
+	Opd(OpdWidth widthIn) : myWidth(widthIn), isGlobal(false), isString(false), derefOpd(nullptr) {}
 	virtual std::string valString() = 0;
 	virtual std::string locString() = 0;
 	virtual OpdWidth getWidth(){ return myWidth; }
@@ -47,6 +47,8 @@ public:
 	void setIsGlobal() { isGlobal = true; }
 	bool getIsString() { return isString; }
 	void setIsString() { isString = true; }
+	Opd * getDerefOpd() { return derefOpd; }
+	void setDeref(Opd * opd) { derefOpd = opd; }
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -61,6 +63,7 @@ private:
 	OpdWidth myWidth;
 	bool isGlobal;
 	bool isString;
+	Opd * derefOpd;
 };
 
 class SymOpd : public Opd{

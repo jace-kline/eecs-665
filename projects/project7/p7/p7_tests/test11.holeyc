@@ -1,0 +1,8 @@
+int main() {
+	int a;
+	a = 5;
+	intptr iptr;
+	iptr = ^a;
+	@iptr = 6;
+	TOCONSOLE a;
+}

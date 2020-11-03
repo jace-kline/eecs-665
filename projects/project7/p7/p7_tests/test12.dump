@@ -1,0 +1,55 @@
+
+test12.o:     file format elf64-x86-64
+
+SYMBOL TABLE:
+0000000000000000 l    d  .text	0000000000000000 .text
+0000000000000000 l    d  .data	0000000000000000 .data
+0000000000000000 l    d  .bss	0000000000000000 .bss
+0000000000000000 l       .data	0000000000000000 gbl_cp
+0000000000000077 l       .text	0000000000000000 lbl_0
+0000000000000000 g       .text	0000000000000000 main
+0000000000000000         *UND*	0000000000000000 printByte
+
+
+
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 83 c5 10          	add    $0x10,%rbp
+   8:	48 83 ec 38          	sub    $0x38,%rsp
+   c:	48 c7 c0 61 00 00 00 	mov    $0x61,%rax
+  13:	88 45 e0             	mov    %al,-0x20(%rbp)
+  16:	48 c7 c0 62 00 00 00 	mov    $0x62,%rax
+  1d:	88 45 d8             	mov    %al,-0x28(%rbp)
+  20:	48 8d 45 e0          	lea    -0x20(%rbp),%rax
+  24:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+  28:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+  2c:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+  30:	48 8d 45 d8          	lea    -0x28(%rbp),%rax
+  34:	48 89 45 c8          	mov    %rax,-0x38(%rbp)
+  38:	48 8b 45 c8          	mov    -0x38(%rbp),%rax
+  3c:	48 89 04 25 00 00 00 00 	mov    %rax,0x0	40: R_X86_64_32S	.data
+  44:	48 8b 04 25 00 00 00 00 	mov    0x0,%rax	48: R_X86_64_32S	.data
+  4c:	48 8b 00             	mov    (%rax),%rax
+  4f:	48 89 45 c0          	mov    %rax,-0x40(%rbp)
+  53:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  57:	48 8b 00             	mov    (%rax),%rax
+  5a:	48 89 45 b8          	mov    %rax,-0x48(%rbp)
+  5e:	48 8b 45 c0          	mov    -0x40(%rbp),%rax
+  62:	48 89 45 b8          	mov    %rax,-0x48(%rbp)
+  66:	48 8b 5d e8          	mov    -0x18(%rbp),%rbx
+  6a:	48 89 03             	mov    %rax,(%rbx)
+  6d:	48 0f b6 7d e0       	movzbq -0x20(%rbp),%rdi
+  72:	e8 00 00 00 00       	callq  77 <lbl_0>	73: R_X86_64_PLT32	printByte-0x4
+
+0000000000000077 <lbl_0>:
+  77:	48 83 c4 38          	add    $0x38,%rsp
+  7b:	5d                   	pop    %rbp
+  7c:	c3                   	retq   
+
+Disassembly of section .data:
+
+0000000000000000 <gbl_cp>:
+	...

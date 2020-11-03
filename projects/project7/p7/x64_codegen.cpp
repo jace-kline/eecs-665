@@ -142,6 +142,15 @@ void UnaryOpQuad::codegenX64(std::ostream& out){
 void AssignQuad::codegenX64(std::ostream& out){
 	src->genLoad(out, "%rax");
 	dst->genStore(out, "%rax");
+
+	// if the destination operand dereferences another,
+	// we must assign back to that as well
+	Opd * derefOpd = dst->getDerefOpd();
+	if(derefOpd != nullptr) {
+		derefOpd->genLoad(out, "%rbx");
+		out << "movq %rax, (%rbx)\n";		
+	}
+
 }
 
 void LocQuad::codegenX64(std::ostream& out){
@@ -150,8 +159,12 @@ void LocQuad::codegenX64(std::ostream& out){
 		out << "leaq " << src->opdX64Repr() << ", %rax\n";
 		tgt->genStore(out, "%rax");
 	} else { // dereference
-		out << "movq " << src->opdX64Repr() << ", %rax\n";
-		tgt->genStore(out, "(%rax)");
+		out << "movq " << src->opdX64Repr() << ", %rax\n"
+			<< "movq (%rax), %rax\n";
+		tgt->genStore(out, "%rax");
+
+		// keep track of the opd that we are dereferencing
+		tgt->setDeref(src);
 	}
 }
 

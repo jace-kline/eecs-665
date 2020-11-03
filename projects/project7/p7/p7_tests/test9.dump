@@ -1,0 +1,146 @@
+
+test9.o:     file format elf64-x86-64
+
+SYMBOL TABLE:
+0000000000000000 l    d  .text	0000000000000000 .text
+0000000000000000 l    d  .data	0000000000000000 .data
+0000000000000000 l    d  .bss	0000000000000000 .bss
+0000000000000000 l       .data	0000000000000000 str_0
+0000000000000008 l       .data	0000000000000000 str_1
+0000000000000000 l       .text	0000000000000000 lbl_fun_myFunc
+0000000000000075 l       .text	0000000000000000 lbl_0
+000000000000007b l       .text	0000000000000000 lbl_fun_toInt
+00000000000000a6 l       .text	0000000000000000 lbl_2
+00000000000000b0 l       .text	0000000000000000 lbl_1
+0000000000000132 l       .text	0000000000000000 lbl_4
+0000000000000140 l       .text	0000000000000000 lbl_5
+0000000000000155 l       .text	0000000000000000 lbl_3
+00000000000000b6 g       .text	0000000000000000 main
+0000000000000000         *UND*	0000000000000000 printString
+
+
+
+Disassembly of section .text:
+
+0000000000000000 <lbl_fun_myFunc>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 83 c5 10          	add    $0x10,%rbp
+   8:	48 83 ec 58          	sub    $0x58,%rsp
+   c:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
+  10:	48 89 75 e0          	mov    %rsi,-0x20(%rbp)
+  14:	48 89 55 d8          	mov    %rdx,-0x28(%rbp)
+  18:	48 89 4d d0          	mov    %rcx,-0x30(%rbp)
+  1c:	4c 89 45 c8          	mov    %r8,-0x38(%rbp)
+  20:	4c 89 4d c0          	mov    %r9,-0x40(%rbp)
+  24:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+  28:	48 8b 5d e0          	mov    -0x20(%rbp),%rbx
+  2c:	48 01 d8             	add    %rbx,%rax
+  2f:	48 89 45 b8          	mov    %rax,-0x48(%rbp)
+  33:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+  37:	48 8b 5d d8          	mov    -0x28(%rbp),%rbx
+  3b:	48 01 d8             	add    %rbx,%rax
+  3e:	48 89 45 b0          	mov    %rax,-0x50(%rbp)
+  42:	48 8b 45 b0          	mov    -0x50(%rbp),%rax
+  46:	48 8b 5d d0          	mov    -0x30(%rbp),%rbx
+  4a:	48 01 d8             	add    %rbx,%rax
+  4d:	48 89 45 a8          	mov    %rax,-0x58(%rbp)
+  51:	48 8b 45 a8          	mov    -0x58(%rbp),%rax
+  55:	48 8b 5d c8          	mov    -0x38(%rbp),%rbx
+  59:	48 01 d8             	add    %rbx,%rax
+  5c:	48 89 45 a0          	mov    %rax,-0x60(%rbp)
+  60:	48 8b 45 a0          	mov    -0x60(%rbp),%rax
+  64:	48 8b 5d c0          	mov    -0x40(%rbp),%rbx
+  68:	48 01 d8             	add    %rbx,%rax
+  6b:	48 89 45 98          	mov    %rax,-0x68(%rbp)
+  6f:	48 8b 45 98          	mov    -0x68(%rbp),%rax
+  73:	eb 00                	jmp    75 <lbl_0>
+
+0000000000000075 <lbl_0>:
+  75:	48 83 c4 58          	add    $0x58,%rsp
+  79:	5d                   	pop    %rbp
+  7a:	c3                   	retq   
+
+000000000000007b <lbl_fun_toInt>:
+  7b:	55                   	push   %rbp
+  7c:	48 89 e5             	mov    %rsp,%rbp
+  7f:	48 83 c5 10          	add    $0x10,%rbp
+  83:	48 83 ec 08          	sub    $0x8,%rsp
+  87:	40 88 7d e8          	mov    %dil,-0x18(%rbp)
+  8b:	48 c7 c0 00 00 00 00 	mov    $0x0,%rax
+  92:	48 0f b6 45 e8       	movzbq -0x18(%rbp),%rax
+  97:	48 83 f8 00          	cmp    $0x0,%rax
+  9b:	74 09                	je     a6 <lbl_2>
+  9d:	48 c7 c0 01 00 00 00 	mov    $0x1,%rax
+  a4:	eb 0a                	jmp    b0 <lbl_1>
+
+00000000000000a6 <lbl_2>:
+  a6:	90                   	nop
+  a7:	48 c7 c0 00 00 00 00 	mov    $0x0,%rax
+  ae:	eb 00                	jmp    b0 <lbl_1>
+
+00000000000000b0 <lbl_1>:
+  b0:	48 83 c4 08          	add    $0x8,%rsp
+  b4:	5d                   	pop    %rbp
+  b5:	c3                   	retq   
+
+00000000000000b6 <main>:
+  b6:	55                   	push   %rbp
+  b7:	48 89 e5             	mov    %rsp,%rbp
+  ba:	48 83 c5 10          	add    $0x10,%rbp
+  be:	48 83 ec 20          	sub    $0x20,%rsp
+  c2:	48 c7 c7 01 00 00 00 	mov    $0x1,%rdi
+  c9:	48 c7 c6 01 00 00 00 	mov    $0x1,%rsi
+  d0:	48 c7 c2 01 00 00 00 	mov    $0x1,%rdx
+  d7:	48 c7 c1 01 00 00 00 	mov    $0x1,%rcx
+  de:	49 c7 c0 01 00 00 00 	mov    $0x1,%r8
+  e5:	49 c7 c1 01 00 00 00 	mov    $0x1,%r9
+  ec:	e8 0f ff ff ff       	callq  0 <lbl_fun_myFunc>
+  f1:	48 89 45 e0          	mov    %rax,-0x20(%rbp)
+  f5:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+  f9:	48 c7 c3 06 00 00 00 	mov    $0x6,%rbx
+ 100:	48 39 d8             	cmp    %rbx,%rax
+ 103:	0f 94 c0             	sete   %al
+ 106:	88 45 d8             	mov    %al,-0x28(%rbp)
+ 109:	48 0f b6 45 d8       	movzbq -0x28(%rbp),%rax
+ 10e:	88 45 e8             	mov    %al,-0x18(%rbp)
+ 111:	48 c7 c0 00 00 00 00 	mov    $0x0,%rax
+ 118:	48 0f b6 45 e8       	movzbq -0x18(%rbp),%rax
+ 11d:	48 83 f8 00          	cmp    $0x0,%rax
+ 121:	74 0f                	je     132 <lbl_4>
+ 123:	48 8d 3c 25 00 00 00 00 	lea    0x0,%rdi	127: R_X86_64_32S	.data+0x8
+ 12b:	e8 00 00 00 00       	callq  130 <main+0x7a>	12c: R_X86_64_PLT32	printString-0x4
+ 130:	eb 0e                	jmp    140 <lbl_5>
+
+0000000000000132 <lbl_4>:
+ 132:	90                   	nop
+ 133:	48 8d 3c 25 00 00 00 00 	lea    0x0,%rdi	137: R_X86_64_32S	.data
+ 13b:	e8 00 00 00 00       	callq  140 <lbl_5>	13c: R_X86_64_PLT32	printString-0x4
+
+0000000000000140 <lbl_5>:
+ 140:	90                   	nop
+ 141:	48 0f b6 7d e8       	movzbq -0x18(%rbp),%rdi
+ 146:	e8 30 ff ff ff       	callq  7b <lbl_fun_toInt>
+ 14b:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 14f:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 153:	eb 00                	jmp    155 <lbl_3>
+
+0000000000000155 <lbl_3>:
+ 155:	48 83 c4 20          	add    $0x20,%rsp
+ 159:	5d                   	pop    %rbp
+ 15a:	c3                   	retq   
+
+Disassembly of section .data:
+
+0000000000000000 <str_0>:
+   0:	66 61                	data16 (bad) 
+   2:	6c                   	insb   (%dx),%es:(%rdi)
+   3:	73 65                	jae    6a <str_1+0x62>
+   5:	00 00                	add    %al,(%rax)
+	...
+
+0000000000000008 <str_1>:
+   8:	74 72                	je     7c <lbl_fun_toInt+0x1>
+   a:	75 65                	jne    71 <str_1+0x69>
+   c:	00 00                	add    %al,(%rax)
+	...
