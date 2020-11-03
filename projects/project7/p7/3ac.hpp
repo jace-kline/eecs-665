@@ -13,6 +13,8 @@ class TypeAnalysis;
 class Procedure;
 class IRProgram;
 
+std::string quadRegByte0(std::string reg);
+
 class Label{
 public:
 	Label(std::string nameIn){
@@ -34,13 +36,17 @@ enum OpdWidth{
 
 class Opd{
 public:
-	Opd(OpdWidth widthIn) : myWidth(widthIn){}
+	Opd(OpdWidth widthIn) : myWidth(widthIn), isGlobal(false), isString(false) {}
 	virtual std::string valString() = 0;
 	virtual std::string locString() = 0;
 	virtual OpdWidth getWidth(){ return myWidth; }
 	virtual void genLoad(std::ostream& out, std::string dstReg) = 0;
 	virtual void genStore(std::ostream& out, std::string srcReg) = 0;
 	virtual std::string opdX64Repr() = 0;
+	bool getIsGlobal() { return isGlobal; }
+	void setIsGlobal() { isGlobal = true; }
+	bool getIsString() { return isString; }
+	void setIsString() { isString = true; }
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -53,6 +59,8 @@ public:
 	}
 private:
 	OpdWidth myWidth;
+	bool isGlobal;
+	bool isString;
 };
 
 class SymOpd : public Opd{
@@ -77,9 +85,8 @@ public:
 	virtual std::string getMemoryLoc(){
 		return myLoc;
 	}
-	void setIsGlobal() { isGlobal = true; }
 	std::string opdX64Repr() { 
-		return isGlobal ? "(" + getMemoryLoc() + ")" : getMemoryLoc(); 
+		return getIsGlobal() ? "(" + getMemoryLoc() + ")" : getMemoryLoc(); 
 	}
 private:
 	//Private Constructor
@@ -89,7 +96,6 @@ private:
 	friend class Procedure;
 	friend class IRProgram;
 	std::string myLoc;
-	bool isGlobal;
 };
 
 class LitOpd : public Opd{
@@ -134,7 +140,9 @@ public:
 	virtual std::string getMemoryLoc(){
 		return myLoc;
 	}
-	std::string opdX64Repr() { return getMemoryLoc() ;}
+	std::string opdX64Repr() { 
+		return getMemoryLoc(); 
+	}
 private:
 	std::string name;
 	std::string myLoc = "UNINIT";

@@ -18,6 +18,7 @@ void IRProgram::allocGlobals(){
 	for (auto pair : strings) {
 		AuxOpd * opd = pair.first;
 		opd->setMemoryLoc("str_" + std::to_string(i));
+		opd->setIsString();
 		i++;
 	}
 }
@@ -25,16 +26,18 @@ void IRProgram::allocGlobals(){
 void IRProgram::datagenX64(std::ostream& out){
 	out << ".data\n";
 	for (auto pair : globals) {
-		out << pair.second->getMemoryLoc()
-			<< ": .quad 0\n";
+		SymOpd * opd = pair.second;
+		out << opd->getMemoryLoc()
+			<< ": " 
+			<< (opd->getWidth() == BYTE ? ".byte" : ".quad")
+			<< " 0\n";
 	}
 	
 	for (auto pair : strings) {
 		out << pair.first->getMemoryLoc()
-			<< ":\n\t.asciz \""
+			<< ": .asciz "
 			<< pair.second
-			<< "\"\n"
-			<< "\t.align 8\n";
+			<< "\n.align 8\n";
 	}	
 }
 
@@ -123,7 +126,7 @@ void BinOpQuad::codegenX64(std::ostream& out){
 	src2->genLoad(out, "%rbx");
 	if(isCmpOp(op)) {
 		out << "cmpq %rbx, %rax\n"
-			<< binOpToX64(op) << " %rax\n";
+			<< binOpToX64(op) << " " << quadRegByte0("%rax") << "\n";
 	} else {
 		out << binOpToX64(op) << " %rbx, %rax\n";
 	}
@@ -178,7 +181,7 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 		} else {
 			//If the argument is an ADDR,
 			// assume it's a string
-			out << "callq printString";
+			out << "callq printString\n";
 		}
 		break;
 	case INPUT:
@@ -220,8 +223,8 @@ std::string indexToReg(size_t index) {
 		case 2: return "%rsi";
 		case 3: return "%rdx";
 		case 4: return "%rcx";
-		case 5: return "%r08";
-		case 6: return "%r09";
+		case 5: return "%r8";
+		case 6: return "%r9";
 		default: break;
 	}
 	throw new InternalError("Index out of range of target registers");
@@ -255,19 +258,27 @@ void GetRetQuad::codegenX64(std::ostream& out){
 }
 
 void SymOpd::genLoad(std::ostream & out, std::string regStr){
-	out << "movq " << opdX64Repr() << ", " << regStr << "\n";
+	std::string mov = getWidth() == BYTE ? "movzbq " : "movq ";
+	out << mov << opdX64Repr() << ", " << regStr << "\n";
 }
 
 void SymOpd::genStore(std::ostream& out, std::string regStr){
-	out << "movq " << regStr << ", " << opdX64Repr() << "\n";
+	bool byte = getWidth() == BYTE;
+	std::string mov = byte ? "movb " : "movq ";
+	std::string reg = byte ? quadRegByte0(regStr) : regStr;
+	out << mov << reg << ", " << opdX64Repr() << "\n";
 }
 
 void AuxOpd::genLoad(std::ostream & out, std::string regStr){
-	out << "movq " << opdX64Repr() << ", " << regStr << "\n";
+	std::string mov = getWidth() == BYTE ? "movzbq " : (getIsString() ? "leaq " : "movq ");
+	out << mov << opdX64Repr() << ", " << regStr << "\n";
 }
 
 void AuxOpd::genStore(std::ostream& out, std::string regStr){
-	out << "movq " << regStr << ", " << opdX64Repr() << "\n";
+	bool byte = getWidth() == BYTE;
+	std::string mov = byte ? "movb " : "movq ";
+	std::string reg = byte ? quadRegByte0(regStr) : regStr;
+	out << mov << reg << ", " << opdX64Repr() << "\n";
 }
 
 void LitOpd::genLoad(std::ostream & out, std::string regStr){
@@ -280,6 +291,26 @@ void LitOpd::genStore(std::ostream& out, std::string regStr){
 
 bool isCmpOp(BinOp op) {
 	return (op >= EQ);
+}
+
+std::string quadRegByte0(std::string reg) {
+	if(reg == "%rax") return "%al";
+	else if(reg == "%rcx") return "%cl";
+	else if(reg == "%rdx") return "%dl";
+	else if(reg == "%rbx") return "%bl";
+	else if(reg == "%rsi") return "%sil";
+	else if(reg == "%rdi") return "%dil";
+	else if(reg == "%rsp") return "%spl";
+	else if(reg == "%rbp") return "%bpl";
+	else if(reg == "%r8") return "%r8b";
+	else if(reg == "%r9") return "%r9b";
+	else if(reg == "%r10") return "%r10b";
+	else if(reg == "%r11") return "%r11b";
+	else if(reg == "%r12") return "%r12b";
+	else if(reg == "%r13") return "%r13b";
+	else if(reg == "%r14") return "%r14b";
+	else if(reg == "%r15") return "%r15b";
+	throw new InternalError("Invalid register");
 }
 
 std::string binOpToX64(BinOp op) {

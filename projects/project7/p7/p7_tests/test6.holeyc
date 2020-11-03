@@ -1,0 +1,12 @@
+bool b;
+int a;
+char c;
+
+int main() {
+	b = false;
+	a = 7;
+	c = 'z;
+	TOCONSOLE b;
+	TOCONSOLE a;
+	TOCONSOLE c;
+}

@@ -72,7 +72,10 @@ Opd * StrLitNode::flatten(Procedure * proc){
 }
 
 Opd * CharLitNode::flatten(Procedure * proc){
-	return new LitOpd(std::string(1, myVal), BYTE);
+	// get ascii value of char
+	int x = myVal;
+	return new LitOpd(std::to_string(x), BYTE);
+	// return new LitOpd(std::string(1, myVal), BYTE);
 }
 
 Opd * FalseNode::flatten(Procedure * prog){

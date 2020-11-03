@@ -1,0 +1,10 @@
+char c;
+bool b;
+
+int main() {
+	c = 'a;
+	b = false;
+	TOCONSOLE c;
+	TOCONSOLE b;
+	return 0;
+}

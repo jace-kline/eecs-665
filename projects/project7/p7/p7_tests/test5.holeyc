@@ -1,0 +1,14 @@
+int a;
+char b;
+charptr cptr;
+
+void main() {
+	a = 5;
+	b = 'a;
+	cptr = "hello";
+	TOCONSOLE a;
+	TOCONSOLE '\n;
+	TOCONSOLE b;
+	TOCONSOLE '\n;
+	TOCONSOLE cptr;
+}

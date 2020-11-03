@@ -1,5 +1,8 @@
 #include <stdio.h>
+
+const char * str = "Hello, World!";
+
 int main() {
-	printf("Hello, World!");
+	printf("%s", str);
 	return 0;
 }
