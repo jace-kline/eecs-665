@@ -199,6 +199,13 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 
 void CallQuad::codegenX64(std::ostream& out){
 	out << "call " << callee->toString() << "\n";
+
+	// get callee's number of args
+	int args = callee->getDataType()->asFn()->getFormalTypes()->size();
+	if(args > 6) {
+		int addback = 8 * (args - 6);
+		out << "addq $" << addback << ", %rsp\n";
+	}
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
@@ -213,7 +220,7 @@ void LeaveQuad::codegenX64(std::ostream& out){
 	// Procedure epilogue
 	out << "addq $" << myProc->getAllocBytes() << ", %rsp\n"
 		<< "popq %rbp\n"
-		<< "addq $" << myProc->getArgOverflowBytes() << ", %rsp\n"
+		// << "addq $" << myProc->getArgOverflowBytes() << ", %rsp\n"
 		<< "ret\n";
 }
 
