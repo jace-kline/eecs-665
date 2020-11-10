@@ -124,7 +124,13 @@ void Quad::codegenLabels(std::ostream& out){
 void BinOpQuad::codegenX64(std::ostream& out){
 	src1->genLoad(out, "%rax");
 	src2->genLoad(out, "%rbx");
-	if(isCmpOp(op)) {
+	if(op == MULT || op == DIV) {
+		// rax (* | /) rbx
+		// result stored in rdx:rax
+		// for mult, we assume that overflow to rdx does not occur
+		// for div, we assume only integer quotient (no remainder)
+		out << binOpToX64(op) << " %rbx\n";
+	} else if(isCmpOp(op)) {
 		out << "cmpq %rbx, %rax\n"
 			<< binOpToX64(op) << " " << quadRegByte0("%rax") << "\n";
 	} else {
@@ -198,7 +204,7 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 		}
 		break;
 	case INPUT:
-		myArg->genLoad(out, "%rdi");
+		// store input val to %rax (via return)
 		if (myArg->getWidth() == QUADWORD){
 			out << "callq getInt\n";
 		} else if (myArg->getWidth() == BYTE){
@@ -207,6 +213,9 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 		} else {
 			throw new InternalError("Attempted to read into a pointer");
 		}
+
+		// store value from %rax into destination
+		myArg->genStore(out, "%rax");
 	}
 }
 
@@ -337,8 +346,8 @@ std::string binOpToX64(BinOp op) {
 	switch(op) {
 		case ADD: return "addq";
 		case SUB: return "subq";
-		case DIV: return "divq";
-		case MULT: return "mulq";
+		case DIV: return "idivq";
+		case MULT: return "imulq";
 		case OR: return "orq";
 		case AND: return "andq";
 		case EQ: return "sete";

@@ -1,0 +1,9 @@
+int main() {
+	intptr iptr;
+	int a;
+	a = 5;
+	iptr = ^a;
+	iptr[0] = 6;
+	TOCONSOLE a;
+	return 0;
+}

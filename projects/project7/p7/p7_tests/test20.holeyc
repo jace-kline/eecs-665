@@ -1,0 +1,8 @@
+int main() {
+    int a;
+    if((a = 5) > 0) {
+        TOCONSOLE a;
+    } else {
+        TOCONSOLE "failed\n";
+    }
+}

@@ -427,7 +427,12 @@ Opd * RefNode::flatten(Procedure * proc){
 }
 
 Opd * DerefNode::flatten(Procedure * proc){
-	Opd * dst = proc->makeTmp(ADDR);
+	// get base type width of the deref'd ptr
+	const DataType * baseType = PtrType::derefType(myID->getSymbol()->getDataType());
+	if(baseType == nullptr) throw new InternalError("Attempted to dereference a non-pointer");
+	OpdWidth w = Opd::width(baseType);
+
+	Opd * dst = proc->makeTmp(w);
 	Opd * getVal = myID->flatten(proc);
 	LocQuad * mem = new LocQuad(getVal, dst, false);
 
@@ -440,23 +445,30 @@ Opd * IndexNode::flatten(Procedure * proc){
 	Opd * offOpd = myOffset->flatten(proc);
 	Opd * strideOpd = nullptr;
 	OpdWidth width = baseOpd->getWidth();
-	if (width == ADDR){
-		LitOpd * litOpd = new LitOpd("4", ADDR);
-		strideOpd = proc->makeTmp(ADDR);
-		Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
-	} else if (width == QUADWORD){
-		LitOpd * litOpd = new LitOpd("4", ADDR);
-		strideOpd = proc->makeTmp(ADDR);
-		Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
-	} else if (width == BYTE){
-		strideOpd = offOpd;
-	}
+
+	// if (width == ADDR){
+	LitOpd * litOpd = new LitOpd("8", ADDR);
+	strideOpd = proc->makeTmp(ADDR);
+	Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
+	proc->addQuad(strideQuad);
+	// } else if (width == QUADWORD){
+	// 	LitOpd * litOpd = new LitOpd("8", ADDR);
+	// 	strideOpd = proc->makeTmp(ADDR);
+	// 	Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
+	// } else if (width == BYTE){
+	// 	strideOpd = offOpd;
+	// }
 	
 	Opd * tmp1 = proc->makeTmp(ADDR);
 	Quad * offQuad = new BinOpQuad(tmp1, ADD, baseOpd, strideOpd);
 	proc->addQuad(offQuad);
 
-	Opd * tmp2 = proc->makeTmp(ADDR);
+	// get base type width of the deref'd ptr
+	const DataType * baseType = PtrType::derefType(myBase->getSymbol()->getDataType());
+	if(baseType == nullptr) throw new InternalError("Attempted to dereference a non-pointer");
+	OpdWidth w = Opd::width(baseType);
+
+	Opd * tmp2 = proc->makeTmp(w);
 	LocQuad * baseQuad = new LocQuad(tmp1, tmp2, false);
 	proc->addQuad(baseQuad);
 

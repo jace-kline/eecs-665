@@ -1,0 +1,18 @@
+int main() {
+	intptr iptr;
+    intptr iptr2;
+	int a;
+    int b;
+	a = 5;
+    b = 7;
+	iptr = ^a;
+	@iptr = 6;
+    TOCONSOLE a;
+    TOCONSOLE '\n;
+    @iptr = 8;
+    TOCONSOLE @iptr;
+    TOCONSOLE '\n;
+    TOCONSOLE iptr[0];
+    TOCONSOLE '\n;
+	return 0;
+}

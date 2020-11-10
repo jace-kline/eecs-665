@@ -1,0 +1,13 @@
+int main() {
+	char c;
+	TOCONSOLE "Input a character: ";
+	FROMCONSOLE c;
+	TOCONSOLE c;
+	TOCONSOLE "\n\n";
+	
+	bool b;
+	TOCONSOLE "Input a boolean (0 or 1): ";
+	FROMCONSOLE b;
+	TOCONSOLE b;
+	TOCONSOLE '\n;
+}

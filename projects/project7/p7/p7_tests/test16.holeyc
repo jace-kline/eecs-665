@@ -1,0 +1,17 @@
+charptr a;
+charptr b;
+
+int main() {
+    charptr d;
+    d = "!!!!!\n";
+    charptr c;
+    a = "hello\n";
+    b = "world\n";
+    c = a;
+    TOCONSOLE c;
+    c = b;
+    TOCONSOLE c;
+    c = d;
+    TOCONSOLE c;
+    return 0;
+}

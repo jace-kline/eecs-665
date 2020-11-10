@@ -1,0 +1,6 @@
+int main() {
+	int a;
+	TOCONSOLE "Input an integer: ";
+	FROMCONSOLE a;
+	TOCONSOLE a;
+}
