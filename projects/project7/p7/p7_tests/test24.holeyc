@@ -1,0 +1,10 @@
+int i;
+
+void main() {
+    i++;
+    TOCONSOLE i;
+    TOCONSOLE '\n;
+    if(!(i >= 10)) {
+        main();
+    }
+}

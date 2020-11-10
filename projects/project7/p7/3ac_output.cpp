@@ -444,31 +444,26 @@ Opd * IndexNode::flatten(Procedure * proc){
 	Opd * baseOpd = myBase->flatten(proc);
 	Opd * offOpd = myOffset->flatten(proc);
 	Opd * strideOpd = nullptr;
-	OpdWidth width = baseOpd->getWidth();
+	
+	// get base type width of the deref'd ptr
+	const DataType * baseType = PtrType::derefType(myBase->getSymbol()->getDataType());
+	if(baseType == nullptr) throw new InternalError("Attempted to dereference a non-pointer");
+	OpdWidth width = Opd::width(baseType);
 
-	// if (width == ADDR){
-	LitOpd * litOpd = new LitOpd("8", ADDR);
-	strideOpd = proc->makeTmp(ADDR);
-	Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
-	proc->addQuad(strideQuad);
-	// } else if (width == QUADWORD){
-	// 	LitOpd * litOpd = new LitOpd("8", ADDR);
-	// 	strideOpd = proc->makeTmp(ADDR);
-	// 	Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
-	// } else if (width == BYTE){
-	// 	strideOpd = offOpd;
-	// }
+	if (width == ADDR || width == QUADWORD){
+		LitOpd * litOpd = new LitOpd("8", ADDR);
+		strideOpd = proc->makeTmp(ADDR);
+		Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
+		proc->addQuad(strideQuad);
+	} else {
+		strideOpd = offOpd;
+	}
 	
 	Opd * tmp1 = proc->makeTmp(ADDR);
 	Quad * offQuad = new BinOpQuad(tmp1, ADD, baseOpd, strideOpd);
 	proc->addQuad(offQuad);
 
-	// get base type width of the deref'd ptr
-	const DataType * baseType = PtrType::derefType(myBase->getSymbol()->getDataType());
-	if(baseType == nullptr) throw new InternalError("Attempted to dereference a non-pointer");
-	OpdWidth w = Opd::width(baseType);
-
-	Opd * tmp2 = proc->makeTmp(w);
+	Opd * tmp2 = proc->makeTmp(width);
 	LocQuad * baseQuad = new LocQuad(tmp1, tmp2, false);
 	proc->addQuad(baseQuad);
 

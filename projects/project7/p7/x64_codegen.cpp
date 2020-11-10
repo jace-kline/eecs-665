@@ -141,7 +141,12 @@ void BinOpQuad::codegenX64(std::ostream& out){
 
 void UnaryOpQuad::codegenX64(std::ostream& out){
 	src->genLoad(out, "%rax");
-	out << unOpToX64(op) << " %rax\n";
+	if(op == NOT) {
+		out << "cmpq $0, %rax\n"
+			<< "setz %al\n";
+	} else if (op == NEG) {
+		out << "negq %rax\n";
+	}
 	dst->genStore(out, "%rax");
 }
 
@@ -358,11 +363,6 @@ std::string binOpToX64(BinOp op) {
 		default: return "setge";
 	}
 	throw new InternalError("Invalid op");
-}
-
-std::string unOpToX64(UnaryOp op) {
-	if(op == NEG) return "negq";
-	return "notq";
 }
 
 }

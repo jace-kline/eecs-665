@@ -1,0 +1,16 @@
+int main() {
+    int i;
+    int j;
+    int k;
+    k = 0;
+    i = 0;
+    while(i < 10) {
+        j = 0;
+        while (j < 10) {
+            j++;
+            k = k + i + j;
+        }
+        i++;
+    }
+    TOCONSOLE k;
+}

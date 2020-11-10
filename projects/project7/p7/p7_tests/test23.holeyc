@@ -1,0 +1,11 @@
+int main() {
+    charptr a;
+    a = "Hello World!\n";
+    int i;
+    i = 0;
+    while(i < 13) {
+        TOCONSOLE a[i];
+        TOCONSOLE '\n;
+        i++;
+    }
+}

@@ -1,0 +1,14 @@
+void main() {
+    bool b;
+    bool b2;
+    int a;
+    a = 0;
+    int c;
+    c = 11;
+    b = !(a >= 10);
+    b2 = (c >= 10);
+    TOCONSOLE b;
+    TOCONSOLE '\n;
+    TOCONSOLE b2;
+    TOCONSOLE '\n;
+}

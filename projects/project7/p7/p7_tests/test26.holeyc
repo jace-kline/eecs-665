@@ -1,0 +1,9 @@
+void main() {
+    bool b;
+    b = !(5 >= 10);
+    TOCONSOLE b;
+    TOCONSOLE '\n;
+    b = !b;
+    TOCONSOLE b;
+    TOCONSOLE '\n;
+}
