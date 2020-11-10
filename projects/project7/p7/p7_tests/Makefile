@@ -32,4 +32,4 @@ links: $(ASMS) # Take all .s files and assemble, link them
 	@ld -o $*.prog $(LIBLINUX) -lc ../stdholeyc.o $*.o
 
 clean:
-	rm -f *.3ac *.out *.err *.o *.s *.dump
+	rm -f *.3ac *.out *.err *.o *.s *.dump *.prog
