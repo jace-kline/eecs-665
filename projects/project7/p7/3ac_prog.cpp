@@ -34,7 +34,7 @@ void IRProgram::gatherGlobal(SemSymbol * sym){
 
 Opd * IRProgram::makeString(std::string val){
 	std::string name = "str_" + std::to_string(str_idx++);
-	AuxOpd * opd = new AuxOpd(name, ADDR);
+	AuxOpd * opd = new AuxOpd(name, ADDR, PtrType::produce(BasicType::produce(BaseType::CHAR), 1));
 	strings[opd] = val;
 	return opd;
 }

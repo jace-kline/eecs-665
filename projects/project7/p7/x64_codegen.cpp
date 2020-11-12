@@ -157,11 +157,11 @@ void AssignQuad::codegenX64(std::ostream& out){
 
 	// if the destination operand dereferences another,
 	// we must assign back to that as well
-	Opd * derefOpd = dst->getDerefOpd();
-	if(derefOpd != nullptr) {
-		derefOpd->genLoad(out, "%rbx");
-		out << "movq %rax, (%rbx)\n";		
-	}
+	// Opd * derefOpd = dst->getDerefOpd();
+	// if(derefOpd != nullptr) {
+	// 	derefOpd->genLoad(out, "%rbx");
+	// 	out << "movq %rax, (%rbx)\n";		
+	// }
 
 }
 
@@ -171,12 +171,19 @@ void LocQuad::codegenX64(std::ostream& out){
 		out << "leaq " << src->opdX64Repr() << ", %rax\n";
 		tgt->genStore(out, "%rax");
 	} else { // dereference
-		out << "movq " << src->opdX64Repr() << ", %rax\n"
-			<< "movq (%rax), %rax\n";
-		tgt->genStore(out, "%rax");
-
+		out << "movq " << src->opdX64Repr() << ", %rax\n";
+		if(tgt->getWidth() == BYTE) {
+			// clear the entire %rbx register to 0
+			// then move one byte from address into lowest byte of %rbx
+			out << "movq $0, %rbx\n"
+				<< "movb (%rax), " << quadRegByte0("%rbx") << "\n";
+		} else {
+			out << "movq (%rax), %rbx\n";
+		}
 		// keep track of the opd that we are dereferencing
 		tgt->setDeref(src);
+
+		tgt->genStore(out, "%rbx");
 	}
 }
 
@@ -202,7 +209,12 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 		if (myArg->getWidth() == QUADWORD){
 			out << "callq printInt\n";
 		} else if (myArg->getWidth() == BYTE){
-			out << "callq printByte\n";
+			const DataType * dt = myArg->getDataType();
+			if(dt->isBool()) {
+				out << "callq printBool\n";
+			} else if(dt->isChar()) {
+				out << "callq printChar\n";
+			}
 		} else {
 			//If the argument is an ADDR,
 			// assume it's a string
@@ -215,7 +227,12 @@ void IntrinsicQuad::codegenX64(std::ostream& out){
 			out << "callq getInt\n";
 		} else if (myArg->getWidth() == BYTE){
 			// Must differentiate between char and bool
-			out << "callq getByte\n";
+			const DataType * dt = myArg->getDataType();
+			if(dt->isBool()) {
+				out << "callq getBool\n";
+			} else if(dt->isChar()) {
+				out << "callq getChar\n";
+			}
 		} else {
 			throw new InternalError("Attempted to read into a pointer");
 		}
@@ -304,6 +321,13 @@ void SymOpd::genStore(std::ostream& out, std::string regStr){
 	std::string mov = byte ? "movb " : "movq ";
 	std::string reg = byte ? quadRegByte0(regStr) : regStr;
 	out << mov << reg << ", " << opdX64Repr() << "\n";
+
+	Opd * dOpd = getDerefOpd();
+	if(dOpd != nullptr) {
+		dOpd->genLoad(out, "%r8");
+		std::string regDeref = byte ? quadRegByte0(regStr) : regStr;
+		out << mov << " " << regDeref << ", (%r8)\n";
+	}
 }
 
 void AuxOpd::genLoad(std::ostream & out, std::string regStr){
@@ -316,6 +340,13 @@ void AuxOpd::genStore(std::ostream& out, std::string regStr){
 	std::string mov = byte ? "movb " : "movq ";
 	std::string reg = byte ? quadRegByte0(regStr) : regStr;
 	out << mov << reg << ", " << opdX64Repr() << "\n";
+
+	Opd * dOpd = getDerefOpd();
+	if(dOpd != nullptr) {
+		dOpd->genLoad(out, "%r8");
+		std::string regDeref = byte ? quadRegByte0(regStr) : regStr;
+		out << mov << " " << regDeref << ", (%r8)\n";
+	}
 }
 
 void LitOpd::genLoad(std::ostream & out, std::string regStr){

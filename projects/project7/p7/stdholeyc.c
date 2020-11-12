@@ -1,10 +1,14 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-void printByte(char c){
-	if (c == 0){ fprintf(stdout, "0"); }
-	else if (c == 1){ fprintf(stdout, "1"); }
-	else { fprintf(stdout, "%c", c); }
+void printBool(int8_t b){
+	if (b == 0){ fprintf(stdout, "0"); }
+	else { fprintf(stdout, "1"); }
+	fflush(stdout);
+}
+
+void printChar(char c){
+	fprintf(stdout, "%c", c);
 	fflush(stdout);
 }
 
@@ -41,8 +45,4 @@ char getChar(){
 	scanf("%c", &c);
 	getchar(); // Consume trailing newline
 	return c;
-}
-
-char getByte() {
-	return getChar();
 }

@@ -36,7 +36,7 @@ enum OpdWidth{
 
 class Opd{
 public:
-	Opd(OpdWidth widthIn) : myWidth(widthIn), isGlobal(false), isString(false), derefOpd(nullptr) {}
+	Opd(OpdWidth widthIn, const DataType * typeIn) : myWidth(widthIn), myType(typeIn), isGlobal(false), isString(false), derefOpd(nullptr) {}
 	virtual std::string valString() = 0;
 	virtual std::string locString() = 0;
 	virtual OpdWidth getWidth(){ return myWidth; }
@@ -47,6 +47,7 @@ public:
 	void setIsGlobal() { isGlobal = true; }
 	bool getIsString() { return isString; }
 	void setIsString() { isString = true; }
+	const DataType * getDataType() { return myType; }
 	Opd * getDerefOpd() { return derefOpd; }
 	void setDeref(Opd * opd) { derefOpd = opd; }
 	static OpdWidth width(const DataType * type){
@@ -61,6 +62,7 @@ public:
 	}
 private:
 	OpdWidth myWidth;
+	const DataType * myType;
 	bool isGlobal;
 	bool isString;
 	Opd * derefOpd;
@@ -94,7 +96,7 @@ public:
 private:
 	//Private Constructor
 	SymOpd(SemSymbol * sym, OpdWidth width)
-	: Opd(width), mySym(sym) {} 
+	: Opd(width, sym->getDataType()), mySym(sym) {} 
 	SemSymbol * mySym;
 	friend class Procedure;
 	friend class IRProgram;
@@ -103,8 +105,8 @@ private:
 
 class LitOpd : public Opd{
 public:
-	LitOpd(std::string valIn, OpdWidth width)
-	: Opd(width), val(valIn){ }
+	LitOpd(std::string valIn, OpdWidth width, const DataType * dt)
+	: Opd(width, dt), val(valIn){ }
 	virtual std::string valString() override{
 		return val;
 	}
@@ -122,8 +124,8 @@ private:
 
 class AuxOpd : public Opd{
 public:
-	AuxOpd(std::string nameIn, OpdWidth width) 
-	: Opd(width), name(nameIn) { }
+	AuxOpd(std::string nameIn, OpdWidth width, const DataType * dt) 
+	: Opd(width, dt), name(nameIn) { }
 	virtual std::string valString() override{
 		return "[" + getName() + "]";
 	}
@@ -347,7 +349,7 @@ public:
 	void gatherLocal(SemSymbol * sym);
 	void gatherFormal(SemSymbol * sym);
 	SymOpd * getSymOpd(SemSymbol * sym);
-	AuxOpd * makeTmp(OpdWidth width);
+	AuxOpd * makeTmp(OpdWidth width, const DataType * dt);
 
 	std::string toString(bool verbose=false); 
 	std::string getName();

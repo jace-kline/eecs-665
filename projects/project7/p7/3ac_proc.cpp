@@ -91,10 +91,10 @@ SymOpd * Procedure::getSymOpd(SemSymbol * sym){
 	return this->getProg()->getGlobal(sym);
 }
 
-AuxOpd * Procedure::makeTmp(OpdWidth width){
+AuxOpd * Procedure::makeTmp(OpdWidth width, const DataType * dt){
 	std::string name = "tmp";
 	name += std::to_string(maxTmp++);
-	AuxOpd * res = new AuxOpd(name, width);
+	AuxOpd * res = new AuxOpd(name, width, dt);
 	temps.push_back(res);
 
 	return res;

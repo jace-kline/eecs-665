@@ -63,7 +63,8 @@ void FormalDeclNode::to3AC(Procedure * proc){
 }
 
 Opd * IntLitNode::flatten(Procedure * proc){
-	return new LitOpd(std::to_string(myNum), QUADWORD);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	return new LitOpd(std::to_string(myNum), QUADWORD, dt);
 }
 
 Opd * StrLitNode::flatten(Procedure * proc){
@@ -74,17 +75,20 @@ Opd * StrLitNode::flatten(Procedure * proc){
 Opd * CharLitNode::flatten(Procedure * proc){
 	// get ascii value of char
 	int x = myVal;
-	return new LitOpd(std::to_string(x), BYTE);
+	const DataType * dt = BasicType::produce(BaseType::CHAR);
+	return new LitOpd(std::to_string(x), BYTE, dt);
 	// return new LitOpd(std::string(1, myVal), BYTE);
 }
 
 Opd * FalseNode::flatten(Procedure * prog){
-	Opd * res = new LitOpd("0", BYTE);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * res = new LitOpd("0", BYTE, dt);
 	return res;
 }
 
 Opd * TrueNode::flatten(Procedure * prog){
-	Opd * res = new LitOpd("1", BYTE);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * res = new LitOpd("1", BYTE, dt);
 	return res;
 }
 
@@ -126,7 +130,7 @@ Opd * CallExpNode::flatten(Procedure * proc){
 	if (retType->isVoid()){
 		return nullptr;
 	} else {
-		Opd * retVal = proc->makeTmp(Opd::width(retType));
+		Opd * retVal = proc->makeTmp(Opd::width(retType), retType);
 		Quad * getRet = new GetRetQuad(retVal);
 		proc->addQuad(getRet);
 		return retVal;
@@ -136,7 +140,8 @@ Opd * CallExpNode::flatten(Procedure * proc){
 Opd * NegNode::flatten(Procedure * proc){
 	Opd * child = myExp->flatten(proc);
 	OpdWidth width = QUADWORD;
-	Opd * dst = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	Opd * dst = proc->makeTmp(width, dt);
 	Quad * quad = new UnaryOpQuad(dst, NEG, child);
 	proc->addQuad(quad);
 	return dst;
@@ -145,7 +150,8 @@ Opd * NegNode::flatten(Procedure * proc){
 Opd * NotNode::flatten(Procedure * proc){
 	Opd * child = myExp->flatten(proc);
 	OpdWidth width = BYTE;
-	Opd * dst = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * dst = proc->makeTmp(width, dt);
 	Quad * quad = new UnaryOpQuad(dst, NOT, child);
 	proc->addQuad(quad);
 	return dst;
@@ -155,7 +161,8 @@ Opd * PlusNode::flatten(Procedure * proc){
 	Opd * childL = myExp1->flatten(proc);
 	Opd * childR = myExp2->flatten(proc);
 	OpdWidth width = QUADWORD;
-	Opd * dst = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	Opd * dst = proc->makeTmp(width, dt);
 	Quad * quad = new BinOpQuad(dst, ADD, childL, childR);
 	proc->addQuad(quad);
 	return dst;
@@ -165,7 +172,8 @@ Opd * MinusNode::flatten(Procedure * proc){
 	Opd * childL = myExp1->flatten(proc);
 	Opd * childR = myExp2->flatten(proc);
 	OpdWidth width = QUADWORD;
-	Opd * dst = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	Opd * dst = proc->makeTmp(width, dt);
 	Quad * quad = new BinOpQuad(dst, SUB, childL, childR);
 	proc->addQuad(quad);
 	return dst;
@@ -175,7 +183,8 @@ Opd * TimesNode::flatten(Procedure * proc){
 	Opd * childL = myExp1->flatten(proc);
 	Opd * childR = myExp2->flatten(proc);
 	OpdWidth width = QUADWORD;
-	Opd * dst = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	Opd * dst = proc->makeTmp(width, dt);
 	Quad * quad = new BinOpQuad(dst, MULT, childL, childR);
 	proc->addQuad(quad);
 	return dst;
@@ -185,7 +194,8 @@ Opd * DivideNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = QUADWORD;
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, DIV, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -195,7 +205,8 @@ Opd * AndNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = BYTE;
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, AND, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -205,7 +216,8 @@ Opd * OrNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = BYTE;
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, OR, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -215,7 +227,8 @@ Opd * EqualsNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = proc->getProg()->opWidth(this);
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, EQ, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -225,7 +238,8 @@ Opd * NotEqualsNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = proc->getProg()->opWidth(this);
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, NEQ, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -235,7 +249,8 @@ Opd * GreaterNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = proc->getProg()->opWidth(this);
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, GT, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -245,7 +260,8 @@ Opd * GreaterEqNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = proc->getProg()->opWidth(this);
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, GTE, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -255,7 +271,8 @@ Opd * LessNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = proc->getProg()->opWidth(this);
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, LT, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -265,7 +282,8 @@ Opd * LessEqNode::flatten(Procedure * proc){
 	Opd * op1 = this->myExp1->flatten(proc);
 	Opd * op2 = this->myExp2->flatten(proc);
 	OpdWidth width = proc->getProg()->opWidth(this);
-	Opd * opRes = proc->makeTmp(width);
+	const DataType * dt = BasicType::produce(BaseType::BOOL);
+	Opd * opRes = proc->makeTmp(width, dt);
 	BinOpQuad * quad = new BinOpQuad(opRes, LTE, op1, op2);
 	proc->addQuad(quad);
 	return opRes;
@@ -281,7 +299,8 @@ void AssignStmtNode::to3AC(Procedure * proc){
 void PostIncStmtNode::to3AC(Procedure * proc){
 	Opd * child = this->myLVal->flatten(proc);
 	OpdWidth width = QUADWORD;
-	LitOpd * litOpd = new LitOpd("1", width);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	LitOpd * litOpd = new LitOpd("1", width, dt);
 	BinOpQuad * quad = new BinOpQuad(child, ADD, child, litOpd);
 	proc->addQuad(quad);
 }
@@ -289,7 +308,8 @@ void PostIncStmtNode::to3AC(Procedure * proc){
 void PostDecStmtNode::to3AC(Procedure * proc){
 	Opd * child = this->myLVal->flatten(proc);
 	OpdWidth width = QUADWORD;
-	LitOpd * litOpd = new LitOpd("1", width);
+	const DataType * dt = BasicType::produce(BaseType::INT);
+	LitOpd * litOpd = new LitOpd("1", width, dt);
 	BinOpQuad * quad = new BinOpQuad(child, SUB, child, litOpd);
 	proc->addQuad(quad);
 }
@@ -413,12 +433,13 @@ void VarDeclNode::to3AC(IRProgram * prog){
 }
 
 Opd * NullPtrNode::flatten(Procedure * prog){
-	Opd * res = new LitOpd("0", ADDR);
+	Opd * res = new LitOpd("0", ADDR, nullptr);
 	return res;
 }
 
 Opd * RefNode::flatten(Procedure * proc){
-	Opd * dst = proc->makeTmp(ADDR);
+	const DataType * dt = PtrType::produce(myID->getSymbol()->getDataType()->asBasic(), 1);
+	Opd * dst = proc->makeTmp(ADDR, dt);
 	Opd * child = myID->flatten(proc);
 	LocQuad * loc = new LocQuad(child, dst, true);
 	
@@ -432,7 +453,7 @@ Opd * DerefNode::flatten(Procedure * proc){
 	if(baseType == nullptr) throw new InternalError("Attempted to dereference a non-pointer");
 	OpdWidth w = Opd::width(baseType);
 
-	Opd * dst = proc->makeTmp(w);
+	Opd * dst = proc->makeTmp(w, baseType);
 	Opd * getVal = myID->flatten(proc);
 	LocQuad * mem = new LocQuad(getVal, dst, false);
 
@@ -446,24 +467,25 @@ Opd * IndexNode::flatten(Procedure * proc){
 	Opd * strideOpd = nullptr;
 	
 	// get base type width of the deref'd ptr
-	const DataType * baseType = PtrType::derefType(myBase->getSymbol()->getDataType());
+	const DataType * ptrType = myBase->getSymbol()->getDataType();
+	const DataType * baseType = PtrType::derefType(ptrType);
 	if(baseType == nullptr) throw new InternalError("Attempted to dereference a non-pointer");
 	OpdWidth width = Opd::width(baseType);
 
 	if (width == ADDR || width == QUADWORD){
-		LitOpd * litOpd = new LitOpd("8", ADDR);
-		strideOpd = proc->makeTmp(ADDR);
+		LitOpd * litOpd = new LitOpd("8", ADDR, ptrType);
+		strideOpd = proc->makeTmp(ADDR, ptrType);
 		Quad * strideQuad = new BinOpQuad(strideOpd, MULT, offOpd, litOpd);
 		proc->addQuad(strideQuad);
 	} else {
 		strideOpd = offOpd;
 	}
 	
-	Opd * tmp1 = proc->makeTmp(ADDR);
+	Opd * tmp1 = proc->makeTmp(ADDR, ptrType);
 	Quad * offQuad = new BinOpQuad(tmp1, ADD, baseOpd, strideOpd);
 	proc->addQuad(offQuad);
 
-	Opd * tmp2 = proc->makeTmp(width);
+	Opd * tmp2 = proc->makeTmp(width, baseType);
 	LocQuad * baseQuad = new LocQuad(tmp1, tmp2, false);
 	proc->addQuad(baseQuad);
 

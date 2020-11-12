@@ -1,11 +1,8 @@
 int main() {
 	charptr a;
-	a = "bb";
-	char b;
-	char c;
-	b = 'h;
-	FROMCONSOLE c;
-	# a[0] = b;
-	# a[1] = c;
-	TOCONSOLE c;
+	a = "iello\n";
+	a[0] = 'h;
+	a[1] = 'i;
+	a[4] = 'i;
+	TOCONSOLE a;
 }
