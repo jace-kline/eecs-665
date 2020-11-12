@@ -1,0 +1,11 @@
+int main() {
+	charptr a;
+	a = "bb";
+	char b;
+	char c;
+	b = 'h;
+	FROMCONSOLE c;
+	# a[0] = b;
+	# a[1] = c;
+	TOCONSOLE c;
+}

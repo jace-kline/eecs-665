@@ -1,0 +1,12 @@
+int main() {
+    TOCONSOLE true && true;
+    TOCONSOLE '\n;
+    TOCONSOLE true && false;
+    TOCONSOLE '\n;
+    TOCONSOLE true || true;
+    TOCONSOLE '\n;
+    TOCONSOLE true || false;
+    TOCONSOLE '\n;
+    TOCONSOLE false || false;
+    TOCONSOLE '\n;
+}

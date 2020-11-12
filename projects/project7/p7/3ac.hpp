@@ -358,7 +358,6 @@ public:
 	size_t localsSize() const;
 	size_t numTemps() const;
 	int getAllocBytes() const { return allocBytes; }
-	int getArgOverflowBytes() const { return spilloverArgBytes; }
 
 	std::list<Quad *> * getQuads(){
 		return bodyQuads;
@@ -377,8 +376,10 @@ private:
 	std::list<Quad *> * bodyQuads;
 	std::string myName;
 	size_t maxTmp;
+
+	// bytes to reserved for formals, locals, temps
+	// ensure 16-byte aligned
 	int allocBytes;
-	int spilloverArgBytes;
 };
 
 class IRProgram{

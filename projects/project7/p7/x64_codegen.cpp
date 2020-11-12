@@ -85,8 +85,9 @@ void Procedure::allocLocals(){
 	}
 
 	// set procedure total storage offset
-	allocBytes = (8 * n_) + (8 * m) + (8 * t);
-	spilloverArgBytes = n == n_ ? 0 : 8 * (n - n_);
+	// 16-bit align
+	int align = ((8 * n) + (8 * m) + (8 * t)) % 16;
+	allocBytes = align + (8 * n_) + (8 * m) + (8 * t);
 }
 
 void Procedure::toX64(std::ostream& out){
@@ -191,7 +192,7 @@ void JmpIfQuad::codegenX64(std::ostream& out){
 }
 
 void NopQuad::codegenX64(std::ostream& out){
-	out << "nop" << "\n";
+	out << "nop\n";
 }
 
 void IntrinsicQuad::codegenX64(std::ostream& out){
@@ -229,6 +230,9 @@ void CallQuad::codegenX64(std::ostream& out){
 
 	// get callee's number of args
 	int args = callee->getDataType()->asFn()->getFormalTypes()->size();
+
+	// if more than 6 args, must add back to stack pointer
+	// for args passed on the stack
 	if(args > 6) {
 		int addback = 8 * (args - 6);
 		out << "addq $" << addback << ", %rsp\n";
@@ -247,7 +251,6 @@ void LeaveQuad::codegenX64(std::ostream& out){
 	// Procedure epilogue
 	out << "addq $" << myProc->getAllocBytes() << ", %rsp\n"
 		<< "popq %rbp\n"
-		// << "addq $" << myProc->getArgOverflowBytes() << ", %rsp\n"
 		<< "ret\n";
 }
 
