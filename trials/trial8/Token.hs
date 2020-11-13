@@ -14,6 +14,7 @@ data Prim where
     INT_ :: Prim
     BOOL_ :: Prim
     CHAR_ :: Prim
+    CHARPTR_ :: Prim
     VOID_ :: Prim
     IF_ :: Prim
     ELSE_ :: Prim
@@ -58,6 +59,7 @@ repr :: Prim -> String
 repr INT_ = "int"
 repr BOOL_ = "bool"
 repr CHAR_ = "char"
+repr CHARPTR_ = "charptr"
 repr VOID_ = "void"
 repr IF_ = "if"
 repr ELSE_ = "else"

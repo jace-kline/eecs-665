@@ -3,6 +3,7 @@
 module Parser where
 
 import Control.Monad
+import Control.Monad.Fail
 import Control.Applicative
 import Data.Char
 
@@ -32,6 +33,13 @@ instance Monad (Parser t) where
             Just (x, ts') -> (runParser $ h x) ts'
             Nothing       -> Nothing
 
+instance MonadPlus (Parser t) where
+    mzero = empty
+    mplus = (<|>)
+
+instance MonadFail (Parser t) where
+    fail _ = empty
+
 sequenceAlt :: (Alternative f) => [f a] -> f a
 sequenceAlt xs = foldr1 (<|>) xs
 
@@ -45,13 +53,8 @@ get = Parser $ \ts -> case ts of
 look :: Parser t [t]
 look = Parser $ \ts -> return (ts, ts)
 
--- terminate when empty tokens list encountered
-
 -- parser to match a single input token
 token :: (Eq t) => t -> Parser t t
--- token t = do
---     t' <- get
---     if t == t' then return t else empty
 token t = Parser $ \ts -> case ts of
     [] -> Nothing
     (x:xs) -> if x == t then return (x, xs) else Nothing

@@ -15,11 +15,6 @@ How to get input from user:
     else return the current string
 -}
 
-main :: IO ()
-main = do
-    getInput
-    main
-
 getInput :: IO String
 getInput = go 0
     where
