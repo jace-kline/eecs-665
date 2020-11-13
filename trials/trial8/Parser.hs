@@ -35,20 +35,6 @@ instance Monad (Parser t) where
 sequenceAlt :: (Alternative f) => [f a] -> f a
 sequenceAlt xs = foldr1 (<|>) xs
 
--- end :: Parser t [a]
--- end = do
---     xs <- look
---     case xs of
---         [] -> return []
---         _  -> empty
-
--- manyStop :: Parser t a -> Parser t [a]
--- manyStop p = end <|> p'
---     where p' = do
---             x <- p
---             xs <- manyStop p
---             return (x:xs)
-
 -- consumes one token, regardless of value
 get :: Parser t t
 get = Parser $ \ts -> case ts of
@@ -63,9 +49,12 @@ look = Parser $ \ts -> return (ts, ts)
 
 -- parser to match a single input token
 token :: (Eq t) => t -> Parser t t
-token t = do
-    t' <- get
-    if t == t' then return t else empty
+-- token t = do
+--     t' <- get
+--     if t == t' then return t else empty
+token t = Parser $ \ts -> case ts of
+    [] -> Nothing
+    (x:xs) -> if x == t then return (x, xs) else Nothing
 
 char :: Char -> Parser Char Char
 char = token
@@ -77,9 +66,9 @@ string :: String -> Parser Char String
 string = tokens
 
 satisfy :: (t -> Bool) -> Parser t t
-satisfy p = do
-    t <- get
-    if p t then return t else empty
+satisfy p = Parser $ \ts -> case ts of
+    []     -> Nothing
+    (x:xs) -> if p x then return (x, xs) else Nothing
 
 skipSpaces :: Parser Char ()
 skipSpaces = (many (satisfy isSpace)) >> return ()

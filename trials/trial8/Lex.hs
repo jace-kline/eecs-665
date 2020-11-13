@@ -32,21 +32,26 @@ mkPrimLex p = string (repr p) >> (return (PrimToken p))
 charLitLex :: Parser Char Token
 charLitLex = do
     char '\''
-    c <- escCharLex <|> satisfy (\c -> isAscii c && isPrint c)
+    c <- charParser
     return $ CharLitToken c
+
+charParser :: Parser Char Char
+charParser = escCharLex <|> satisfy (\c -> isAscii c && isPrint c && c /= '\\' && c /= '\'' && c /= '\"')
+
+escCharLex :: Parser Char Char
+escCharLex = do
+    char '\\'
+    c <- satisfy (\c -> c `elem` escs)
+    return $ toEsc c
     where
         escs :: [Char]
-        escs = ['t', '\\', 'n', ' ']
-        escCharLex :: Parser Char Char
-        escCharLex = do
-            char '\\'
-            c <- satisfy (\c -> c `elem` escs)
-            return $ toEsc c
+        escs = ['t', '\\', 'n', '\'', '\"']
         toEsc :: Char -> Char
         toEsc 't' = '\t'
         toEsc '\\' = '\\'
         toEsc 'n' = '\n'
-        toEsc ' ' = ' '
+        toEsc '\'' = '\''
+        toEsc '\"' = '\"'
 
 intLitLex :: Parser Char Token
 intLitLex = do
@@ -57,8 +62,9 @@ intLitLex = do
 strLitLex :: Parser Char Token
 strLitLex = do
     char '"'
+    s <- many charParser
     char '"'
-    return $ StrLitToken ""
+    return $ StrLitToken s
 
 idLex :: Parser Char Token
 idLex = do
