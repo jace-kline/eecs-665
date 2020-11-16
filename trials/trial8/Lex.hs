@@ -9,12 +9,7 @@ import Control.Applicative
 import Control.Monad
 
 lexer :: String -> Maybe [Token]
-lexer s = 
-    let res = runParser lineLex s
-        (ts, left) = (fmap fst res, fmap snd res)
-    in case left of
-        (Just []) -> ts
-        _         -> Nothing
+lexer s = evalParser lineLex s
 
 lineLex :: Parser Char [Token]
 lineLex = many (skipSpaces *> tokenLex <* skipSpaces)

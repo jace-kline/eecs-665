@@ -8,8 +8,8 @@ import AST
 -- Fn type + accessors
 type Fn = (RetType, [(Id, ArgType)], [Effect])
 
-mkFn :: Effect -> (Id, Fn)
-mkFn (FnDecl id rt formals es) = (id, (rt, formals, es))
+mkFn :: Effect -> Fn
+mkFn (FnDecl id rt formals es) = (rt, formals, es)
 mkFn _ = error "Tried to convert non-function to function"
 
 fnRetType :: Fn -> RetType
@@ -29,18 +29,22 @@ data Scope = Scope {
     localTypes :: [(Id, DType)],
     localVals :: [(Id, Exp)],
     retType :: RetType,
+    retVal :: Maybe Exp, -- set this when hitting a return stmt
+    haveReturned :: Bool, -- if scope has hit a return
     parent :: Maybe Scope -- if parent, Nothing
 } deriving (Eq, Show)
 
 
-globalScope :: Scope
-globalScope = Scope {
+initScope :: Scope
+initScope = Scope {
     funcs = [],
     gblTypes = [],
     gblVals = [],
     localTypes = [],
     localVals = [],
     retType = VoidT,
+    retVal = Nothing,
+    haveReturned = False,
     parent = Nothing
 }
 
@@ -53,7 +57,9 @@ isGblScope s = case parent s of
 newScope :: Fn -> Scope -> Scope
 newScope f s = s {localTypes = fnFormals f, 
                   localVals = [], 
-                  retType = fnRetType f, 
+                  retType = fnRetType f,
+                  retVal = Nothing,
+                  haveReturned = False,
                   parent = return s}
 
 -- return Just parent with modified global values
@@ -61,40 +67,62 @@ newScope f s = s {localTypes = fnFormals f,
 popScope :: Scope -> Maybe Scope
 popScope s = do
     p <- parent s
-    return $ p {gblVals = gblVals s}
+    return $ p {gblVals = gblVals s,
+                retVal = retVal s}
 
 -- lookup functions
 
+look :: (Scope -> [(Id, a)]) -> Id -> Scope -> Maybe a
+look f id s = lookup id $ f s
+
 getFn :: Id -> Scope -> Maybe Fn
-getFn id s = lookup id $ funcs s
+getFn = look funcs
+
+getLocalType :: Id -> Scope -> Maybe DType
+getLocalType = look localTypes
+
+getGblType :: Id -> Scope -> Maybe DType
+getGblType = look gblTypes
 
 getType :: Id -> Scope -> Maybe DType
-getType id s = lookup id $ combTypes s
-    where 
-        combTypes :: Scope -> [(Id, DType)]
-        combTypes s = localTypes s ++ gblTypes s
+getType = look combTypes
+
+combTypes :: Scope -> [(Id, DType)]
+combTypes s = localTypes s ++ gblTypes s
+
+getLocalVal :: Id -> Scope -> Maybe Exp
+getLocalVal = look localVals
+
+getGblVal :: Id -> Scope -> Maybe Exp
+getGblVal = look gblVals
 
 getVal :: Id -> Scope -> Maybe Exp
-getVal id s = lookup id $ combVals s
-    where
-        combVals :: Scope -> [(Id, Exp)]
-        combVals s = localVals s ++ gblVals s
+getVal = look combVals
+
+combVals :: Scope -> [(Id, Exp)]
+combVals s = localVals s ++ gblVals s
 
 -- modification functions
 
-putFn :: (Id, Fn) -> Scope -> Scope
-putFn fn s@(Scope {funcs = fns}) = s {funcs = (fn:fns)}
+putFn :: Id -> Fn -> Scope -> Scope
+putFn id fn s@(Scope {funcs = fns}) = s {funcs = ((id, fn):fns)}
 
-putType :: (Id, DType) -> Scope -> Scope
-putType v s@(Scope {gblTypes = gts, localTypes = lts}) = if isGblScope s 
-                                                                then s {gblTypes = (v : gts)}
-                                                                else s {localTypes = (v : lts)}
+putType :: Id -> DType -> Scope -> Scope
+putType id t s@(Scope {gblTypes = gts, localTypes = lts}) = if isGblScope s 
+                                                                then s {gblTypes = ((id,t) : gts)}
+                                                                else s {localTypes = ((id,t) : lts)}
 
-putVal :: (Id, Exp) -> Scope -> Scope
-putVal v@(id,e) s@(Scope {gblVals = gvs, localVals = lvs}) =
-    let putGbl = s {gblVals = (v:gvs)}
+putVal :: Id -> Exp -> Scope -> Scope
+putVal id e s@(Scope {gblVals = gvs, localVals = lvs}) =
+    let putGbl = s {gblVals = ((id,e):gvs)}
     in if isGblScope s
         then putGbl
         else case lookup id lvs of
             Nothing -> putGbl
-            Just _ -> s {localVals = (v:lvs)}
+            Just _ -> s {localVals = ((id,e):lvs)}
+
+putRet :: Maybe Exp -> Scope -> Scope
+putRet me s = s {retVal = me}
+
+setHaveReturned :: Scope -> Scope
+setHaveReturned s = s {haveReturned = True}

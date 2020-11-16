@@ -12,27 +12,42 @@ import Control.Applicative
 
 type TokenParser a = Parser Token a
 
+-- Parser --
+parser :: [Token] -> Maybe [Effect]
+parser ts = evalParser effectsParser ts
+
 -- Utility --
 
 prim :: Prim -> TokenParser Prim
 prim p = token (PrimToken p) >>= \(PrimToken p') -> return p'
 
 commaSep :: TokenParser a -> TokenParser [a]
-commaSep p = ((:) <$> (p <* prim COMMA_) <*> commaSep p) <|> ((\x -> [x]) <$> p)
+commaSep p = ((:) <$> (p <* prim COMMA_) <*> commaSep p) <|> ((\x -> [x]) <$> p) <|> return []
 
 fromMaybe (Just x) = x
 
 -- DType parsers --
 
-dtypeParser :: TokenParser DType
-dtypeParser = do
-    p <- sequenceAlt dtypeParsers
-    return $ fromMaybe $ lookup p $ zip dtypePrims dtypes
-    where
-        dtypeParsers = map prim dtypePrims
-        dtypePrims = [INT_, BOOL_, CHAR_, CHARPTR_, VOID_]
-        dtypes = [IntT, BoolT, CharT, CharPtrT, VoidT]
+primToDT :: Prim -> DType
+primToDT INT_ = IntT
+primToDT BOOL_ = BoolT
+primToDT CHAR_ = CharT
+primToDT CHARPTR_ = CharPtrT
+primToDT VOID_ = VoidT
+primToDT _ = error "Bad value"
 
+dtParser :: [Prim] -> TokenParser DType
+dtParser prims = do
+    p <- sequenceAlt (map prim prims)
+    return $ primToDT p
+
+dtypePrims = [VOID_, INT_, BOOL_, CHAR_, CHARPTR_]
+
+dtypeParser :: TokenParser DType
+dtypeParser = dtParser (tail dtypePrims)
+
+dtypeParserWithVoid :: TokenParser DType
+dtypeParserWithVoid = dtParser dtypePrims
 -- Effect (declaration/statement) parsers --
 
 effParsers :: [TokenParser Effect]
@@ -49,6 +64,13 @@ effParsers = [
     returnParser,
     fnCallStmtParser]
 
+effectsParser :: TokenParser [Effect]
+effectsParser = do
+    effs <- many effectParser
+    rest <- look
+    guard (null rest)
+    return effs
+
 effectParser :: TokenParser Effect
 effectParser = sequenceAlt effParsers
 
@@ -64,18 +86,21 @@ varDeclParser = do
 
 fnDeclParser :: TokenParser Effect
 fnDeclParser = do
-    rt <- dtypeParser
+    rt <- dtypeParserWithVoid
     (ID id) <- idParser
     prim LPAREN_
-    formals <- commaSep formal
+    formals <- commaSep formalParser
     prim RPAREN_
+    prim LCURLY_
     body <- many effectBodyParser
+    prim RCURLY_
     return $ FnDecl id rt formals body
-    where
-        formal = do
-            t <- dtypeParser
-            (ID id) <- idParser
-            return (id, t)
+
+formalParser :: TokenParser (Id, DType)
+formalParser = do
+    t <- dtypeParser
+    (ID id) <- idParser
+    return (id, t)
 
 assignStmtParser :: TokenParser Effect
 assignStmtParser = do
@@ -258,7 +283,6 @@ litParser = boolLit <|> charLit <|> intLit <|> strLit
 
 fnCallParser :: TokenParser Exp
 fnCallParser = do
-    t <- dtypeParser
     (ID id) <- idParser
     prim LPAREN_
     actuals <- commaSep expParser

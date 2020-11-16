@@ -4,6 +4,9 @@ module Input where
 
 import Data.Char
 import System.IO
+import Control.Monad
+import Control.Monad.Trans
+import Control.Monad.Trans.Maybe
 
 {-
 How to get input from user:
@@ -15,20 +18,24 @@ How to get input from user:
     else return the current string
 -}
 
-getInput :: IO String
-getInput = go 0
+getInput :: IO (Maybe String)
+getInput = runMaybeT getInputM
+
+getInputM :: MaybeT IO String
+getInputM = go 0
     where
-        go :: Int -> IO String
+        go :: Int -> MaybeT IO String
         go n = do
-            s <- getLine
+            s <- liftIO getLine
             let n' = countBraces s 0
             let diff = n + n'
             if diff < 0 
-                then error "Mismatched curly braces"
+                then mzero
                 else if diff > 0 
                         then do
-                            putStr $ show diff
-                            putStr ". "
+                            liftIO $ do
+                                putStr $ show diff
+                                putStr ". "
                             s' <- go diff
                             return $ s ++ s'
                         else return s

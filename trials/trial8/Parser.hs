@@ -9,6 +9,14 @@ import Data.Char
 
 newtype Parser t a = Parser { runParser :: [t] -> Maybe (a, [t]) }
 
+-- Runs the parser and only returns parsed values if
+-- the entire token stream has been consumed
+evalParser :: Parser t a -> [t] -> Maybe a
+evalParser p ts = do
+    (v,ts) <- runParser p ts
+    guard (null ts)
+    return v
+
 instance Functor (Parser t) where
     fmap f (Parser g) = Parser $ \ts -> fmap (\(x,y) -> (f x, y)) $ g ts
 
