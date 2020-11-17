@@ -256,7 +256,7 @@ notParser = do
     return $ Not e
 
 unitExpParser :: TokenParser Exp
-unitExpParser = idParser <|> litParser <|> fnCallParser <|> grp
+unitExpParser = fnCallParser <|> idParser <|> litParser <|> grp
     where
         grp = prim LPAREN_ *> expParser <* prim RPAREN_
 

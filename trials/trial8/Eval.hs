@@ -20,6 +20,8 @@ type InterpM v = StateT Scope (MaybeT IO) v
 runInterpM :: Scope -> InterpM a -> IO (Maybe Scope)
 runInterpM s m = runMaybeT $ execStateT m s
 
+console :: MonadIO m => String -> m ()
+console s = liftIO $ putStrLn $ "> " ++ s
 
 -- only change the state if all actions are successful
 effsRun :: [Effect] -> InterpM Bool
@@ -49,12 +51,10 @@ effRun' (Dec id) = effRun' (AssignStmt (id := ((ID id) :-: (IntLit 1))))
 effRun' (Inc id) = effRun' (AssignStmt (id := ((ID id) :+: (IntLit 1))))
 effRun' (FromConsole id) = do
     t <- getTypeM id
-    s <- liftIO $ do
-        putStr "> "
-        getLine
+    s <- liftIO getLine
     let mint = readMaybe s :: Maybe Int
     let mchar = readMaybe s :: Maybe Char
-    case t of
+    (case t of
         IntT -> case mint of
             Nothing -> mzero
             Just i -> putValM id (IntLit i)
@@ -68,14 +68,14 @@ effRun' (FromConsole id) = do
         CharT -> case mchar of
             Nothing -> mzero
             Just c -> putValM id (CharLit c)
-        CharPtrT -> putValM id (StrLit s)
+        CharPtrT -> putValM id (StrLit s)) >> liftIO (putStr "\n")
 effRun' (ToConsole e) = do
     v <- expRun e
     case v of
-        (IntLit i) -> liftIO $ putStr $ show i
-        (BoolLit b) -> liftIO $ putStr $ show b
-        (CharLit c) -> liftIO $ putStr [c]
-        (StrLit s) -> liftIO $ putStr s
+        (IntLit i) -> console $ show i
+        (BoolLit b) -> console $ show b
+        (CharLit c) -> console [c]
+        (StrLit s) -> console s
         _ -> mzero
 effRun' (If cond effs) = do
     (BoolLit c) <- expRun cond
@@ -88,9 +88,9 @@ effRun' w@(While cond effs) = do
     if c 
         then effsRun effs >> effRun w 
         else succeed
-effRun' eff@(Return me) = (case me of
-        Nothing -> putRetM Nothing
-        Just e  -> putRetValM e) >> (modify setHaveReturned)
+effRun' eff@(Return me) = putRetValM (case me of
+    Nothing -> VoidLit 
+    Just e  -> e) >> modify setHaveReturned
 effRun' (FnCallStmt e) = expRun e >> succeed
 effRun' eff = effAnalysis eff
 

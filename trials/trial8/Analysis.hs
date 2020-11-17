@@ -46,11 +46,7 @@ getValM :: Monad m => Id -> ProcessM m Exp
 getValM id = stateLift $ getVal id
 
 getRetValM :: Monad m => ProcessM m Exp
-getRetValM = do
-    s <- get
-    case retVal s of
-        Nothing -> mzero
-        Just v  -> return v
+getRetValM = get >>= return . retVal
 
 putTypeM :: Monad m => Id -> DType -> ProcessM m ()
 putTypeM id t = modify $ putType id t
@@ -58,11 +54,8 @@ putTypeM id t = modify $ putType id t
 putValM :: Monad m => Id -> Exp -> ProcessM m ()
 putValM id t = modify $ putVal id t
 
-putRetM :: Monad m => Maybe Exp -> ProcessM m ()
-putRetM me = modify $ putRet me
-
 putRetValM :: Monad m => Exp -> ProcessM m ()
-putRetValM e = putRetM (return e)
+putRetValM e = modify $ putRet e
 
 enterScope :: Monad m => Fn -> ProcessM m ()
 enterScope fn = modify $ newScope fn
@@ -140,6 +133,7 @@ expAnalysis (IntLit _) = return IntT
 expAnalysis (CharLit _) = return CharT
 expAnalysis (BoolLit _) = return BoolT
 expAnalysis (StrLit _) = return CharPtrT
+expAnalysis VoidLit = return VoidT
 expAnalysis (FnCall id args) = do
     (Just fn) <- gets $ getFn id
     let formalts = map snd $ fnFormals fn

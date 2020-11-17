@@ -71,6 +71,7 @@ data Exp where
     CharLit :: Char -> Exp
     BoolLit :: Bool -> Exp
     StrLit :: String -> Exp
+    VoidLit :: Exp
     FnCall :: Id -> [Exp] -> Exp
     ID :: Id -> Exp
     deriving (Eq, Show)

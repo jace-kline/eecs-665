@@ -29,7 +29,7 @@ data Scope = Scope {
     localTypes :: [(Id, DType)],
     localVals :: [(Id, Exp)],
     retType :: RetType,
-    retVal :: Maybe Exp, -- set this when hitting a return stmt
+    retVal :: Exp, -- set this when hitting a return stmt
     haveReturned :: Bool, -- if scope has hit a return
     parent :: Maybe Scope -- if parent, Nothing
 } deriving (Eq, Show)
@@ -43,7 +43,7 @@ initScope = Scope {
     localTypes = [],
     localVals = [],
     retType = VoidT,
-    retVal = Nothing,
+    retVal = VoidLit,
     haveReturned = False,
     parent = Nothing
 }
@@ -58,7 +58,7 @@ newScope :: Fn -> Scope -> Scope
 newScope f s = s {localTypes = fnFormals f, 
                   localVals = [], 
                   retType = fnRetType f,
-                  retVal = Nothing,
+                  retVal = VoidLit,
                   haveReturned = False,
                   parent = return s}
 
@@ -121,8 +121,8 @@ putVal id e s@(Scope {gblVals = gvs, localVals = lvs}) =
             Nothing -> putGbl
             Just _ -> s {localVals = ((id,e):lvs)}
 
-putRet :: Maybe Exp -> Scope -> Scope
-putRet me s = s {retVal = me}
+putRet :: Exp -> Scope -> Scope
+putRet e s = s {retVal = e}
 
 setHaveReturned :: Scope -> Scope
 setHaveReturned s = s {haveReturned = True}

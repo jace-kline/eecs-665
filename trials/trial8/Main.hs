@@ -26,15 +26,11 @@ type ErrMsg = String
 type Input = String
 
 main :: IO ()
-main = runInterpM initScope interpreter >> succeed
+main = welcome >> runInterpM initScope interpreter >> succeed
 
--- testWithInput :: (Show a) => (Input -> Either ErrMsg a) -> IO ()
--- testWithInput f = do
---     s <- getInput
---     let ret = f s
---     case ret of
---         Left msg -> putStrLn msg
---         Right v -> print v
+welcome :: IO ()
+welcome = console $ "Welcome to dragoninterp! Enter HoleyC code to be interpreted..."
+
 
 testSteps :: Input -> IO ()
 testSteps s = do
@@ -60,21 +56,21 @@ interpGetInput = do
     ms <- liftIO getInput
     case ms of
             Nothing -> do
-                liftIO $ putStrLn "Error: Bad input"
+                console "Error: Bad input"
                 return []
             Just s  -> return s
 
 interpLex :: Input -> InterpM [Token]
 interpLex s = case lexer s of
     Nothing -> do
-        liftIO $ putStrLn "Lexical Error"
+        console "Lexical Error"
         return []
     Just ts -> return ts
 
 interpParse :: [Token] -> InterpM [Effect]
 interpParse ts = case parser ts of
     Nothing -> do
-        liftIO $ putStrLn "Parse Error"
+        console "Parse Error"
         return []
     Just effs -> return effs
 
@@ -84,7 +80,7 @@ interpAnalysis effs = do
     let ms = effsAnalyzer effs s
     case ms of
         Nothing -> do
-            liftIO $ putStrLn "Name/Type Analysis Error"
+            console "Name/Type Analysis Error"
             return False
         Just s' -> return True
 
@@ -93,7 +89,7 @@ interpEval effs = do
     success <- effsRun effs
     if success
         then succeed
-        else liftIO $ putStrLn "Runtime Error"
+        else console "Runtime Error... Previous state reset."
 
 
 testParse :: Input -> Either ErrMsg [Effect]
