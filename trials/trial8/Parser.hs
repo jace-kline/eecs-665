@@ -22,10 +22,14 @@ instance Functor (Parser t) where
 
 instance Applicative (Parser t) where
     pure x = Parser $ \ts -> pure (x, ts)
-    liftA2 f (Parser g) (Parser h) = Parser $ \ts -> do
-        (x, ts')  <- g ts
+    -- liftA2 f (Parser g) (Parser h) = Parser $ \ts -> do
+    --     (x, ts')  <- g ts
+    --     (y, ts'') <- h ts'
+    --     return (f x y, ts'')
+    (Parser g) <*> (Parser h) = Parser $ \ts -> do
+        (f, ts') <- g ts
         (y, ts'') <- h ts'
-        return (f x y, ts'')
+        return (f y, ts'')
 
 instance Alternative (Parser t) where
     empty = Parser $ \_ -> Nothing
