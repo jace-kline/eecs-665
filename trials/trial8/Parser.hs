@@ -44,6 +44,7 @@ instance Monad (Parser t) where
         case g ts of
             Just (x, ts') -> (runParser $ h x) ts'
             Nothing       -> Nothing
+    fail _ = empty
 
 instance MonadPlus (Parser t) where
     mzero = empty
