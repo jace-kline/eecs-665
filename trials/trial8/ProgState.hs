@@ -116,7 +116,7 @@ putVal id e s@(Scope {gblVals = gvs, localVals = lvs}) =
     let putGbl = s {gblVals = ((id,e):gvs)}
     in if isGblScope s
         then putGbl
-        else case lookup id lvs of
+        else case getLocalType id s of
             Nothing -> putGbl
             Just _ -> s {localVals = ((id,e):lvs)}
 
