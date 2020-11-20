@@ -8,6 +8,8 @@ import AST
 import ProgState
 import Analysis
 
+import System.IO
+import System.Exit
 import Control.Monad
 import Control.Monad.Trans.Maybe
 import Control.Monad.Identity
@@ -23,6 +25,13 @@ runInterpM s m = runMaybeT $ execStateT m s
 console :: MonadIO m => String -> m ()
 console s = liftIO $ putStrLn $ "> " ++ s
 
+toConsoleShow :: MonadIO m => String -> m ()
+toConsoleShow s = liftIO $ do
+    let ls = lines s
+    sequence_ $ map (\x -> do
+        putStr ("> " ++ x ++ "\n")
+        hFlush stdout) ls
+
 -- only change the state if all actions are successful
 effsRun :: [Effect] -> InterpM Bool
 effsRun effs = do
@@ -34,9 +43,12 @@ effsRun effs = do
     where
         tryEffs :: Scope -> InterpM (Maybe Scope)
         tryEffs s = do
-            let res = runInterpM s (sequence_ (map effRun effs))
+            let res = runInterpM s (effsRun' effs)
             maybescope <- liftIO res
             return maybescope
+
+effsRun' :: [Effect] -> InterpM ()
+effsRun' effs = sequence_ $ map effRun effs
 
 effRun :: Effect -> InterpM ()
 effRun eff = do
@@ -51,9 +63,14 @@ effRun' (Dec id) = effRun' (AssignStmt (id := ((ID id) :-: (IntLit 1))))
 effRun' (Inc id) = effRun' (AssignStmt (id := ((ID id) :+: (IntLit 1))))
 effRun' (FromConsole id) = do
     t <- getTypeM id
-    s <- liftIO getLine
+    s <- liftIO $ do
+        putStr ": "
+        hFlush stdout
+        getLine
     let mint = readMaybe s :: Maybe Int
-    let mchar = readMaybe s :: Maybe Char
+    let mchar = if length s == 1 
+                    then Just $ head s
+                    else Nothing
     (case t of
         IntT -> case mint of
             Nothing -> mzero
@@ -72,25 +89,33 @@ effRun' (FromConsole id) = do
 effRun' (ToConsole e) = do
     v <- expRun e
     case v of
-        (IntLit i) -> console $ show i
-        (BoolLit b) -> console $ show b
-        (CharLit c) -> console [c]
-        (StrLit s) -> console s
+        (IntLit i) -> toConsoleShow $ show i
+        (BoolLit b) -> toConsoleShow $ case b of
+            True -> "true"
+            False -> "false"
+        (CharLit c) -> toConsoleShow [c]
+        (StrLit s) -> toConsoleShow s
         _ -> mzero
 effRun' (If cond effs) = do
     (BoolLit c) <- expRun cond
-    if c then effsRun effs >> succeed else succeed
+    if c then effsRun' effs >> succeed else succeed
 effRun' (IfElse cond effs1 effs2) = do
     (BoolLit c) <- expRun cond
-    effsRun (if c then effs1 else effs2) >> succeed
+    effsRun' (if c then effs1 else effs2) >> succeed
 effRun' w@(While cond effs) = do
     (BoolLit c) <- expRun cond
     if c 
-        then effsRun effs >> effRun w 
+        then effsRun' effs >> effRun w 
         else succeed
-effRun' eff@(Return me) = putRetValM (case me of
-    Nothing -> VoidLit 
-    Just e  -> e) >> modify setHaveReturned
+effRun' eff@(Return me) = do
+    s <- get
+    if isGblScope s
+        then liftIO exitSuccess
+        else (case me of
+            Nothing -> putRetValM VoidLit 
+            Just e  -> do
+                e' <- expRun e
+                putRetValM e') >> modify setHaveReturned
 effRun' (FnCallStmt e) = expRun e >> succeed
 effRun' eff = effAnalysis eff
 
@@ -118,7 +143,7 @@ expRun (FnCall id argexps) = do
     argvs <- mapM expRun argexps
     enterScope fn
     sequence_ [putValM i v | (i, v) <- zip paramIds argvs]
-    effsRun effs
+    effsRun' effs
     rv <- getRetValM
     exitScope
     return rv

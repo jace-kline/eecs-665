@@ -67,8 +67,7 @@ newScope f s = s {localTypes = fnFormals f,
 popScope :: Scope -> Maybe Scope
 popScope s = do
     p <- parent s
-    return $ p {gblVals = gblVals s,
-                retVal = retVal s}
+    return $ p {gblVals = gblVals s}
 
 -- lookup functions
 

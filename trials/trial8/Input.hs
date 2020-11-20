@@ -34,7 +34,7 @@ getInputM = go 0
                 else if diff > 0 
                         then do
                             liftIO $ do
-                                putStr ". "
+                                putStr $ (take diff (repeat '.')) ++ " "
                                 hFlush stdout
                             s' <- go diff
                             return $ s ++ s'

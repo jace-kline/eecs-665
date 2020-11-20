@@ -41,7 +41,7 @@ dtParser prims = do
     p <- sequenceAlt (map prim prims)
     return $ primToDT p
 
-dtypePrims = [VOID_, INT_, BOOL_, CHAR_, CHARPTR_]
+dtypePrims = [VOID_, INT_, BOOL_, CHARPTR_, CHAR_]
 
 dtypeParser :: TokenParser DType
 dtypeParser = dtParser (tail dtypePrims)
@@ -203,42 +203,88 @@ andExpParser = p <|> cmpExpParser
             r <- andExpParser
             return (l :&&: r)
 
-binOpParser :: [(Exp -> Exp -> Exp)] -> [Prim] -> TokenParser Exp -> TokenParser Exp -> TokenParser Exp
-binOpParser ops prims pleft pright = (sequenceAlt parsers) <|> pleft
+-- binOpParser :: [(Exp -> Exp -> Exp)] -> [Prim] -> TokenParser Exp -> TokenParser Exp -> TokenParser Exp
+-- binOpParser ops prims pleft pright = (sequenceAlt parsers) <|> pleft
+--     where
+--         primToOp :: Prim -> (Exp -> Exp -> Exp)
+--         primToOp p = fromMaybe $ lookup p $ zip prims ops
+--         parsers :: [TokenParser Exp]
+--         parsers = map exp prims
+--         exp :: Prim -> TokenParser Exp
+--         exp p = do
+--             l <- pleft
+--             prim p
+--             r <- pright
+--             return $ (primToOp p) l r
+
+primToBinOp :: Prim -> (Exp -> Exp -> Exp)
+primToBinOp CROSS_ = (:+:)
+primToBinOp DASH_ = (:-:)
+primToBinOp STAR_ = (:*:)
+primToBinOp SLASH_ = (:/:)
+primToBinOp EQ_ = (:==:)
+primToBinOp NEQ_ = (:!=:)
+primToBinOp LEQ_ = (:<=:)
+primToBinOp LT_ = (:<:)
+primToBinOp GEQ_ = (:>=:)
+primToBinOp GT_ = (:>:)
+primToBinOp AND_ = (:&&:)
+primToBinOp OR_ = (:||:)
+primToBinOp _ = error "Bad argument"
+
+binOpExpParserLeftAssoc :: TokenParser Exp -> [Prim] -> TokenParser Exp
+binOpExpParserLeftAssoc subExpParser op_prims = do
+    l <- subExpParser
+    leftAssoc l
     where
-        primToOp :: Prim -> (Exp -> Exp -> Exp)
-        primToOp p = fromMaybe $ lookup p $ zip prims ops
-        parsers :: [TokenParser Exp]
-        parsers = map exp prims
-        exp :: Prim -> TokenParser Exp
-        exp p = do
-            l <- pleft
-            prim p
-            r <- pright
-            return $ (primToOp p) l r
+        leftAssoc :: Exp -> TokenParser Exp
+        leftAssoc l = recursive l <|> return l
+        recursive :: Exp -> TokenParser Exp
+        recursive l = do
+            p <- sequenceAlt $ map prim op_prims
+            r <- subExpParser
+            leftAssoc $ (primToBinOp p) l r
 
 cmpExpParser :: TokenParser Exp
-cmpExpParser = binOpParser ops prims p p
-    where
-        ops = [(:>:), (:>=:), (:<:), (:<=:), (:==:), (:!=:)]
+cmpExpParser = cmp <|> arithExpParser
+    where 
+        cmp = do
+            l <- arithExpParser
+            p <- sequenceAlt $ map prim prims
+            r <- arithExpParser
+            return $ (primToBinOp p) l r
         prims = [GT_, GEQ_, LT_, LEQ_, EQ_, NEQ_]
-        p = arithExpParser
 
 arithExpParser :: TokenParser Exp
-arithExpParser = binOpParser ops prims pleft pright
-    where
-        ops = [(:+:), (:-:)] 
-        prims = [CROSS_, DASH_]
-        pleft = prodExpParser 
-        pright = arithExpParser
+arithExpParser = binOpExpParserLeftAssoc prodExpParser prims
+    where prims = [CROSS_, DASH_]
 
 prodExpParser :: TokenParser Exp
-prodExpParser = binOpParser ops prims pleft pright
-    where
-        ops = [(:*:), (:/:)]
-        prims = [STAR_, SLASH_]
-        pleft = termExpParser
-        pright = prodExpParser
+prodExpParser = binOpExpParserLeftAssoc termExpParser prims
+    where prims = [STAR_, SLASH_]
+
+-- cmpExpParser :: TokenParser Exp
+-- cmpExpParser = binOpParserRightAssoc prims p p
+--     where
+--         ops = [(:>:), (:>=:), (:<:), (:<=:), (:==:), (:!=:)]
+--         prims = [GT_, GEQ_, LT_, LEQ_, EQ_, NEQ_]
+--         p = arithExpParser
+
+-- arithExpParser :: TokenParser Exp
+-- arithExpParser = binOpParser ops prims pleft pright
+--     where
+--         ops = [(:+:), (:-:)] 
+--         prims = [CROSS_, DASH_]
+--         pleft = prodExpParser 
+--         pright = arithExpParser
+
+-- prodExpParser :: TokenParser Exp
+-- prodExpParser = binOpParser ops prims pleft pright
+--     where
+--         ops = [(:*:), (:/:)]
+--         prims = [STAR_, SLASH_]
+--         pleft = termExpParser
+--         pright = prodExpParser
 
 termExpParser :: TokenParser Exp
 termExpParser = negParser <|> notParser <|> unitExpParser
@@ -246,13 +292,13 @@ termExpParser = negParser <|> notParser <|> unitExpParser
 negParser :: TokenParser Exp
 negParser = do
     prim DASH_
-    e <- expParser
+    e <- unitExpParser
     return $ Neg e
 
 notParser :: TokenParser Exp 
 notParser = do
     prim BANG_
-    e <- expParser
+    e <- unitExpParser
     return $ Not e
 
 unitExpParser :: TokenParser Exp

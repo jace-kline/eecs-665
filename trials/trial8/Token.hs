@@ -13,8 +13,8 @@ data Token where
 data Prim where
     INT_ :: Prim
     BOOL_ :: Prim
-    CHAR_ :: Prim
     CHARPTR_ :: Prim
+    CHAR_ :: Prim
     VOID_ :: Prim
     IF_ :: Prim
     ELSE_ :: Prim

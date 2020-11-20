@@ -139,9 +139,6 @@ expAnalysis (FnCall id args) = do
     let formalts = map snd $ fnFormals fn
     actualts <- mapM expAnalysis args
     guard (actualts == formalts)
-    enterScope fn
-    effsAnalysis $ fnEffects fn
-    exitScope
     return $ fnRetType fn
 expAnalysis (ID id) = getTypeM id
 
