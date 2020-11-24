@@ -1,0 +1,19 @@
+int a;
+bool b;
+char c;
+charptr s;
+
+int main() {
+    a = 0;
+    a++;
+    b = false;
+    c = 'c;
+    s = "Hello";
+    TOCONSOLE s;
+    g();
+}
+
+void g() {
+    TOCONSOLE !b;
+    return;
+}
