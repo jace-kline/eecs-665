@@ -40,14 +40,13 @@ SymOpd * IRProgram::getGlobal(SemSymbol * sym){
 }
 
 void IRProgram::gatherGlobal(SemSymbol * sym){
-	OpdWidth width = Opd::width(sym->getDataType());
-	SymOpd * res = new SymOpd(sym, width);
+	SymOpd * res = new SymOpd(sym, sym->getDataType());
 	globals[sym] = res;
 }
 
 Opd * IRProgram::makeString(std::string val){
 	std::string name = "str_" + std::to_string(str_idx++);
-	AuxOpd * opd = new AuxOpd(name, ADDR);
+	AuxOpd * opd = new AuxOpd(name, PtrType::produce(BasicType::produce(CHAR), 1));
 	strings[opd] = val;
 	return opd;
 }

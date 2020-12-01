@@ -37,10 +37,11 @@ enum OpdWidth{
 
 class Opd{
 public:
-	Opd(OpdWidth widthIn) : myWidth(widthIn){}
+	Opd(const DataType * dtIn) : myType(dtIn){}
 	virtual std::string valString() = 0;
 	virtual std::string locString() = 0;
-	virtual OpdWidth getWidth(){ return myWidth; }
+	virtual const DataType * getType() { return myType; }
+	virtual OpdWidth getWidth(){ return width(myType); }
 	static OpdWidth width(const DataType * type){
 		if (const BasicType * basic = type->asBasic()){
 			if (basic->isChar()){ return BYTE; }
@@ -52,7 +53,7 @@ public:
 		assert(false);
 	}
 private:
-	OpdWidth myWidth;
+	const DataType * myType;
 };
 
 class SymOpd : public Opd{
@@ -69,8 +70,8 @@ public:
 	const SemSymbol * getSym(){ return mySym; }
 private:
 	//Private Constructor
-	SymOpd(SemSymbol * sym, OpdWidth width)
-	: Opd(width), mySym(sym) {} 
+	SymOpd(SemSymbol * sym, const DataType * dt)
+	: Opd(dt), mySym(sym) {} 
 	SemSymbol * mySym;
 	friend class Procedure;
 	friend class IRProgram;
@@ -79,8 +80,8 @@ private:
 
 class LitOpd : public Opd{
 public:
-	LitOpd(std::string valIn, OpdWidth width)
-	: Opd(width), val(valIn){ }
+	LitOpd(std::string valIn, const DataType * dt)
+	: Opd(dt), val(valIn){ }
 	virtual std::string valString() override{
 		return val;
 	}
@@ -104,8 +105,8 @@ private:
 
 class AuxOpd : public Opd{
 public:
-	AuxOpd(std::string nameIn, OpdWidth width) 
-	: Opd(width), name(nameIn) { }
+	AuxOpd(std::string nameIn, const DataType * dt) 
+	: Opd(dt), name(nameIn) { }
 	virtual std::string valString() override{
 		return "[" + getName() + "]";
 	}
@@ -203,6 +204,7 @@ public:
 	std::string repr() override;
 	Label * getLabel(){ return tgt; }
 	Opd * getCnd(){ return cnd; }
+	void setCnd(Opd * opd) { cnd = opd; }
 private:
 	Opd * cnd;
 	Label * tgt;
@@ -263,10 +265,11 @@ class SetArgQuad : public Quad{
 public:
 	SetArgQuad(size_t indexIn, Opd * opdIn);
 	std::string repr() override;
-	Opd * getSrc(){ return opd; }
+	Opd * getSrc(){ return src; }
+	void setSrc(Opd * opd){ src = opd; }
 private:
 	size_t index;
-	Opd * opd;
+	Opd * src;
 };
 
 class GetArgQuad : public Quad{
@@ -283,9 +286,10 @@ class SetRetQuad : public Quad{
 public:
 	SetRetQuad(Opd * opdIn);
 	std::string repr() override;
-	Opd * getSrc(){ return opd; }
+	Opd * getSrc(){ return src; }
+	void setSrc(Opd * opd) { src = opd; }
 private:
-	Opd * opd;
+	Opd * src;
 };
 
 class GetRetQuad : public Quad{
@@ -309,7 +313,7 @@ public:
 	void gatherLocal(SemSymbol * sym);
 	void gatherFormal(SemSymbol * sym);
 	SymOpd * getSymOpd(SemSymbol * sym);
-	AuxOpd * makeTmp(OpdWidth width);
+	AuxOpd * makeTmp(const DataType * dt);
 
 	std::string toString(bool verbose=false); 
 	std::string getName();

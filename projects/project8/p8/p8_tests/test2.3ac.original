@@ -1,0 +1,18 @@
+[BEGIN GLOBALS]
+a
+b
+[END GLOBALS]
+[BEGIN main LOCALS]
+tmp0 (tmp)
+tmp1 (tmp)
+[END main LOCALS]
+main:       enter main
+            [tmp0] := 5 ADD64 4
+            [a] := [tmp0]
+            [tmp1] := [a] ADD64 5
+            [b] := [tmp1]
+            TOCONSOLE [b]
+            setret 0
+            goto lbl_0
+lbl_0:      leave main
+

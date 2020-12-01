@@ -207,12 +207,12 @@ std::string GetRetQuad::repr(){
 }
 
 SetArgQuad::SetArgQuad(size_t indexIn, Opd * opdIn) 
-: index(indexIn), opd(opdIn){
+: index(indexIn), src(opdIn){
 }
 
 std::string SetArgQuad::repr(){
 	std::string res = "";
-	res += "setarg " + std::to_string(index) + " " + opd->valString(); 
+	res += "setarg " + std::to_string(index) + " " + src->valString(); 
 	return res;
 }
 
@@ -227,12 +227,12 @@ std::string GetArgQuad::repr(){
 }
 
 SetRetQuad::SetRetQuad(Opd * opdIn) 
-: opd(opdIn){
+: src(opdIn){
 }
 
 std::string SetRetQuad::repr(){
 	std::string res = "";
-	res += "setret " + opd->valString(); 
+	res += "setret " + src->valString(); 
 	return res;
 }
 

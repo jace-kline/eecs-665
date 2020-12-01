@@ -111,8 +111,23 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
 		}
 		// check assign quad for propagation opportunity
 		else if (AssignQuad * q = dynamic_cast<AssignQuad *>(quad)) {
+			// attempt to add fact (if src is literal operand)
 			if(LitOpd * src = dynamic_cast<LitOpd *>(q->getSrc())) {
-				// add fact
+				const BasicType * dt = src->getType()->asBasic();
+				// ensure the operand is a basic type
+				if(dt != nullptr) {
+					ConstantVal v;
+					BaseType bt = dt->getBaseType();
+					// produce a corresponding constant val
+					switch(bt) {
+						case INT: v = ConstantVal(src->intVal()); break;
+						case BOOL: v = ConstantVal(src->boolVal()); break;
+						case CHAR: v = ConstantVal(src->charVal()); break;
+						default: break;
+					}
+					// add fact
+					facts.gen(q->getDst(), v);
+				}
 			} else {
 				// try to look up operand
 				ConstantVal * maybeval = facts.lookupVal(q->getSrc());
@@ -128,6 +143,39 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
 		}
 		// check toconsole quad for propagation opportunity
 		else if (IntrinsicOutputQuad * q = dynamic_cast<IntrinsicOutputQuad *>(quad)) {
+			// try to look up operand
+			ConstantVal * maybeval = facts.lookupVal(q->getSrc());
+			// if success, replace with constant val with corresponding lit opd
+			// in the quad
+			if(maybeval != nullptr) {
+				q->setSrc(maybeval->toLitOpd());
+				changed = true;
+			}
+		}
+		// check jmpif quad
+		else if (JmpIfQuad * q = dynamic_cast<JmpIfQuad *>(quad)) {
+			// try to look up operand
+			ConstantVal * maybeval = facts.lookupVal(q->getCnd());
+			// if success, replace with constant val with corresponding lit opd
+			// in the quad
+			if(maybeval != nullptr) {
+				q->setCnd(maybeval->toLitOpd());
+				changed = true;
+			}
+		}
+		// check setarg quad
+		else if (SetArgQuad * q = dynamic_cast<SetArgQuad *>(quad)) {
+			// try to look up operand
+			ConstantVal * maybeval = facts.lookupVal(q->getSrc());
+			// if success, replace with constant val with corresponding lit opd
+			// in the quad
+			if(maybeval != nullptr) {
+				q->setSrc(maybeval->toLitOpd());
+				changed = true;
+			}
+		}
+		// check setret quad
+		else if (SetRetQuad * q = dynamic_cast<SetRetQuad *>(quad)) {
 			// try to look up operand
 			ConstantVal * maybeval = facts.lookupVal(q->getSrc());
 			// if success, replace with constant val with corresponding lit opd
@@ -176,7 +224,7 @@ AssignQuad * holeyc::tryBinaryFold(BinOpQuad * q, ConstantsFacts& facts) {
 				default: break;
 			}
 			if(!error) {
-				fold = new LitOpd(std::to_string(foldval), QUADWORD);
+				fold = new LitOpd(std::to_string(foldval), BasicType::produce(INT));
 				facts.gen(dst, ConstantVal(foldval)); 
 			}
 		} else if (op == OR || op == AND) {
@@ -185,7 +233,7 @@ AssignQuad * holeyc::tryBinaryFold(BinOpQuad * q, ConstantsFacts& facts) {
 			bool foldval;
 			if(op == OR) { foldval = (valL || valR); }
 			else { foldval = (valL && valR); }
-			fold = new LitOpd(foldval ? "1" : "0", BYTE);
+			fold = new LitOpd(foldval ? "1" : "0", BasicType::produce(BOOL));
 			facts.gen(dst, ConstantVal(foldval));
 		} else if (op == LT || op == GT || op == LTE || op == GTE) {
 			int valL = l->intVal();
@@ -198,12 +246,12 @@ AssignQuad * holeyc::tryBinaryFold(BinOpQuad * q, ConstantsFacts& facts) {
 				case GTE: foldval = valL >= valR; break;
 				default: break;
 			}
-			fold = new LitOpd(foldval ? "1" : "0", BYTE);
+			fold = new LitOpd(foldval ? "1" : "0", BasicType::produce(BOOL));
 			facts.gen(dst, ConstantVal(foldval));
 		} else {
 			bool eq = l->valString() == r->valString();
 			bool foldval = op == EQ ? eq : !eq;
-			fold = new LitOpd(foldval ? "1" : "0", BYTE);
+			fold = new LitOpd(foldval ? "1" : "0", BasicType::produce(BOOL));
 			facts.gen(dst, ConstantVal(foldval));
 		}
 		if(fold != nullptr) { aq = new AssignQuad(dst, fold); }
@@ -221,11 +269,11 @@ AssignQuad * holeyc::tryUnaryFold(UnaryOpQuad * q, ConstantsFacts& facts) {
 		LitOpd * fold = nullptr;
 		if(op == NOT) {
 			bool foldval = !(opd->boolVal());
-			fold = new LitOpd(foldval ? "1" : "0", BYTE);
+			fold = new LitOpd(foldval ? "1" : "0", BasicType::produce(BOOL));
 			facts.gen(dst, ConstantVal(foldval));
 		} else {
 			int foldval = -1 * (opd->intVal());
-			fold = new LitOpd(std::to_string(foldval), QUADWORD);
+			fold = new LitOpd(std::to_string(foldval), BasicType::produce(INT));
 			facts.gen(dst, ConstantVal(foldval));
 		}
 		aq = new AssignQuad(dst, fold);

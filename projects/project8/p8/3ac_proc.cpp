@@ -67,13 +67,11 @@ Quad * Procedure::popQuad(){
 }
 
 void Procedure::gatherLocal(SemSymbol * sym){
-	OpdWidth width = Opd::width(sym->getDataType());
-	locals[sym] = new SymOpd(sym, width);
+	locals[sym] = new SymOpd(sym, sym->getDataType());
 }
 
 void Procedure::gatherFormal(SemSymbol * sym){
-	OpdWidth width = Opd::width(sym->getDataType());
-	formals.push_back(new SymOpd(sym, width));
+	formals.push_back(new SymOpd(sym, sym->getDataType()));
 }
 
 SymOpd * Procedure::getSymOpd(SemSymbol * sym){
@@ -91,10 +89,10 @@ SymOpd * Procedure::getSymOpd(SemSymbol * sym){
 	return this->getProg()->getGlobal(sym);
 }
 
-AuxOpd * Procedure::makeTmp(OpdWidth width){
+AuxOpd * Procedure::makeTmp(const DataType * dt){
 	std::string name = "tmp";
 	name += std::to_string(maxTmp++);
-	AuxOpd * res = new AuxOpd(name, width);
+	AuxOpd * res = new AuxOpd(name, dt);
 	temps.push_back(res);
 
 	return res;

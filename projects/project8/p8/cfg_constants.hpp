@@ -45,11 +45,11 @@ public:
 	// }
 	Opd * toLitOpd() {
 		Opd * opd = nullptr;
-		if(type == INTVAL) { opd = new LitOpd(std::to_string(intVal), QUADWORD);}
-		else if(type == BOOLVAL) { opd = new LitOpd(boolVal ? "1" : "0", BYTE);}
+		if(type == INTVAL) { opd = new LitOpd(std::to_string(intVal), BasicType::produce(INT));}
+		else if(type == BOOLVAL) { opd = new LitOpd(boolVal ? "1" : "0", BasicType::produce(BOOL));}
 		else if(type == CHARVAL) {
 			int i = charVal;
-			opd = new LitOpd(std::to_string(i), BYTE);
+			opd = new LitOpd(std::to_string(i), BasicType::produce(CHAR));
 		}
 		return opd;
 	}
@@ -145,33 +145,6 @@ public:
 		}
 		return l;
 	}
-
-	// static bool areSameFacts(ConstantsFacts& l, ConstantsFacts& r) {
-	// 	for(auto pair : l.vals) {
-	// 		Opd * curOpd = pair.first;
-	// 		ConstantVal curVal = pair.second;
-	// 		auto itr = r.vals.find(curOpd);
-	// 		// if opd in left clashes with opd in right,
-	// 		// ensure that vals are the same
-	// 		if (itr != r.vals.end()) {
-	// 			if (curVal != itr->second) { return false; }
-	// 		} else {
-	// 			// when opd in left not found in right
-	// 			return false;
-	// 		}
-	// 	}
-	// 	for(auto pair : r.vals) {
-	// 		Opd * curOpd = pair.first;
-	// 		ConstantVal curVal = pair.second;
-	// 		auto itr = l.vals.find(curOpd);
-	// 		// if opd in right does not appear in left,
-	// 		// the fact sets are not the same -> false
-	// 		if (itr == l.vals.end()) {
-	// 			return false;
-	// 		}
-	// 	}
-	// 	return true;
-	// }
 	//TODO: You'll probably want to add some extra convenience functions
 	// to, for example, merge two constantsFacts objects, or determine if
 	// a given set of values changes a fact set to determine if you've reached
