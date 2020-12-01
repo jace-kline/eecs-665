@@ -1,0 +1,13 @@
+int main() {
+    int a;
+    a = 5;
+    a = 6;
+    int b;
+    b = a;
+    if(b > 3) {
+        TOCONSOLE a;
+    } else {
+        TOCONSOLE b;
+    }
+    return 0;
+}

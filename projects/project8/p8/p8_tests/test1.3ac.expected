@@ -1,0 +1,12 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN main LOCALS]
+a (local)
+b (local)
+c (local)
+[END main LOCALS]
+main:       enter main
+            [a] := 5
+            [b] := 1
+            [c] := 97
+lbl_0:      leave main

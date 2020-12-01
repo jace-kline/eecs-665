@@ -2,6 +2,7 @@
 #define HOLEYC_CFG_CONSTANTS
 
 #include <map>
+#include <optional>
 #include "cfg.hpp"
 #include "3ac.hpp"
 
@@ -18,6 +19,40 @@ enum ConstantValType {INTVAL, CHARVAL, BOOLVAL, TOPVAL};
 **/
 class ConstantVal{
 public:
+	ConstantVal() {
+		type = TOPVAL;
+		intVal = 0;
+		boolVal = false;
+		charVal = 0;
+	}
+	ConstantVal(int v) {
+		type = INTVAL;
+		intVal = v;
+	}
+	ConstantVal(bool v) {
+		type = BOOLVAL;
+		boolVal = v;
+	}
+	ConstantVal(char v) {
+		type = CHARVAL;
+		charVal = v;
+	}
+	// ConstantVal(const ConstantVal& other) {
+	// 	type = other.type;
+	// 	if(type == INTVAL) { intVal = other.intVal; }
+	// 	else if(type == CHARVAL) { charVal = other.charVal; }
+	// 	else if(type == BOOLVAL) { boolVal = other.boolVal; }
+	// }
+	Opd * toLitOpd() {
+		Opd * opd = nullptr;
+		if(type == INTVAL) { opd = new LitOpd(std::to_string(intVal), QUADWORD);}
+		else if(type == BOOLVAL) { opd = new LitOpd(boolVal ? "1" : "0", BYTE);}
+		else if(type == CHARVAL) {
+			int i = charVal;
+			opd = new LitOpd(std::to_string(i), BYTE);
+		}
+		return opd;
+	}
 	ConstantValType type;
 
 	int intVal;
@@ -40,6 +75,22 @@ public:
 			if (intVal != other.intVal){ setTop(); }
 		}
 	}
+
+	bool operator==(ConstantVal other) {
+		if(type != other.type) { 
+			return false; 
+		} else {
+			if(type != TOPVAL) {
+				if (type == INTVAL) { return intVal == other.intVal; }
+				else if (type == BOOLVAL) { return boolVal == other.boolVal; }
+				else { return charVal == other.charVal; }
+			}
+		}
+	}
+
+	bool operator!=(ConstantVal other) {
+		return !(*this == other);
+	}
 };
 
 class ConstantsFacts{
@@ -50,17 +101,77 @@ public:
 		return facts;
 	}
 	void gen(Opd * opd, ConstantVal v){
-		auto itr = vals.find(opd);
-		if (itr == vals.end()){
-			vals[opd] = v;
-		} else {
-			ConstantVal cur = itr->second;
-			
-		}
+		// auto itr = vals.find(opd);
+		// if (itr == vals.end()){
+		// 	vals[opd] = v;
+		// } else {
+		// 	itr->second = v;
+		// }
+		vals[opd] = v;
 	}
 	void kill(Opd * opd){
 		vals.erase(opd);
 	}
+	ConstantVal * lookupVal(Opd * opd) {
+		auto itr = vals.find(opd);
+		if (itr != vals.end()) {
+			return new ConstantVal(itr->second);
+		}
+		return nullptr;
+	}
+	// generate a new ConstantsFacts object by merging two others
+	static ConstantsFacts mergeFacts(ConstantsFacts l, ConstantsFacts r) {
+		for(auto pair : l.vals) {
+			Opd * curOpd = pair.first;
+			ConstantVal curVal = pair.second;
+			auto itr = r.vals.find(curOpd);
+			// if opd in left clashes with opd in right,
+			// merge the values and add back to map
+			if (itr != r.vals.end()) {
+				curVal.merge(itr->second);
+				l.vals.erase(curOpd);
+				l.vals[curOpd] = curVal;
+			}
+		}
+		for(auto pair : r.vals) {
+			Opd * curOpd = pair.first;
+			ConstantVal curVal = pair.second;
+			auto itr = l.vals.find(curOpd);
+			// if opd in right does not appear in left,
+			// add (opd, val) to facts
+			if (itr == l.vals.end()) {
+				l.vals[curOpd] = curVal;
+			}
+		}
+		return l;
+	}
+
+	// static bool areSameFacts(ConstantsFacts& l, ConstantsFacts& r) {
+	// 	for(auto pair : l.vals) {
+	// 		Opd * curOpd = pair.first;
+	// 		ConstantVal curVal = pair.second;
+	// 		auto itr = r.vals.find(curOpd);
+	// 		// if opd in left clashes with opd in right,
+	// 		// ensure that vals are the same
+	// 		if (itr != r.vals.end()) {
+	// 			if (curVal != itr->second) { return false; }
+	// 		} else {
+	// 			// when opd in left not found in right
+	// 			return false;
+	// 		}
+	// 	}
+	// 	for(auto pair : r.vals) {
+	// 		Opd * curOpd = pair.first;
+	// 		ConstantVal curVal = pair.second;
+	// 		auto itr = l.vals.find(curOpd);
+	// 		// if opd in right does not appear in left,
+	// 		// the fact sets are not the same -> false
+	// 		if (itr == l.vals.end()) {
+	// 			return false;
+	// 		}
+	// 	}
+	// 	return true;
+	// }
 	//TODO: You'll probably want to add some extra convenience functions
 	// to, for example, merge two constantsFacts objects, or determine if
 	// a given set of values changes a fact set to determine if you've reached
@@ -84,6 +195,9 @@ private:
 	std::map<BasicBlock *, ConstantsFacts> inFacts;
 	bool effectful;
 };
+
+AssignQuad * tryBinaryFold(BinOpQuad * q, ConstantsFacts& facts);
+AssignQuad * tryUnaryFold(UnaryOpQuad * q, ConstantsFacts& facts);
 
 }
 

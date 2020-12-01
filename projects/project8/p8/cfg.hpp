@@ -62,6 +62,7 @@ public:
 	void removeBlock(BasicBlock * block);
 	bool removeQuad(Quad * quad);
 	void replaceWithNop(Quad * quad);
+	void replaceQuad(Quad * old, Quad * cur);
 	void removeUnreachableBlocks();
 	void cutJmpToNext();
 	std::set<BasicBlock *> blockSuccessors(BasicBlock * block);

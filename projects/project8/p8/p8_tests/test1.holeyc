@@ -1,0 +1,8 @@
+int main() {
+	int a;
+	bool b;
+	char c;
+	a = 5;
+	b = true;
+	c = 'a;
+}

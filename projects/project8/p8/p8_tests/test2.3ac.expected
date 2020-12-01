@@ -1,0 +1,16 @@
+[BEGIN GLOBALS]
+a
+b
+[END GLOBALS]
+[BEGIN main LOCALS]
+tmp0 (tmp)
+tmp1 (tmp)
+[END main LOCALS]
+main:       enter main
+            [tmp0] := 9
+            [a] := 9
+            [tmp1] := 14
+            [b] := 14
+            TOCONSOLE 14
+            setret 0
+lbl_0:      leave main

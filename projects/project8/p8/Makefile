@@ -40,10 +40,10 @@ lexer.yy.cc: holeyc.l
 lexer.o: lexer.yy.cc
 	$(CXX) $(FLAGS) -Wno-sign-compare -Wno-sign-conversion -Wno-old-style-cast -Wno-switch-default -g -std=c++14 -c lexer.yy.cc -o lexer.o
 
-test: p7
+test: p8
 
-p7: all
-	$(MAKE) -C p5_tests/
+p8: all
+	$(MAKE) -C p8_tests/
 
 cleantest:
-	$(MAKE) -C p5_tests/ clean
+	$(MAKE) -C p8_tests/ clean

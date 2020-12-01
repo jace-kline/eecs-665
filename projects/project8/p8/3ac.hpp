@@ -87,6 +87,17 @@ public:
 	virtual std::string locString() override{
 		throw InternalError("Tried to get location of a constant");
 	}
+	int intVal() {
+		return std::stoi(val);
+	}
+	bool boolVal() {
+		if(intVal() == 0) { return false; }
+		return true;
+	}
+	char charVal() {
+		char cval = intVal();
+		return cval;
+	}
 private:
 	std::string val;
 };
@@ -135,9 +146,12 @@ class BinOpQuad : public Quad{
 public:
 	BinOpQuad(Opd * dstIn, BinOp opIn, Opd * src1In, Opd * src2In);
 	std::string repr() override;
+	BinOp getOp() { return op; }
 	Opd * getDst(){ return dst; }
 	Opd * getSrc1(){ return src1; }
 	Opd * getSrc2(){ return src2; }
+	void setSrc1(Opd * opd) {src1 = opd;}
+	void setSrc2(Opd * opd) {src2 = opd;}
 private:
 	Opd * dst;
 	BinOp op;
@@ -149,8 +163,10 @@ class UnaryOpQuad : public Quad {
 public:
 	UnaryOpQuad(Opd * dstIn, UnaryOp opIn, Opd * srcIn);
 	std::string repr() override ;
+	UnaryOp getOp() { return op; }
 	Opd * getDst(){ return dst; }
 	Opd * getSrc(){ return src; }
+	void setSrc(Opd * opd) { src = opd; }
 private:
 	Opd * dst;
 	UnaryOp op;
@@ -166,6 +182,7 @@ public:
 	std::string repr() override;
 	Opd * getDst(){ return dst; }
 	Opd * getSrc(){ return src; }
+	void setSrc(Opd * opd) { src = opd; }
 private:
 	Opd * dst;
 	Opd * src;
@@ -202,6 +219,7 @@ public:
 	IntrinsicOutputQuad(Opd * arg, const DataType * type);
 	std::string repr() override;
 	Opd * getSrc(){ return myArg; }
+	void setSrc(Opd * opd) { myArg = opd; }
 private:
 	Opd * myArg;
 	const DataType * myType;

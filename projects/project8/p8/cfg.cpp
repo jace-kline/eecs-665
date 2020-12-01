@@ -100,6 +100,7 @@ bool ControlFlowGraph::removeQuad(Quad * quad){
 
 void ControlFlowGraph::replaceWithNop(Quad * quad){
 	NopQuad * nop = new NopQuad();
+
 	{
 	BasicBlock * block = getBlock(quad);
 	std::list<Quad *> * blockQuads = block->getQuads();
@@ -122,6 +123,33 @@ void ControlFlowGraph::replaceWithNop(Quad * quad){
 	std::list<Quad *> * procQuads = proc->getQuads();
 	auto pos = std::find(procQuads->begin(), procQuads->end(), quad);
 	procQuads->insert(pos, nop);
+	procQuads->erase(pos);
+	}
+}
+
+void ControlFlowGraph::replaceQuad(Quad * old, Quad * cur){
+	{
+	BasicBlock * block = getBlock(old);
+	std::list<Quad *> * blockQuads = block->getQuads();
+	auto pos = std::find(blockQuads->begin(), blockQuads->end(), old);
+	blockQuads->insert(pos, cur);
+	blockQuads->erase(pos);
+
+	if (block->getLeader() == old){
+		block->setLeader(cur);
+		if (Label * label = old->getLabel()){
+			cur->addLabel(label);
+		}
+	}
+	if (block->getTerminator() == old){
+		block->setTerminator(cur);
+	}
+	}
+
+	{
+	std::list<Quad *> * procQuads = proc->getQuads();
+	auto pos = std::find(procQuads->begin(), procQuads->end(), old);
+	procQuads->insert(pos, cur);
 	procQuads->erase(pos);
 	}
 }
