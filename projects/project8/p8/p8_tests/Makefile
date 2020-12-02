@@ -8,7 +8,7 @@ all: $(TESTS)
 %.test:
 	@printf "TEST %s:\n" "$*" ;\
 	../holeycc $*.holeyc -a $*.3ac.original ;\
-	../holeycc $*.holeyc -z -d $*_cfgs -a $*.3ac ;\
+	../holeycc $*.holeyc -z -a $*.3ac ;\
 	diff -B --ignore-all-space $*.3ac $*.3ac.expected ;\
 	exit 0
 

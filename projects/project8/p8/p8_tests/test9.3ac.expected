@@ -6,8 +6,8 @@ b (local)
 c (local)
 [END main LOCALS]
 main:       enter main
-            [a] := 5
-            [b] := 1
-            [c] := 97
+            [a] := 8
+            [b] := 6
+            [a] := 6
+            setret 6
 lbl_0:      leave main
-

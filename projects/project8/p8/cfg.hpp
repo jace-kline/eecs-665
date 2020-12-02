@@ -27,11 +27,12 @@ public:
 	std::list<Quad *> * getQuads() { return quads; }
 	std::string toString();
 	int getNum(){ return num; }
+	void decNum() { num--; }
 
 	void optimize();
 
 private:
-	const int num;
+	int num;
 	std::list<Quad *> * quads;
 	Quad * leader;
 	Quad * terminator;

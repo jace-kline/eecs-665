@@ -1,0 +1,27 @@
+[BEGIN GLOBALS]
+a
+b
+[END GLOBALS]
+[BEGIN f LOCALS]
+x (formal)
+[END f LOCALS]
+fun_f:      enter f
+            getarg 1 [x]
+            [x] := 7
+            [x] := 8
+            [x] := 9
+            setret 9
+lbl_0:      leave f
+[BEGIN main LOCALS]
+b (local)
+tmp0 (tmp)
+[END main LOCALS]
+main:       enter main
+            [a] := 5
+            setarg 1 5
+            call f
+            getret [tmp0]
+            [b] := [tmp0]
+            [b] := [a]
+            setret 0
+lbl_1:      leave main

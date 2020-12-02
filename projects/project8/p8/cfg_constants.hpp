@@ -101,16 +101,24 @@ public:
 		return facts;
 	}
 	void gen(Opd * opd, ConstantVal v){
-		// auto itr = vals.find(opd);
-		// if (itr == vals.end()){
-		// 	vals[opd] = v;
-		// } else {
-		// 	itr->second = v;
-		// }
+		auto itr = vals.find(opd);
+		if (itr != vals.end()){
+			kill(opd);
+		}
 		vals[opd] = v;
 	}
 	void kill(Opd * opd){
 		vals.erase(opd);
+	}
+	void killGlobalFacts(ControlFlowGraph * cfg) {
+		std::map<SemSymbol *, SymOpd *> gbls_map = cfg->getProc()->getProg()->getGlobals();
+		for(auto pair : gbls_map) {
+			Opd * opd = pair.second;
+			auto it = vals.find(opd);
+			if(it != vals.end()) {
+				kill(opd);
+			}
+		}
 	}
 	ConstantVal * lookupVal(Opd * opd) {
 		auto itr = vals.find(opd);

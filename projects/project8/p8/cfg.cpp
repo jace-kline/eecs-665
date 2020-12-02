@@ -40,12 +40,22 @@ BasicBlock * ControlFlowGraph::getExitBlock(){
 }
 
 void ControlFlowGraph::removeBlock(BasicBlock * block){
+	// for the rest of the elements in the blocks list,
+	// decrement the block number if the number is greater
+	// than the deleted one
+	for(BasicBlock * b : *blocks) {
+		if(block->getNum() < b->getNum()) { b->decNum(); }
+	}
+
+	// remove the block from the blocks list
 	blocks->remove(block);
 
+	// remove the block's quads
 	for (Quad * quad : *block->getQuads()){
 		proc->getQuads()->remove(quad);
 	}
 
+	// remove the edges that connect to that block
 	auto edgeItr = edges->begin();
 	while  (edgeItr != edges->end()){
 		auto edge = *edgeItr;
@@ -151,6 +161,78 @@ void ControlFlowGraph::replaceQuad(Quad * old, Quad * cur){
 	auto pos = std::find(procQuads->begin(), procQuads->end(), old);
 	procQuads->insert(pos, cur);
 	procQuads->erase(pos);
+	}
+}
+
+void ControlFlowGraph::removeUnreachableBlocks() {
+	std::set<BasicBlock *> unreachable;
+	std::map<BasicBlock *, std::list<BasicBlock *> *> targets;
+
+	// map each block to those that have an edge to it
+	for (CFGEdge * edge : *edges) {
+		auto it = targets.find(edge->tgt);
+		if(it == targets.end()) {
+			std::list<BasicBlock *> * list = new std::list<BasicBlock *>();
+			list->push_back(edge->src);
+			targets[edge->tgt] = list;
+		} else {
+			it->second->push_back(edge->src);
+		}
+	}
+
+	// find the initially unreachable blocks
+	// exclude the first block
+	for (BasicBlock * block : *blocks) {
+		if(block != blocks->front()) {
+			auto it = targets.find(block);
+			if(it == targets.end()) {
+				unreachable.insert(block);
+			}
+		}
+	}
+
+	// loop till fixed point
+	// if a block can only be reached by other
+	// unreachable blocks, then it is set to unreachable
+	size_t pre_size = 0;
+	size_t post_size = 1;
+	while(post_size != pre_size) {
+		pre_size = unreachable.size();
+		for(auto pair : targets) {
+			bool keep = false;
+			for(auto src : *pair.second) {
+				auto it = unreachable.find(src);
+				if(it == unreachable.end()) {
+					keep = true;
+					break;
+				}
+			}
+			if(!keep) {
+				unreachable.insert(pair.first);
+				targets.erase(pair.first);
+			}
+		}
+		post_size = unreachable.size();
+	}
+
+	// remove all unreachable blocks
+	for(BasicBlock * block : unreachable) {
+		removeBlock(block);
+	}
+}
+
+void ControlFlowGraph::cutJmpToNext() {
+	for(CFGEdge * edge : *edges) {
+		int n = edge->src->getNum();
+		int m = edge->tgt->getNum();
+		CFGEdgeType t = edge->type;
+		// if there is a jump edge to the next block,
+		// remove the terminator jump quad from that block
+		// and change the edge type from jump to fall
+		if(m == n + 1 && t == JUMP) {
+			removeQuad(edge->src->getTerminator());
+			edge->type = FALL;
+		}
 	}
 }
 

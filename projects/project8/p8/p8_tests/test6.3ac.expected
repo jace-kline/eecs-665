@@ -1,0 +1,15 @@
+[BEGIN GLOBALS]
+a
+[END GLOBALS]
+[BEGIN main LOCALS]
+tmp0 (tmp)
+tmp1 (tmp)
+[END main LOCALS]
+main:       enter main
+            [a] := 6
+            [tmp0] := 12
+            [a] := 12
+            [tmp1] := 24
+            [a] := 24
+            setret 24
+lbl_0:      leave main

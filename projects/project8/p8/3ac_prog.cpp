@@ -39,6 +39,8 @@ SymOpd * IRProgram::getGlobal(SemSymbol * sym){
 	return nullptr;
 }
 
+std::map<SemSymbol *, SymOpd *>& IRProgram::getGlobals() { return globals; }
+
 void IRProgram::gatherGlobal(SemSymbol * sym){
 	SymOpd * res = new SymOpd(sym, sym->getDataType());
 	globals[sym] = res;

@@ -1,0 +1,17 @@
+int a;
+int b;
+
+int f(int x) {
+    x = 7;
+    x++;
+    x++;
+    return x;
+}
+
+int main() {
+    a = 5;
+    int b;
+    b = f(a);
+    b = a;
+    return 0;
+}

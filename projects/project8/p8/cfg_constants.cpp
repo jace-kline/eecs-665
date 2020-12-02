@@ -9,15 +9,23 @@ bool ConstantsAnalysis::runGraph(ControlFlowGraph * cfg){
 	// of the union of PREDECESSORS, rather than the union of SUCCESSORS
 	bool changed = true;
 
-	// initialize facts for each block
-	for (BasicBlock * b : *cfg->getBlocks()) {
-		ConstantsFacts init;
-		inFacts[b] = init;
-		outFacts[b] = init;
-	}
+	// remove unreachable blocks
+	// unreachable == 0 edges with destination of that block
+	// or blocks that can only be reached from other unreachable blocks
+	cfg->removeUnreachableBlocks();
+
+	// cut jmps to next block
+	cfg->cutJmpToNext();
 
 	while(changed) {
 		changed = false;
+
+		// initialize facts for each block
+		for (BasicBlock * b : *cfg->getBlocks()) {
+			ConstantsFacts init;
+			inFacts[b] = init;
+			outFacts[b] = init;
+		}
 		// iterate over each block
 		// overwrite the known inFacts by merging predecessor fact sets
 		for (BasicBlock * b : *cfg->getBlocks()) {
@@ -64,49 +72,42 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
 	for(Quad * quad : *quads) {
 		// check bin op quad for fold/propogation
 		if (BinOpQuad * q = dynamic_cast<BinOpQuad *>(quad)) {
+			// try to look up left operand
+			ConstantVal * maybeval = facts.lookupVal(q->getSrc1());
+			// if success, replace with constant val with corresponding lit opd
+			// in the quad
+			if(maybeval != nullptr) {
+				q->setSrc1(maybeval->toLitOpd());
+				changed = true;
+			}
+			// same thing with right operand
+			maybeval = facts.lookupVal(q->getSrc2());
+			if(maybeval != nullptr) {
+				q->setSrc2(maybeval->toLitOpd());
+				changed = true;
+			}
 			// try fold
 			AssignQuad * aq = tryBinaryFold(q, facts);
 			// if fold successful, replace the bin op quad with an assignment quad
 			if(aq != nullptr) {
 				replacements.push_back({quad, aq});
 			} 
-			// if fold not successful, check operands to see if either
-			// can be replaced by a constant (from lookup)
-			else {
-				// try to look up left operand
-				ConstantVal * maybeval = facts.lookupVal(q->getSrc1());
-				// if success, replace with constant val with corresponding lit opd
-				// in the quad
-				if(maybeval != nullptr) {
-					q->setSrc1(maybeval->toLitOpd());
-					changed = true;
-				}
-				// same thing with right operand
-				maybeval = facts.lookupVal(q->getSrc2());
-				if(maybeval != nullptr) {
-					q->setSrc2(maybeval->toLitOpd());
-					changed = true;
-				}
-			}
 		}
 		// check unary op quad for fold/propagation
 		else if (UnaryOpQuad * q = dynamic_cast<UnaryOpQuad *>(quad)) {
 			// try fold
+			// try to look up operand
+			ConstantVal * maybeval = facts.lookupVal(q->getSrc());
+			// if success, replace with constant val with corresponding lit opd
+			// in the quad
+			if(maybeval != nullptr) {
+				q->setSrc(maybeval->toLitOpd());
+				changed = true;
+			}
+
 			AssignQuad * aq = tryUnaryFold(q, facts);
 			if(aq != nullptr) { 
 				replacements.push_back({quad, aq});
-			} 
-			// if fold not successful, check operand to see if possible
-			// to replace by a constant (from lookup)
-			else {
-				// try to look up operand
-				ConstantVal * maybeval = facts.lookupVal(q->getSrc());
-				// if success, replace with constant val with corresponding lit opd
-				// in the quad
-				if(maybeval != nullptr) {
-					q->setSrc(maybeval->toLitOpd());
-					changed = true;
-				}
 			}
 		}
 		// check assign quad for propagation opportunity
@@ -195,6 +196,10 @@ bool ConstantsAnalysis::runBlock(ControlFlowGraph * cfg, BasicBlock * block){
 	}
 
 	// update the fact set for successor blocks
+	// if call quad, remove the global variable vals
+	if(CallQuad * q = dynamic_cast<CallQuad *>(block->getTerminator())) {
+		facts.killGlobalFacts(cfg);
+	}
 	outFacts[block] = facts;
 	return changed;
 }
@@ -206,6 +211,7 @@ AssignQuad * holeyc::tryBinaryFold(BinOpQuad * q, ConstantsFacts& facts) {
 	BinOp op = q->getOp();
 
 	AssignQuad * aq = nullptr;
+
 	// attempt to cast operands to LitOpds
 	LitOpd * l = dynamic_cast<LitOpd *>(src1);
 	LitOpd * r = dynamic_cast<LitOpd *>(src2);

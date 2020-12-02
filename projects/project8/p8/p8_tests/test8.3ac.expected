@@ -1,0 +1,17 @@
+[BEGIN GLOBALS]
+[END GLOBALS]
+[BEGIN main LOCALS]
+a (local)
+b (local)
+tmp0 (tmp)
+tmp1 (tmp)
+[END main LOCALS]
+main:       enter main
+            [a] := 6
+            [a] := 7
+            [a] := 8
+            [tmp0] := 16
+            [a] := 16
+            [tmp1] := 32
+            [b] := 32
+lbl_0:      leave main

@@ -356,6 +356,7 @@ public:
 	Opd * makeString(std::string val);
 	void gatherGlobal(SemSymbol * sym);
 	SymOpd * getGlobal(SemSymbol * sym);
+	std::map<SemSymbol *, SymOpd *>& getGlobals();
 	OpdWidth opDerefWidth(ASTNode * node);
 	OpdWidth opWidth(ASTNode * node);
 	const DataType * nodeType(ASTNode * node);
